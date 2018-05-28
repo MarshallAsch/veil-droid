@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.sign_up:
-                frag = new Fragment();
+                frag = new SignUp();
                 break;
             case R.id.login:
                 frag = new Fragment();
