@@ -1,7 +1,12 @@
 package ca.marshallasch.veil;
 
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import java.util.HashSet;
@@ -36,6 +41,59 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+       // getFragmentManager().beginTransaction().add(R.id.fragment_container,  /* Put the frag here*/).commit();
+
+    }
+
+    /**
+     * Creates the menu bar in the activity pane
+     *
+     * @param menu the menu that it is being inflated into
+     * @return true
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    /**
+     * The click listener for the menu items.
+     * Gets called when an item in the main menu is clicked.
+     *
+     * @param item The menu item that was selected
+     * @return true when an action is done
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        Fragment frag = null;
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.sign_up:
+                frag = new Fragment();
+                break;
+            case R.id.login:
+                frag = new Fragment();
+                break;
+            case R.id.landing:
+                frag = new Fragment();
+                break;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
+        //replace the fragment
+        transaction.addToBackStack(null);
+        transaction.replace(R.id.fragment_container, frag);
+        transaction.commit();
+
+        return true;
     }
 
     /**

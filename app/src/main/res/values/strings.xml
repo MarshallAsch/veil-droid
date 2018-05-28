@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Veil</string>
+
+    <string name="login_menu_title">Login</string>
+    <string name="signup_menu_title">Sign Up</string>
+    <string name="landle_menu_title">Landing Page</string>
 </resources>
