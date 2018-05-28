@@ -1,0 +1,104 @@
+apply plugin: 'com.android.application'
+apply plugin: 'com.google.protobuf'
+buildscript {
+    ext {
+        artifactory_app_username = "$RightMeshUsername"
+        artifactory_app_password = "$RightMeshPassword"
+        artifactory_app_key = "0xa67d48cef4faaba71ce55435e389f5fdf4bb6419"
+    }
+    repositories {
+        maven {
+            url "http://research.rightmesh.io/artifactory/libs-local"
+            credentials {
+                username artifactory_app_username
+                password artifactory_app_password
+            }
+        }
+        google()
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath 'io.left.rightmesh:rightmesh-plugin:1.6'
+    }
+
+}
+apply plugin: 'io.left.rightmesh.rightmesh-plugin'
+preBuild.dependsOn("rightmesh")
+
+repositories {
+    mavenCentral()
+    jcenter()
+    google()
+    maven {
+        url "http://research.rightmesh.io/artifactory/libs-local"
+        credentials {
+            username artifactory_app_username
+            password artifactory_app_password
+        }
+    }
+}
+
+
+
+android {
+    compileSdkVersion 27
+    defaultConfig {
+        applicationId "ca.marshallasch.veil"
+        minSdkVersion 16
+        targetSdkVersion 27
+        versionCode 1
+        versionName "1.0"
+        multiDexEnabled true
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    dexOptions {
+        javaMaxHeapSize "4g"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.0.0'
+    }
+    plugins {
+        javalite {
+            artifact = 'com.google.protobuf:protoc-gen-javalite:3.0.0'
+        }
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                remove java
+            }
+            task.plugins {
+                javalite {}
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
+    implementation ('io.left.rightmesh:rightmesh-library-dev:0.4.4')
+    implementation 'com.android.support:multidex:1.0.3'
+
+
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+
+
+}
