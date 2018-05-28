@@ -4,4 +4,12 @@
     <string name="login_menu_title">Login</string>
     <string name="signup_menu_title">Sign Up</string>
     <string name="landle_menu_title">Landing Page</string>
+
+    <string name="email_title">Email</string>
+    <string name="password_title">Password</string>
+    <string name="first_name_title">First Name</string>
+    <string name="last_name_title">Last Name</string>
+    <string name="middle_name_title">Middle Name</string>
+
+
 </resources>
