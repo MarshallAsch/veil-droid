@@ -7,9 +7,9 @@
 
     <string name="email_title">Email</string>
     <string name="password_title">Password</string>
+    <string name="password_conf_title">Confirm Password</string>
     <string name="first_name_title">First Name</string>
     <string name="last_name_title">Last Name</string>
-    <string name="middle_name_title">Middle Name</string>
 
 
 </resources>
