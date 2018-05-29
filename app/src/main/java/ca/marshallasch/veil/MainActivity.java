@@ -13,7 +13,7 @@ import java.util.HashSet;
 
 import io.left.rightmesh.android.AndroidMeshManager;
 import io.left.rightmesh.android.MeshService;
-import io.left.rightmesh.id.MeshID;
+import io.left.rightmesh.id.MeshId;
 import io.left.rightmesh.mesh.MeshManager.PeerChangedEvent;
 import io.left.rightmesh.mesh.MeshManager.RightMeshEvent;
 import io.left.rightmesh.mesh.MeshStateListener;
@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
    // private static final int DISCOVERY_PORT = 9183;       // This is not used yet, would be for
                                                             // the local doc discovery network
     // Set to keep track of peers connected to the mesh.
-    HashSet<MeshID> users = new HashSet<>();
+    HashSet<MeshId> users = new HashSet<>();
 
     // MeshManager instance - interface to the mesh network.
     AndroidMeshManager meshManager = null;
@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
      * @param state state which indicates SUCCESS or an error code
      */
     @Override
-    public void meshStateChanged(MeshID meshID, int state)
+    public void meshStateChanged(MeshId meshId, int state)
     {
         switch(state) {
             case SUCCESS: // Begin connecting
