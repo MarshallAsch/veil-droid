@@ -1,15 +1,31 @@
 <resources>
     <string name="app_name">Veil</string>
 
+    <!-- menu bar items-->
     <string name="login_menu_title">Login</string>
-    <string name="signup_menu_title">Sign Up</string>
+    <string name="signup_menu_title">Signup</string>
     <string name="landle_menu_title">Landing Page</string>
 
-    <string name="email_title">Email</string>
+    <!-- Signup page titles-->
+    <string name="email_title">Email Address</string>
+    <string name="phone_title">Phone Number</string>
     <string name="password_title">Password</string>
     <string name="password_conf_title">Confirm Password</string>
     <string name="first_name_title">First Name</string>
     <string name="last_name_title">Last Name</string>
+    <string name="sign_up_button_label">Sign Up</string>
 
+    <string name="password_requirements_label">At least 8 characters long, 1 uppercase, 1 lowercase, 1 number, and 1 special character</string>
+
+
+
+    <string name="password_required">Password is missing</string>
+    <string name="password_mismatch">Passwords do not match</string>
+    <string name="password_complexity">Passwords too simple</string>
+    <string name="password_accepted">Password good</string>
+
+
+    <!-- General strings for use throughout the app -->
+    <string name="done">Done</string>
 
 </resources>
