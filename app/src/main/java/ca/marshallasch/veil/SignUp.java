@@ -37,6 +37,13 @@ public class SignUp extends Fragment
     private EditText passwordConfInput;
     private EditText phoneNumberInput;
 
+    /**
+     * Required empty public constructor
+     */
+    public SignUp(){
+        super();
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
@@ -63,31 +70,48 @@ public class SignUp extends Fragment
     }
 
 
+    /**
+     * This handles the account creation and input validation.
+     * @param view the button that was pressed (unused)
+     */
     private void onDoneClicked(View view)
     {
+        String firstName = firstNameInput.getText().toString();
+        String lastName = lastNameInput.getText().toString();
 
-        int message = R.string.password_mismatch;
+        if (firstName.length() == 0 || lastName.length() == 0) {
+            Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.missing_name, Snackbar.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!checkEmail()) {
+            Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.invalid_email, Snackbar.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!checkPhone()) {
+            Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.invalid_phone_number, Snackbar.LENGTH_SHORT).show();
+            return;
+        }
 
         switch (checkPasswords()) {
 
             case TOO_SIMPLE:
-                message = R.string.password_complexity;
-                break;
+                Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.password_complexity, Snackbar.LENGTH_SHORT).show();
+                return;
             case MISMATCH:
-                message = R.string.password_mismatch;
-                break;
+                Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.password_mismatch, Snackbar.LENGTH_SHORT).show();
+                return;
             case MISSING:
-                message = R.string.password_required;
-                break;
-            case GOOD:
-                message = R.string.password_accepted;
+                Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.password_required, Snackbar.LENGTH_SHORT).show();
+                return;
+            default:
                 break;
         }
 
+        // TODO: 2018-05-29 create the user here
 
-        Snackbar.make(getActivity().findViewById(R.id.top_view), message, Snackbar.LENGTH_SHORT).show();
     }
-
 
     /**
      * This checks that the passwords that have been entered match and meet the

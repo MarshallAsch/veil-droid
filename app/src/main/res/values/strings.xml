@@ -24,6 +24,11 @@
     <string name="password_complexity">Passwords too simple</string>
     <string name="password_accepted">Password good</string>
 
+    <string name="missing_name">Name is missing</string>
+
+    <string name="invalid_email">Invalid Email Address</string>
+    <string name="invalid_phone_number">Invalid Phone Number</string>
+
 
     <!-- General strings for use throughout the app -->
     <string name="done">Done</string>
