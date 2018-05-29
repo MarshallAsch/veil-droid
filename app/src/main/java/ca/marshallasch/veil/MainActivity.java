@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatDelegate;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -42,7 +43,13 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
        // getFragmentManager().beginTransaction().add(R.id.fragment_container,  /* Put the frag here*/).commit();
+
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.addToBackStack(null);
+        transaction.replace(R.id.fragment_container, new FragmentLanding());
+        transaction.commit();
 
     }
 
@@ -82,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
                 frag = new Fragment();
                 break;
             case R.id.landing:
-                frag = new Fragment();
+                frag = new FragmentLanding();
                 break;
             default:
                 return super.onOptionsItemSelected(item);
@@ -96,11 +103,13 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         return true;
     }
 
+
+
     /**
      * Called by the {@link MeshService} when the mesh state changes. Initializes mesh connection
      * on first call.
      *
-     * @param meshID our own user id on first detecting
+     * @param meshId our own user id on first detecting
      * @param state state which indicates SUCCESS or an error code
      */
     @Override
@@ -129,6 +138,21 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
             case DISABLED: // time for Plan B.
                 break;
         }
+    }
+
+    /**
+     * Navigate to the given fragment.
+     *
+     * @param fragment       Fragment to navigate to.
+     * @param addToBackStack Whether or not the current fragment should be added to the backstack.
+     */
+    public void navigateTo(Fragment fragment, boolean addToBackStack){
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        if(addToBackStack){
+            transaction.addToBackStack(null);
+        }
+        transaction.replace(R.id.fragment_container, fragment);
+        transaction.commit();
     }
 
     /**
