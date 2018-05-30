@@ -4,7 +4,6 @@ import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.AppCompatDelegate;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -43,12 +42,9 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-       // getFragmentManager().beginTransaction().add(R.id.fragment_container,  /* Put the frag here*/).commit();
-
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_container, new FragmentLanding());
-        transaction.commit();
+        getFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, new FragmentLanding())
+                .commit();
 
     }
 
@@ -76,8 +72,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
-        Fragment frag = null;
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        Fragment frag;
 
         // Handle item selection
         switch (item.getItemId()) {
@@ -95,13 +90,13 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         }
 
         //replace the fragment
-        transaction.addToBackStack(null);
-        transaction.replace(R.id.fragment_container, frag);
-        transaction.commit();
+        getFragmentManager().beginTransaction()
+                .addToBackStack(null)
+                .replace(R.id.fragment_container, frag)
+                .commit();
 
         return true;
     }
-
 
 
     /**
