@@ -6,6 +6,9 @@
     <string name="signup_menu_title">Signup</string>
     <string name="landle_menu_title">Landing Page</string>
 
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+  
     <!-- Signup page titles-->
     <string name="email_title">Email Address</string>
     <string name="phone_title">Phone Number</string>
@@ -18,7 +21,7 @@
     <string name="password_requirements_label">At least 8 characters long, 1 uppercase, 1 lowercase, 1 number, and 1 special character</string>
 
 
-
+    <!-- SnackBar messages -->
     <string name="password_required">Password is missing</string>
     <string name="password_mismatch">Passwords do not match</string>
     <string name="password_complexity">Passwords too simple</string>
