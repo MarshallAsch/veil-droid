@@ -19,24 +19,20 @@ public class FragmentLanding extends Fragment {
         // Required empty public constructor
     }
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        ((MainActivity) getActivity()).getSupportActionBar().hide();
-    }
-
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
-    {
-        View view = inflater.inflate(R.layout.fragment_landing, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)  {
+        // hides the menu bar at the top so you have a full screen landing page
+        ((MainActivity) getActivity()).getSupportActionBar().hide();
+
+        View view = inflater.inflate(R.layout.fragment_landing, container,false);
 
         //login button and event listener
         MaterialButton loginBtn = view.findViewById(R.id.login_btn);
         loginBtn.setOnClickListener(view1 -> {
             Log.i("Fragment Landing", "login button pressed");
-            ((MainActivity) getActivity()).navigateTo(new SignUp(), falsea);
-            ((MainActivity) getActivity()).getSupportActionBar().show();
+            ((MainActivity) getActivity()).navigateTo(new SignUp(), true);
+            //TODO: route to real fragement for login once its made
 
         });
 
@@ -44,17 +40,15 @@ public class FragmentLanding extends Fragment {
         MaterialButton signupBtn = view.findViewById(R.id.sign_up_btn);
         signupBtn.setOnClickListener(view1 -> {
             Log.i("Fragment Landing", "sign up button pressed");
-            ((MainActivity) getActivity()).getSupportActionBar().show();
+            //TODO: add in sign up later
         });
-
-
 
         return view;
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onDestroyView(){
+        super.onDestroyView();
         ((MainActivity) getActivity()).getSupportActionBar().show();
     }
 

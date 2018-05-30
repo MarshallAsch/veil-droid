@@ -47,7 +47,6 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
        // getFragmentManager().beginTransaction().add(R.id.fragment_container,  /* Put the frag here*/).commit();
 
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        transaction.addToBackStack(null);
         transaction.replace(R.id.fragment_container, new FragmentLanding());
         transaction.commit();
 
