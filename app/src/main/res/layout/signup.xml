@@ -2,7 +2,6 @@
 <android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -53,12 +52,14 @@
                     android:layout_marginRight="16dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
+                    android:layout_marginLeft="8dp"
                     android:layout_weight="0.5"
                     android:hint="@string/last_name_title"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toEndOf="@+id/first_name_text_input"
-                    app:layout_constraintTop_toTopOf="parent">
+                    app:layout_constraintTop_toTopOf="parent"
+                    >
 
                     <android.support.design.widget.TextInputEditText
                         android:id="@+id/last_name_text_edit"
@@ -161,6 +162,8 @@
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
                     android:text="@android:string/cancel"
+                    android:textColorLink="@color/colorPrimary"
+                    android:textColor="@color/colorPrimary"
                     app:layout_constraintEnd_toStartOf="@+id/done_button"/>
 
                 <android.support.design.button.MaterialButton
@@ -170,6 +173,7 @@
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
                     android:text="@string/sign_up_button_label"
+                    app:backgroundTint="@color/colorPrimary"
                     app:layout_constraintEnd_toEndOf="parent"/>
 
             </android.support.constraint.ConstraintLayout>

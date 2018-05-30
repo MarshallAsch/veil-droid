@@ -35,5 +35,7 @@
 
     <!-- General strings for use throughout the app -->
     <string name="done">Done</string>
+    <string name="application_logo">Application Logo</string>
+    <string name="rightmesh_credit">RightMesh Credit</string>
 
 </resources>

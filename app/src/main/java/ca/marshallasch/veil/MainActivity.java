@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
      * Navigate to the given fragment.
      *
      * @param fragment       Fragment to navigate to.
-     * @param addToBackStack Whether or not the current fragment should be added to the backstack.
+     * @param addToBackStack Whether or not the current fragment should be added to the back stack.
      */
     public void navigateTo(Fragment fragment, boolean addToBackStack){
         FragmentTransaction transaction = getFragmentManager().beginTransaction();

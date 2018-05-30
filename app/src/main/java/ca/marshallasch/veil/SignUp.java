@@ -20,7 +20,7 @@ import android.widget.EditText;
 public class SignUp extends Fragment
 {
     /**
-     * This is returned from {@link #checkPasswords()} to determine what was wrong with the password
+     * This is returned from {@link #checkPasswords(String, String)} to determine what was wrong with the password
      */
     enum PasswordState
     {
@@ -60,9 +60,7 @@ public class SignUp extends Fragment
         MaterialButton cancel = view.findViewById(R.id.cancel_button);
         MaterialButton done = view.findViewById(R.id.done_button);
 
-        cancel.setOnClickListener(v -> {
-            getFragmentManager().popBackStack();
-        });
+        cancel.setOnClickListener(v -> getFragmentManager().popBackStack());
 
         done.setOnClickListener(this::onDoneClicked);
 
@@ -94,7 +92,7 @@ public class SignUp extends Fragment
             return;
         }
 
-        switch (checkPasswords()) {
+        switch (checkPasswords(passwordInput.getText().toString(), passwordConfInput.getText().toString())) {
 
             case TOO_SIMPLE:
                 Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.password_complexity, Snackbar.LENGTH_SHORT).show();
@@ -116,15 +114,12 @@ public class SignUp extends Fragment
     /**
      * This checks that the passwords that have been entered match and meet the
      * minimum complexity requirements.
-     *
+     * @param password      the password that the user entered
+     * @param passwordConf  the confirmation of the password
      * @return {@link PasswordState}
      */
-    private PasswordState checkPasswords()
+    private PasswordState checkPasswords(@NonNull String password, @NonNull String passwordConf)
     {
-
-        String password = passwordInput.getText().toString();
-        String passwordConf = passwordConfInput.getText().toString();
-
         if (password.length() == 0 || passwordConf.length() == 0) {
             return PasswordState.MISSING;
         }

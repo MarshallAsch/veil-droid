@@ -28,7 +28,8 @@
                 android:layout_centerHorizontal="true"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="75dp"
-                app:srcCompat="@drawable/veil" />
+                app:srcCompat="@drawable/veil"
+                android:contentDescription="@string/app_name"/>
 
             <ImageView
                 android:layout_width="151dp"
@@ -37,7 +38,8 @@
                 android:layout_centerHorizontal="true"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="31dp"
-                app:srcCompat="@drawable/logo" />
+                app:srcCompat="@drawable/logo"
+                android:contentDescription="@string/application_logo"/>
 
         </RelativeLayout>
 
@@ -54,17 +56,17 @@
                 android:layout_height="wrap_content"
                 android:layout_above="@+id/sign_up_btn"
                 android:layout_centerHorizontal="true"
-                android:background="?attr/colorPrimary"
-                android:text="Login"
-                app:backgroundTint="?attr/colorPrimary" />
+                android:background="@color/colorPrimary"
+                android:text="@string/login_menu_title"
+                app:backgroundTint="@color/colorPrimary"/>
 
             <android.support.design.button.MaterialButton
                 android:id="@+id/sign_up_btn"
                 android:layout_width="212dp"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:text="Sign Up"
-                app:backgroundTint="?attr/colorPrimaryDark" />
+                android:text="@string/sign_up_button_label"
+                app:backgroundTint="@color/colorPrimaryDark"/>
 
             <ImageView
                 android:layout_width="151dp"
@@ -73,7 +75,8 @@
                 android:layout_centerHorizontal="true"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="20dp"
-                app:srcCompat="@drawable/footer" />
+                app:srcCompat="@drawable/footer"
+                android:contentDescription="@string/rightmesh_credit"/>
 
         </RelativeLayout>
 
