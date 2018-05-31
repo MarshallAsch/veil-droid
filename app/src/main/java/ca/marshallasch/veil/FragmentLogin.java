@@ -1,9 +1,7 @@
 package ca.marshallasch.veil;
 
-import android.content.Context;
-import android.net.Uri;
-import android.os.Bundle;
 import android.app.Fragment;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.button.MaterialButton;
 import android.util.Log;
@@ -38,10 +36,10 @@ public class FragmentLogin extends Fragment {
 
 
         // buttons and event listeners
-        MaterialButton loginBtn = view.findViewById(R.id.enter_btn);
-        MaterialButton signupBtn = view.findViewById(R.id.back_btn);
+        MaterialButton login = view.findViewById(R.id.enter_btn);
+        MaterialButton cancel = view.findViewById(R.id.back_btn);
 
-        loginBtn.setOnClickListener(view1 -> {
+        login.setOnClickListener(view1 -> {
             Log.i("Fragment Login", "enter button pressed");
             //TODO: check username and password
             //TODO: route to real dash once implemented
@@ -49,9 +47,9 @@ public class FragmentLogin extends Fragment {
 
         });
 
-        signupBtn.setOnClickListener(view1 -> {
+        login.setOnClickListener(view1 -> {
             Log.i("Fragment Login", "back button pressed");
-            ((MainActivity) getActivity()).navigateTo(new FragmentLanding(), true);
+            getFragmentManager().popBackStack();
         });
 
         return view;

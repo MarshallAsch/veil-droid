@@ -37,5 +37,8 @@
     <string name="done">Done</string>
     <string name="application_logo">Application Logo</string>
     <string name="rightmesh_credit">RightMesh Credit</string>
+    <string name="enter">Enter</string>
+    <string name="back">Back</string>
+    <string name="username">Username</string>
 
 </resources>
