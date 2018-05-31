@@ -43,9 +43,6 @@
 
         </RelativeLayout>
 
-        <!-- Snippet from "Add text fields" section goes here. -->
-
-        <!-- Snippet from "Add buttons" section goes here. -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="177dp">
@@ -68,15 +65,6 @@
                 android:text="@string/sign_up_button_label"
                 app:backgroundTint="@color/colorPrimaryDark"/>
 
-            <ImageView
-                android:layout_width="151dp"
-                android:layout_height="23dp"
-                android:layout_alignParentBottom="true"
-                android:layout_centerHorizontal="true"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="20dp"
-                app:srcCompat="@drawable/footer"
-                android:contentDescription="@string/rightmesh_credit"/>
 
         </RelativeLayout>
 
