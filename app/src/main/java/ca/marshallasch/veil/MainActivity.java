@@ -42,7 +42,9 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-       // getFragmentManager().beginTransaction().add(R.id.fragment_container,  /* Put the frag here*/).commit();
+        getFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, new FragmentLanding())
+                .commit();
 
     }
 
@@ -70,8 +72,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
-        Fragment frag = null;
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        Fragment frag;
 
         // Handle item selection
         switch (item.getItemId()) {
@@ -82,25 +83,27 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
                 frag = new Fragment();
                 break;
             case R.id.landing:
-                frag = new Fragment();
+                frag = new FragmentLanding();
                 break;
             default:
                 return super.onOptionsItemSelected(item);
         }
 
         //replace the fragment
-        transaction.addToBackStack(null);
-        transaction.replace(R.id.fragment_container, frag);
-        transaction.commit();
+        getFragmentManager().beginTransaction()
+                .addToBackStack(null)
+                .replace(R.id.fragment_container, frag)
+                .commit();
 
         return true;
     }
+
 
     /**
      * Called by the {@link MeshService} when the mesh state changes. Initializes mesh connection
      * on first call.
      *
-     * @param meshID our own user id on first detecting
+     * @param meshId our own user id on first detecting
      * @param state state which indicates SUCCESS or an error code
      */
     @Override
@@ -129,6 +132,21 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
             case DISABLED: // time for Plan B.
                 break;
         }
+    }
+
+    /**
+     * Navigate to the given fragment.
+     *
+     * @param fragment       Fragment to navigate to.
+     * @param addToBackStack Whether or not the current fragment should be added to the back stack.
+     */
+    public void navigateTo(Fragment fragment, boolean addToBackStack){
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        if(addToBackStack){
+            transaction.addToBackStack(null);
+        }
+        transaction.replace(R.id.fragment_container, fragment);
+        transaction.commit();
     }
 
     /**
