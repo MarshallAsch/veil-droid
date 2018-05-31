@@ -11,52 +11,45 @@ import android.view.ViewGroup;
 
 import javax.annotation.Nullable;
 
-
 /**
  * @author Weihan Li
  * @version 1.0
- * @since 2018-05-30
+ * @since 2018-05-31
  *
  * Description:
- * This class holds the login UI for the application
+ * This class holds the dashboard UI for the application
  */
-public class FragmentLogin extends Fragment {
 
-    public FragmentLogin() {
+public class FragmentDashBoard extends Fragment {
+
+    public FragmentDashBoard() {
         // Required empty public constructor
     }
+
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @android.support.annotation.Nullable ViewGroup container, @android.support.annotation.Nullable Bundle savedInstanceState)  {
         // hides the menu bar at the top so you have a full screen landing page
-        ((MainActivity) getActivity()).getSupportActionBar().hide();
-
-        View view = inflater.inflate(R.layout.fragment_login, container,false);
+        View view = inflater.inflate(R.layout.fragment_dash_board, container,false);
 
 
         // buttons and event listeners
-        MaterialButton login = view.findViewById(R.id.enter_btn);
+        /**MaterialButton login = view.findViewById(R.id.enter_btn);
         MaterialButton cancel = view.findViewById(R.id.back_btn);
 
         login.setOnClickListener(view1 -> {
             Log.i("Fragment Login", "enter button pressed");
-            //TODO: check username and password
-            ((MainActivity) getActivity()).navigateTo(new FragmentDashBoard(), true);
+            ((MainActivity) getActivity()).navigateTo(new FragmentLogin(), true);
 
         });
 
         cancel.setOnClickListener(view1 -> {
             Log.i("Fragment Login", "back button pressed");
             getFragmentManager().popBackStack();
-        });
+        });**/
 
         return view;
     }
 
-    @Override
-    public void onDestroyView(){
-        super.onDestroyView();
-        ((MainActivity) getActivity()).getSupportActionBar().show();
-    }
 }
