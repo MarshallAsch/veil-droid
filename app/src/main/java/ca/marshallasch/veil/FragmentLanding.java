@@ -10,6 +10,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+/**
+ * @author Weihan Li
+ * @version 1.0
+ * @since 2018-05-29
+ *
+ * Description:
+ * This class holds the landing page for the application
+ */
 
 public class FragmentLanding extends Fragment {
 
@@ -31,7 +39,7 @@ public class FragmentLanding extends Fragment {
 
         loginBtn.setOnClickListener(view1 -> {
             Log.i("Fragment Landing", "login button pressed");
-            //TODO: route to real fragment for login once its made
+            ((MainActivity) getActivity()).navigateTo(new FragmentLogin(), true);
 
         });
 
