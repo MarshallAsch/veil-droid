@@ -47,7 +47,7 @@ public class FragmentLogin extends Fragment {
 
         });
 
-        login.setOnClickListener(view1 -> {
+        cancel.setOnClickListener(view1 -> {
             Log.i("Fragment Login", "back button pressed");
             getFragmentManager().popBackStack();
         });
