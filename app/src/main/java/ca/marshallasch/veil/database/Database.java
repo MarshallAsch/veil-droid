@@ -2,9 +2,11 @@ package ca.marshallasch.veil.database;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.Size;
@@ -12,8 +14,9 @@ import android.support.annotation.WorkerThread;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import ca.marshallasch.veil.R;
 import ca.marshallasch.veil.database.BlockContract.BlockEntry;
-import ca.marshallasch.veil.database.PostNotificationContract.PostNotificationEntry;
+import ca.marshallasch.veil.database.NotificationContract.NotificationEntry;
 
 
 
@@ -79,7 +82,7 @@ public class Database extends SQLiteOpenHelper
     public void onCreate(SQLiteDatabase db)
     {
         db.execSQL(BlockContract.SQL_CREATE_BLOCK_USERS);
-        db.execSQL(PostNotificationContract.SQL_CREATE_POST_NOTIFICATION);
+        db.execSQL(NotificationContract.SQL_CREATE_POST_NOTIFICATION);
     }
 
     @Override
@@ -171,21 +174,89 @@ public class Database extends SQLiteOpenHelper
     // TODO: 2018-05-31 Create a function that will get the list of all blocked user objects
 
 
-    public boolean checkGiveNotification(@Size(max = 36) String userHash) {
-
-        if (userHash == null) {
+    /**
+     * Register a to receive notifications of new posts from a user or for comments about a specific
+     * post.
+     *
+     * Since this calls {@link #getWritableDatabase()}, do not call this from the main thread
+     * @param hash the hash of the post or user in the DHT
+     * @return true if it was successfully registered, false otherwise
+     */
+    @WorkerThread
+    public boolean registerForNotification(@Size(max = 36) String hash) {
+        if (hash == null) {
             return false;
         }
 
-        // TODO: 2018-06-01 Add check for all notifications or muted
-        // SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        //preferences.getInt(context.getString())
+        ContentValues values = new ContentValues();
+
+        values.put(NotificationEntry.COLUMN_HASH, hash);
+        values.put(NotificationEntry.COLUMN_TIMESTAMP, System.currentTimeMillis());
+
+        // note this is a potentially long running operation.
+        long id = getWritableDatabase().insertWithOnConflict(NotificationEntry.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+
+        return id != -1;
+    }
+
+    /**
+     * Unregister a to receive notifications of new posts from a user or for comments about a
+     * specific post.
+     *
+     * Since this calls {@link #getWritableDatabase()}, do not call this from the main thread
+     * @param hash the hash of the post or user in the DHT
+     * @return true if it was successfully unregistered, false otherwise
+     */
+    @WorkerThread
+    public boolean unregisterForNotification(@Size(max = 36) String hash) {
+
+        if (hash == null) {
+            return false;
+        }
+
+        // Define 'where' part of query.
+        String selection = NotificationEntry.COLUMN_HASH + " = ?";
+
+        // Specify arguments in placeholder order.
+        String[] selectionArgs = {hash};
+
+        int numDeleted = getWritableDatabase().delete(NotificationEntry.TABLE_NAME, selection, selectionArgs);
+
+        // makes sure only 1 row was removed, anything else would be an error
+        return numDeleted == 1;
+    }
+
+    /**
+     * Check if it should give a notification for the new post or comment, allows you to specify
+     * that you want to receive notifications for posts by specific users, or comments on a specific
+     * post.
+     *
+     * Since this calls {@link #getReadableDatabase()}, do not call this from the main thread
+     * @param hash the hash that is used to identify the user or post in the DHT
+     * @return true if a notification should be given otherwise false
+     */
+    @WorkerThread
+    public boolean checkGiveNotification(@Size(max = 36) String hash) {
+
+        if (hash == null) {
+            return false;
+        }
+
+        // check if notifications have been temporarily muted
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        int status = preferences.getInt(context.getString(R.string.pref_post_notifications), 0);
+
+        if (status == 1) {
+            return true;
+        } else if (status == 2) {
+            return false;
+        }
 
         // Filter results WHERE userHash = 'hash'
-        String where = PostNotificationEntry.COLUMN_USER_HASH + " = ?";
-        String[] whereArgs = {userHash};
+        String where = NotificationEntry.COLUMN_HASH + " = ?";
+        String[] whereArgs = {hash};
 
-        int count = getCount(PostNotificationEntry.TABLE_NAME, where, whereArgs);
+        int count = getCount(NotificationEntry.TABLE_NAME, where, whereArgs);
         return count == 1;
     }
 
