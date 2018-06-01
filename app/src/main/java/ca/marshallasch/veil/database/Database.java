@@ -244,7 +244,7 @@ public class Database extends SQLiteOpenHelper
 
         // check if notifications have been temporarily muted
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        int status = preferences.getInt(context.getString(R.string.pref_post_notifications), 0);
+        int status = preferences.getInt(context.getString(R.string.pref_notifications), 0);
 
         if (status == 1) {
             return true;
