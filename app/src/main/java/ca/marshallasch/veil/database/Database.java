@@ -5,13 +5,16 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.Size;
 import android.support.annotation.WorkerThread;
-import android.util.Log;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ca.marshallasch.veil.database.BlockContract.BlockEntry;
+import ca.marshallasch.veil.database.PostNotificationContract.PostNotificationEntry;
+
 
 
 /**
@@ -33,10 +36,12 @@ public class Database extends SQLiteOpenHelper
     private static Database instance = null;
     private static final AtomicInteger openCounter = new AtomicInteger();
 
+    private Context context;
 
     private Database(final Context context)
     {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.context = context;
     }
 
     /**
@@ -74,6 +79,7 @@ public class Database extends SQLiteOpenHelper
     public void onCreate(SQLiteDatabase db)
     {
         db.execSQL(BlockContract.SQL_CREATE_BLOCK_USERS);
+        db.execSQL(PostNotificationContract.SQL_CREATE_POST_NOTIFICATION);
     }
 
     @Override
@@ -154,12 +160,49 @@ public class Database extends SQLiteOpenHelper
             return false;
         }
 
-        // what is being selected
-        String[] selection = {"COUNT(*)"};
-
-        // Filter results WHERE "title" = 'My Title'
+        // Filter results WHERE userID = 'id'
         String where = BlockEntry.COLUMN_USER_ID + " = ?";
         String[] whereArgs = {userID};
+
+        int count = getCount(BlockEntry.TABLE_NAME, where, whereArgs);
+        return count == 1;
+    }
+
+    // TODO: 2018-05-31 Create a function that will get the list of all blocked user objects
+
+
+    public boolean checkGiveNotification(@Size(max = 36) String userHash) {
+
+        if (userHash == null) {
+            return false;
+        }
+
+        // TODO: 2018-06-01 Add check for all notifications or muted
+        // SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        //preferences.getInt(context.getString())
+
+        // Filter results WHERE userHash = 'hash'
+        String where = PostNotificationEntry.COLUMN_USER_HASH + " = ?";
+        String[] whereArgs = {userHash};
+
+        int count = getCount(PostNotificationEntry.TABLE_NAME, where, whereArgs);
+        return count == 1;
+    }
+
+
+    /**
+     * Count the number of matching rows in the table
+     * Since this calls {@link #getReadableDatabase()}, do not call this from the main thread
+     * @param tableName The name of the table to get the count for
+     * @param where the conditions that it is counting
+     * @param whereArgs the args
+     * @return the number of matching rows
+     */
+    @WorkerThread
+    public int getCount(@NonNull String tableName, @Nullable String where, @Nullable String[] whereArgs) {
+
+        // what is being selected
+        String[] selection = {"COUNT(*)"};
 
         Cursor c = getReadableDatabase().query(
                 BlockEntry.TABLE_NAME,   // The table to query
@@ -174,10 +217,21 @@ public class Database extends SQLiteOpenHelper
         // get the count, if the count is missing then set it to 0
         int count = c.moveToFirst() ? c.getInt(0) : 0;
 
-        Log.d("cnt", "count " + count);
         c.close();
-        return count == 1;
+        return count;
     }
 
-    // TODO: 2018-05-31 Create a function that will get the list of all blocked user objects
+    /**
+     *
+     * This is a convenience method for {@link #getCount(String, String, String[])} that will count
+     * all rows in the table.
+     *
+     * Since this calls {@link #getReadableDatabase()}, do not call this from the main thread
+     * @param tableName The name of the table to get the count for
+     * @return
+     */
+    @WorkerThread
+    public int getCount(@NonNull String tableName) {
+        return getCount(tableName, null, null);
+    }
 }
