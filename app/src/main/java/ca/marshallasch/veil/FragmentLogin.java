@@ -1,13 +1,19 @@
 package ca.marshallasch.veil;
 
+import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.button.MaterialButton;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 
 import javax.annotation.Nullable;
 
@@ -34,6 +40,13 @@ public class FragmentLogin extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_login, container,false);
 
+        ConstraintLayout layout = view.findViewById(R.id.login_layout);
+
+        //hides keyboard if white space is pressed
+        layout.setOnTouchListener((view12, ev) -> {
+            hideKeyboard(view12);
+            return false;
+        });
 
         // buttons and event listeners
         MaterialButton login = view.findViewById(R.id.enter_btn);
@@ -42,12 +55,13 @@ public class FragmentLogin extends Fragment {
         login.setOnClickListener(view1 -> {
             Log.i("Fragment Login", "enter button pressed");
             //TODO: check username and password
-            //TODO: route to real dash once implemented
-            ((MainActivity) getActivity()).navigateTo(new FragmentLogin(), true);
+            hideKeyboard(view1);
+            ((MainActivity) getActivity()).navigateTo(new FragmentDashBoard(), true);
 
         });
 
         cancel.setOnClickListener(view1 -> {
+            hideKeyboard(view1);
             Log.i("Fragment Login", "back button pressed");
             getFragmentManager().popBackStack();
         });
@@ -60,4 +74,15 @@ public class FragmentLogin extends Fragment {
         super.onDestroyView();
         ((MainActivity) getActivity()).getSupportActionBar().show();
     }
+
+    /**
+     *
+     * @param view
+     * Description: hides android's soft keyboard
+     */
+    protected void hideKeyboard(View view) {
+        InputMethodManager in = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        in.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+    }
+
 }
