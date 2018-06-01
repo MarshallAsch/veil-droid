@@ -25,8 +25,8 @@
                     android:layout_width="113dp"
                     android:layout_height="38dp"
                     android:layout_alignParentTop="true"
-                    android:layout_toStartOf="@+id/profile_img"
                     android:layout_toLeftOf="@+id/profile_img"
+                    android:layout_toStartOf="@+id/profile_img"
                     android:background="#09c21b"
                     android:text="Log Out"
                     android:textColor="@color/white"
@@ -38,8 +38,8 @@
                     android:id="@+id/background_splash"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_alignParentStart="true"
                     android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
                     android:layout_alignParentTop="true"
                     android:src="@drawable/background" />
 
@@ -74,23 +74,33 @@
 
             </RelativeLayout>
 
-
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/email_text_input"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginEnd="16dp"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:hint="@string/email_title"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                android:layout_height="230dp">
 
-            </android.support.design.widget.TextInputLayout>
+                <android.support.design.button.MaterialButton
+                    android:id="@+id/discover_fourms_btn"
+                    android:layout_width="322dp"
+                    android:layout_height="85dp"
+                    android:layout_alignParentTop="true"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="13dp"
+                    android:background="@color/colorPrimary"
+                    android:text="Discover Forums"
+                    app:backgroundTint="@color/colorPrimary" />
+
+                <android.support.design.button.MaterialButton
+                    android:id="@+id/personal_forums_btn"
+                    android:layout_width="324dp"
+                    android:layout_height="85dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginBottom="37dp"
+                    android:background="@color/colorPrimary"
+                    android:text="Your Forums"
+                    app:backgroundTint="@color/colorPrimary" />
+
+            </RelativeLayout>
 
         </LinearLayout>
 
