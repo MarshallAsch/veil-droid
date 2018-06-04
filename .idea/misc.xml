@@ -31,11 +31,4 @@
   <component name="ProjectType">
     <option name="id" value="Android" />
   </component>
-  <component name="SaveActionSettings">
-    <option name="forceSSL" value="true" />
-    <option name="host" value="Bitbucket" />
-  </component>
-  <component name="uk.co.ben_gibson.repositorymapper.Settings">
-    <option name="forceSSL" value="true" />
-  </component>
 </project>
