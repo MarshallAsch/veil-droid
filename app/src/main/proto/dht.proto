@@ -1,0 +1,89 @@
+/// Protocol for enuk
+
+syntax = "proto3";
+package ca.marshallasch.veil.proto;
+option java_outer_classname = "DhtProto";
+
+import "google/protobuf/timestamp.proto";
+
+/**
+ * This identifies what type of data is contained within the DHT wrapper object.
+ */
+enum MessageType {
+    USER = 0;
+    POST = 1;
+    COMMENT = 2;
+    KEYWORD = 3;
+
+}
+
+/**
+ * This is the object that will be put into the hash table. So that when the data gets used the
+ * correct object can be instantiated. The key that goes into the DHT is a hash of the serialized
+ * object for all of the types with the excepetion of the User type, which will have a key of the
+ * userID (or a hash of it).
+ */
+message DhtWrapper {
+    MessageType type = 1;
+
+    // only one of the following will be set
+    oneof data {
+        User user = 2;
+        Post post = 3;
+        Comment comment = 4;
+        Keyword keyword = 5;
+    }
+}
+
+/**
+ * This is the public user object, Its only current use is to allow a user to send a direct message
+ * and loop up a user to send it to them. Its key in the DHT is the userID or a hash of the userID.
+ * This is a modifiable, the userID can not be modified,
+ */
+message User {
+    string uuid = 1;          // the UUID for the user
+    string first_name = 2;
+    string last_name = 3;
+    string email = 4;
+    string username = 5;
+    google.protobuf.Timestamp timestamp = 6;   // when the user was created
+}
+
+/**
+ * This is the post object, it can not be modified once created.
+ * Its key for the DHT is a hash of the content, after the protobuff object is created.
+ *
+ */
+message Post {
+    string uuid = 1;          // the UUID for the post
+    string author_name = 2;    // so it does not require a second DHT lookup for the name
+    string author_id = 3;      // this is unique to each user
+    string title = 4;
+    string message = 5;
+    google.protobuf.Timestamp timestamp = 6;   // when the post was created
+    repeated string tags = 7;
+}
+
+/**
+ * This is the comment object for a post, it can not be modified once created.
+ * Its key for the DHT is a hash of the content, after the protobuff object is created.
+ *
+ */
+message Comment {
+    string uuid = 1;          // the UUID for the comment
+    string post_id = 2;
+    string author_name = 3;    // so it does not require a second DHT lookup for the name
+    string author_id = 4;      // this is unique to each user
+    string message = 5;
+    google.protobuf.Timestamp timestamp = 6;   // when the comment was created
+}
+
+/**
+ * This is for the revese indexing of the content that is in the DHT
+ * the hash that this is inserted under is the hash of the keyword. The list of Hashes
+ * will be they keys to the content, ether users, posts or comments.
+ */
+message Keyword {
+    string keyword = 1;
+    repeated string hashes = 2;     // these are the hashes that the keyword maps to
+}
