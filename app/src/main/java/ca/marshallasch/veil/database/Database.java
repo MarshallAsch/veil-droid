@@ -7,17 +7,19 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.preference.PreferenceManager;
+import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.Size;
 import android.support.annotation.WorkerThread;
 
+import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ca.marshallasch.veil.R;
 import ca.marshallasch.veil.database.BlockContract.BlockEntry;
 import ca.marshallasch.veil.database.NotificationContract.NotificationEntry;
-
+import ca.marshallasch.veil.database.KnownHashesContract.KnownHashesEntry;
 
 
 /**
@@ -83,6 +85,7 @@ public class Database extends SQLiteOpenHelper
     {
         db.execSQL(BlockContract.SQL_CREATE_BLOCK_USERS);
         db.execSQL(NotificationContract.SQL_CREATE_POST_NOTIFICATION);
+        db.execSQL(KnownHashesContract.SQL_CREATE_KNOWN_HASHES);
     }
 
     @Override
@@ -260,6 +263,69 @@ public class Database extends SQLiteOpenHelper
         return count == 1;
     }
 
+    /**
+     * This will add a entry to the table to make it easier for look up later.
+     *
+     * Since this calls {@link #getWritableDatabase()}, do not call this from the main thread
+     *
+     * @param hash the key for the DHT
+     * @param uuid the ID of entry
+     * @param timestamp the timestamp that the element was originally created at
+     * @param type the type of entry it is
+     * @return true if it was inserted successfully, false otherwise
+     */
+    @WorkerThread
+    public boolean insertKnownHash(@Size(max = 36) String hash, @Size(max = 36) String uuid, Date timestamp, @IntRange(from = 0, to = 3) int type) {
+
+        // check params
+        if (hash == null || uuid == null || timestamp == null) {
+            return false;
+        }
+
+        ContentValues values = new ContentValues();
+
+        values.put(KnownHashesEntry.COLUMN_HASH, hash);
+        values.put(KnownHashesEntry.COLUMN_ID, uuid);
+        values.put(KnownHashesEntry.COLUMN_TIMESTAMP, timestamp.getTime());
+        values.put(KnownHashesEntry.COLUMN_TYPE, type);
+        values.put(KnownHashesEntry.COLUMN_READ, KnownHashesEntry.UNREAD);
+
+        // note this is a potentially long running operation.
+        long id = getWritableDatabase().insertWithOnConflict(KnownHashesEntry.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+
+        return id != -1;
+    }
+
+    /**
+     * This function will be called when space needs to be made for new entries after they get
+     * sufficiency old.
+     *
+     * Since this calls {@link #getWritableDatabase()}, do not call this from the main thread
+     * @param hash the hash to forget
+     * @return true if the record is successfully removed otherwise false.
+     */
+    @WorkerThread
+
+    public boolean removeKnownHash(@Size(max = 36) String hash) {
+        if (hash == null) {
+            return false;
+        }
+
+        // Define 'where' part of query.
+        String selection = KnownHashesEntry.COLUMN_HASH + " = ?";
+
+        // Specify arguments in placeholder order.
+        String[] selectionArgs = {hash};
+
+        int numDeleted = getWritableDatabase().delete(KnownHashesEntry.TABLE_NAME, selection, selectionArgs);
+
+        // makes sure only 1 row was removed, anything else would be an error
+        return numDeleted == 1;
+    }
+
+    // TODO: 2018-06-04 Create accessors to get the information for different content types.
+    // these functions may be used just to get ID's or they may delegate the the DHT to get the
+    // actual content.
 
     /**
      * Count the number of matching rows in the table
