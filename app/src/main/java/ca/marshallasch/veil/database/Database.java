@@ -13,13 +13,19 @@ import android.support.annotation.Nullable;
 import android.support.annotation.Size;
 import android.support.annotation.WorkerThread;
 
+import com.goterl.lazycode.lazysodium.LazySodiumJava;
+import com.goterl.lazycode.lazysodium.SodiumJava;
+
 import java.util.Date;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ca.marshallasch.veil.R;
 import ca.marshallasch.veil.database.BlockContract.BlockEntry;
-import ca.marshallasch.veil.database.NotificationContract.NotificationEntry;
 import ca.marshallasch.veil.database.KnownHashesContract.KnownHashesEntry;
+import ca.marshallasch.veil.database.NotificationContract.NotificationEntry;
+import ca.marshallasch.veil.database.UserContract.UserEntry;
+import ca.marshallasch.veil.proto.DhtProto;
 
 
 /**
@@ -326,6 +332,51 @@ public class Database extends SQLiteOpenHelper
     // TODO: 2018-06-04 Create accessors to get the information for different content types.
     // these functions may be used just to get ID's or they may delegate the the DHT to get the
     // actual content.
+
+    public boolean createUser(String firstName, String lastName, String email, String password) {
+
+        Date createdAt = new Date();
+        UUID uuid = UUID.randomUUID();
+
+
+        DhtProto.User user = DhtProto.User.newBuilder()
+                .setEmail(email)
+                .setFirstName(firstName)
+                .setLastName(lastName)
+                .setUuid(uuid.toString())
+                .build();
+
+        return false;
+    }
+
+    public boolean insertUser(DhtProto.User user) {
+        if (user == null) {
+            return false;
+        }
+
+        ContentValues values = new ContentValues();
+
+        values.put(UserEntry.COLUMN_EMAIL_ADDRESS, user.getEmail());
+        values.put(UserEntry.COLUMN_ID, user.getUuid());
+        values.put(UserEntry.COLUMN_FIRST_NAME, user.getFirstName());
+        values.put(UserEntry.COLUMN_LAST_NAME, user.getLastName());
+        values.put(UserEntry.COLUMN_PASSWORD, "ab");
+
+
+        LazySodiumJava sodiumJava = new LazySodiumJava(new SodiumJava());
+
+        String password = "password";
+        //String passHash = sodiumJava.cryptoPwHashStr(password, opps, mem);
+
+        //sodiumJava.cryptoPwHashStrVerify(hash, password)
+
+        // note this is a potentially long running operation.
+        long id = getWritableDatabase().insertWithOnConflict(UserEntry.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+
+        return id != -1;
+
+    }
+
 
     /**
      * Count the number of matching rows in the table

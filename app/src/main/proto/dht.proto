@@ -45,8 +45,7 @@ message User {
     string first_name = 2;
     string last_name = 3;
     string email = 4;
-    string username = 5;
-    google.protobuf.Timestamp timestamp = 6;   // when the user was created
+    google.protobuf.Timestamp timestamp = 5;   // when the user was created
 }
 
 /**
