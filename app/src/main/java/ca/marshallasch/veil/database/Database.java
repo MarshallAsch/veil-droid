@@ -455,7 +455,9 @@ public class Database extends SQLiteOpenHelper
         return user;
     }
 
-
+    // TODO: 2018-06-05 Add functions to export the user profile
+    // TODO: 2018-06-05 Add function to import a user profile
+    // TODO: 2018-06-05 Add A function to update the account information
 
 
     /**
