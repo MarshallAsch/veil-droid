@@ -13,9 +13,6 @@ import android.support.annotation.Nullable;
 import android.support.annotation.Size;
 import android.support.annotation.WorkerThread;
 
-import com.goterl.lazycode.lazysodium.LazySodiumJava;
-import com.goterl.lazycode.lazysodium.SodiumJava;
-
 import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -362,13 +359,6 @@ public class Database extends SQLiteOpenHelper
         values.put(UserEntry.COLUMN_LAST_NAME, user.getLastName());
         values.put(UserEntry.COLUMN_PASSWORD, "ab");
 
-
-        LazySodiumJava sodiumJava = new LazySodiumJava(new SodiumJava());
-
-        String password = "password";
-        //String passHash = sodiumJava.cryptoPwHashStr(password, opps, mem);
-
-        //sodiumJava.cryptoPwHashStrVerify(hash, password)
 
         // note this is a potentially long running operation.
         long id = getWritableDatabase().insertWithOnConflict(UserEntry.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
