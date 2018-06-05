@@ -26,6 +26,7 @@ import ca.marshallasch.veil.database.KnownHashesContract.KnownHashesEntry;
 import ca.marshallasch.veil.database.NotificationContract.NotificationEntry;
 import ca.marshallasch.veil.database.UserContract.UserEntry;
 import ca.marshallasch.veil.proto.DhtProto;
+import ca.marshallasch.veil.utilities.Util;
 
 
 /**
@@ -353,11 +354,7 @@ public class Database extends SQLiteOpenHelper
         UUID uuid = UUID.randomUUID();
         String passHash =  BCrypt.hashpw(password, BCrypt.gensalt(10));
 
-        long millis = createdAt.getTime();
-        com.google.protobuf.Timestamp time = com.google.protobuf.Timestamp.newBuilder()
-                .setSeconds(millis / 1000)
-                .setNanos((int) ((millis % 1000) * 1000000))
-                .build();
+        com.google.protobuf.Timestamp time = Util.millisToTimestamp(createdAt.getTime());
 
         // this is the object that would get sent to the DHT
         DhtProto.User user = DhtProto.User.newBuilder()
@@ -430,12 +427,7 @@ public class Database extends SQLiteOpenHelper
             String lastName = cursor.getString(cursor.getColumnIndexOrThrow(UserEntry.COLUMN_LAST_NAME));
             Timestamp timestamp = Timestamp.valueOf(cursor.getString(cursor.getColumnIndexOrThrow(UserEntry.COLUMN_TIMESTAMP)));
 
-            // create the protobuf timestamp object
-            long millis = timestamp.getTime();
-            com.google.protobuf.Timestamp time = com.google.protobuf.Timestamp.newBuilder()
-                    .setSeconds(millis / 1000)
-                    .setNanos((int) ((millis % 1000) * 1000000))
-                    .build();
+            com.google.protobuf.Timestamp time = Util.millisToTimestamp(timestamp.getTime());
 
             // check if the passwords match, only until first match is found
             if (BCrypt.checkpw(password, passwordHash)) {
