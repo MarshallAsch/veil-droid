@@ -13,6 +13,9 @@ import android.support.annotation.Nullable;
 import android.support.annotation.Size;
 import android.support.annotation.WorkerThread;
 
+import org.mindrot.jbcrypt.BCrypt;
+
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -308,7 +311,6 @@ public class Database extends SQLiteOpenHelper
      * @return true if the record is successfully removed otherwise false.
      */
     @WorkerThread
-
     public boolean removeKnownHash(@Size(max = 36) String hash) {
         if (hash == null) {
             return false;
@@ -330,42 +332,130 @@ public class Database extends SQLiteOpenHelper
     // these functions may be used just to get ID's or they may delegate the the DHT to get the
     // actual content.
 
-    public boolean createUser(String firstName, String lastName, String email, String password) {
+    /**
+     * This will create a new user account and will assign them a new UUID that is
+     * <a href="https://tools.ietf.org/html/rfc4122">RFC 4122</a> type 4 compliant.
+     *
+     * Since this calls {@link #getWritableDatabase()}, do not call this from the main thread.
+     *
+     * @see <a href="https://tools.ietf.org/html/rfc4122">RFC 4122</a>
+     *
+     * @param firstName the users first name
+     * @param lastName the users last name
+     * @param email the users email address (also their username
+     * @param password the plain text password of the user
+     * @return null on failure and the  {@link DhtProto.User} object on success
+     */
+    @WorkerThread
+    public DhtProto.User createUser(String firstName, String lastName, String email, String password) {
 
         Date createdAt = new Date();
         UUID uuid = UUID.randomUUID();
+        String passHash =  BCrypt.hashpw(password, BCrypt.gensalt(10));
 
+        long millis = createdAt.getTime();
+        com.google.protobuf.Timestamp time = com.google.protobuf.Timestamp.newBuilder()
+                .setSeconds(millis / 1000)
+                .setNanos((int) ((millis % 1000) * 1000000))
+                .build();
 
+        // this is the object that would get sent to the DHT
         DhtProto.User user = DhtProto.User.newBuilder()
                 .setEmail(email)
                 .setFirstName(firstName)
                 .setLastName(lastName)
                 .setUuid(uuid.toString())
+                .setTimestamp(time)
                 .build();
-
-        return false;
-    }
-
-    public boolean insertUser(DhtProto.User user) {
-        if (user == null) {
-            return false;
-        }
 
         ContentValues values = new ContentValues();
 
-        values.put(UserEntry.COLUMN_EMAIL_ADDRESS, user.getEmail());
-        values.put(UserEntry.COLUMN_ID, user.getUuid());
-        values.put(UserEntry.COLUMN_FIRST_NAME, user.getFirstName());
-        values.put(UserEntry.COLUMN_LAST_NAME, user.getLastName());
-        values.put(UserEntry.COLUMN_PASSWORD, "ab");
-
+        values.put(UserEntry.COLUMN_EMAIL_ADDRESS, email);
+        values.put(UserEntry.COLUMN_ID, uuid.toString());
+        values.put(UserEntry.COLUMN_FIRST_NAME, firstName);
+        values.put(UserEntry.COLUMN_LAST_NAME, lastName);
+        values.put(UserEntry.COLUMN_PASSWORD, passHash);
+        values.put(UserEntry.COLUMN_TIMESTAMP, createdAt.getTime());
 
         // note this is a potentially long running operation.
-        long id = getWritableDatabase().insertWithOnConflict(UserEntry.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+        long id = getWritableDatabase().insertWithOnConflict(UserContract.UserEntry.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 
-        return id != -1;
-
+        // check if the creation was successful, return the user if it was
+        return id != -1 ? user : null;
     }
+
+    /**
+     * This function will check if a user is able to login to this device. Note that if the email
+     * address is associated with multiple accounts then the login will authenticate them on the
+     * first account that it finds with a matching username + password combination.
+     *
+     * Since this calls {@link #getReadableDatabase()}, do not call this from the main thread
+     * @param email the users email address for the account
+     * @param password the users plain text password for the account
+     * @return {@link DhtProto.User} object that contains all the account information for the user.
+     */
+    @WorkerThread
+    public DhtProto.User login(String email, String password) {
+
+        String[] projection = {
+                UserEntry.COLUMN_ID,
+                UserEntry.COLUMN_EMAIL_ADDRESS,
+                UserEntry.COLUMN_FIRST_NAME,
+                UserEntry.COLUMN_LAST_NAME,
+                UserEntry.COLUMN_PASSWORD,
+                UserEntry.COLUMN_TIMESTAMP
+        };
+
+        // Filter results WHERE "email address" = 'My email'
+        String selection = UserEntry.COLUMN_EMAIL_ADDRESS + " = ?";
+        String[] selectionArgs = { email };
+
+        Cursor cursor = getReadableDatabase().query(
+                UserEntry.TABLE_NAME,   // The table to query
+                projection,             // The array of columns to return (pass null to get all)
+                selection,              // The columns for the WHERE clause
+                selectionArgs,          // The values for the WHERE clause
+                null,          // don't group the rows
+                null,           // don't filter by row groups
+                null           // don't sort the rows
+        );
+
+        DhtProto.User user = null;
+
+        // check each of the accounts that have the same email address.
+        while(cursor.moveToNext()) {
+            String userID = cursor.getString(cursor.getColumnIndexOrThrow(UserEntry.COLUMN_ID));
+            String passwordHash = cursor.getString(cursor.getColumnIndexOrThrow(UserEntry.COLUMN_PASSWORD));
+            String firstName = cursor.getString(cursor.getColumnIndexOrThrow(UserEntry.COLUMN_FIRST_NAME));
+            String lastName = cursor.getString(cursor.getColumnIndexOrThrow(UserEntry.COLUMN_LAST_NAME));
+            Timestamp timestamp = Timestamp.valueOf(cursor.getString(cursor.getColumnIndexOrThrow(UserEntry.COLUMN_TIMESTAMP)));
+
+            // create the protobuf timestamp object
+            long millis = timestamp.getTime();
+            com.google.protobuf.Timestamp time = com.google.protobuf.Timestamp.newBuilder()
+                    .setSeconds(millis / 1000)
+                    .setNanos((int) ((millis % 1000) * 1000000))
+                    .build();
+
+            // check if the passwords match, only until first match is found
+            if (BCrypt.checkpw(password, passwordHash)) {
+                user = DhtProto.User.newBuilder()
+                        .setEmail(email)
+                        .setFirstName(firstName)
+                        .setLastName(lastName)
+                        .setUuid(userID)
+                        .setTimestamp(time)
+                        .build();
+                break;
+            }
+        }
+
+        cursor.close();
+
+        return user;
+    }
+
+
 
 
     /**
