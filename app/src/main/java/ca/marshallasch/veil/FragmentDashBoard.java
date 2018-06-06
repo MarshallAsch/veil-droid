@@ -10,6 +10,9 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
+import ca.marshallasch.veil.proto.DhtProto;
 
 /**
  *
@@ -48,6 +51,16 @@ public class FragmentDashBoard extends Fragment {
         MaterialButton logoutBtn = view.findViewById(R.id.logout_btn);
         MaterialButton discoverForumsBtn = view.findViewById(R.id.discover_fourms_btn);
         MaterialButton personalForumsBtn = view.findViewById(R.id.personal_forums_btn);
+
+        TextView name = view.findViewById(R.id.name);
+        TextView emailAddress = view.findViewById(R.id.user_email);
+
+        DhtProto.User currentUser = ((MainActivity) getActivity()).getCurrentUser();
+
+        if (currentUser != null) {
+            emailAddress.setText(currentUser.getEmail());
+            name.setText(currentUser.getFirstName() + " " + currentUser.getLastName());
+        }
 
         logoutBtn.setOnClickListener(view1 -> {
             Log.i(TAG, "logout button pressed");
