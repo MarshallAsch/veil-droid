@@ -27,8 +27,9 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
 {
 
     private static final int DATA_PORT = 9182;
-   // private static final int DISCOVERY_PORT = 9183;       // This is not used yet, would be for
-                                                            // the local doc discovery network
+    // private static final int DISCOVERY_PORT = 9183;       // This port will be used for the DHT
+                                                            // to keep all of that traffic separate
+
     // Set to keep track of peers connected to the mesh.
     HashSet<MeshId> users = new HashSet<>();
 
@@ -42,10 +43,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        getFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, new FragmentLanding())
-                .commit();
-
+        navigateTo( new FragmentLanding(), false);
     }
 
     /**
@@ -77,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.sign_up:
-                frag = new SignUp();
+                frag = new FragmentSignUp();
                 break;
             case R.id.login:
                 frag = new Fragment();
@@ -97,7 +95,6 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
 
         return true;
     }
-
 
     /**
      * Called by the {@link MeshService} when the mesh state changes. Initializes mesh connection

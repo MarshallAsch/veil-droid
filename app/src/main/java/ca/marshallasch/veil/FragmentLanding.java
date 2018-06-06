@@ -11,14 +11,13 @@ import android.view.View;
 import android.view.ViewGroup;
 
 /**
+ * This class holds the landing page for the application. Where you choose if you are going to
+ * sign up or login.
+ *
  * @author Weihan Li
  * @version 1.0
  * @since 2018-05-29
- *
- * Description:
- * This class holds the landing page for the application
  */
-
 public class FragmentLanding extends Fragment {
 
     public FragmentLanding() {
@@ -45,7 +44,7 @@ public class FragmentLanding extends Fragment {
 
         signupBtn.setOnClickListener(view1 -> {
             Log.i("Fragment Landing", "sign up button pressed");
-            ((MainActivity) getActivity()).navigateTo(new SignUp(), true);
+            ((MainActivity) getActivity()).navigateTo(new FragmentSignUp(), true);
         });
 
         return view;
@@ -54,6 +53,8 @@ public class FragmentLanding extends Fragment {
     @Override
     public void onDestroyView(){
         super.onDestroyView();
+
+        // return the action bar.
         ((MainActivity) getActivity()).getSupportActionBar().show();
     }
 

@@ -12,7 +12,7 @@ import android.provider.BaseColumns;
  */
 final class UserContract
 {
-    private static final String SQL_CREATE_USERS = "CREATE TABLE " + UserEntry.TABLE_NAME + " (" +
+    public static final String SQL_CREATE_USERS = "CREATE TABLE " + UserEntry.TABLE_NAME + " (" +
             UserEntry._ID + " INTEGER PRIMARY KEY," +
             UserEntry.COLUMN_ID + " VARCHAR(36) UNIQUE," +
             UserEntry.COLUMN_FIRST_NAME + " VARCHAR," +

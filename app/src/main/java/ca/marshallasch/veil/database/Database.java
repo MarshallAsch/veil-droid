@@ -93,6 +93,8 @@ public class Database extends SQLiteOpenHelper
         db.execSQL(BlockContract.SQL_CREATE_BLOCK_USERS);
         db.execSQL(NotificationContract.SQL_CREATE_POST_NOTIFICATION);
         db.execSQL(KnownHashesContract.SQL_CREATE_KNOWN_HASHES);
+        db.execSQL(UserContract.SQL_CREATE_USERS);
+
     }
 
     @Override
@@ -450,7 +452,6 @@ public class Database extends SQLiteOpenHelper
     // TODO: 2018-06-05 Add functions to export the user profile
     // TODO: 2018-06-05 Add function to import a user profile
     // TODO: 2018-06-05 Add A function to update the account information
-
 
     /**
      * Count the number of matching rows in the table

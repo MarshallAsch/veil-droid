@@ -28,7 +28,7 @@
                     android:layout_toLeftOf="@+id/profile_img"
                     android:layout_toStartOf="@+id/profile_img"
                     android:background="#09c21b"
-                    android:text="Log Out"
+                    android:text="@string/log_out"
                     android:textColor="@color/white"
                     app:backgroundTint="#22A85B"
                     tools:layout_editor_absoluteX="29dp"

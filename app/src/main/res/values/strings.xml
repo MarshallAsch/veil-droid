@@ -4,10 +4,7 @@
     <!-- menu bar items-->
     <string name="login_menu_title">Login</string>
     <string name="signup_menu_title">Signup</string>
-    <string name="landle_menu_title">Landing Page</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="landing_menu_title">Landing Page</string>
 
     <!-- Signup page titles-->
     <string name="email_title">Email Address</string>
@@ -40,6 +37,7 @@
     <string name="enter">Enter</string>
     <string name="back">Back</string>
     <string name="username">Username</string>
+    <string name="log_out">Log Out</string>
     
     
     <!-- Shared preferences keys -->

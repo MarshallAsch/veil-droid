@@ -11,8 +11,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-
+/**
+ *
+ * This class holds UI logic for viewing the list of posts.
+ *
+ * TODO add the ability to do searches for posts
+ *
+ * @author Weihan Li
+ * @version 1.0
+ * @since 2018-05-31
+ */
 public class FragmentDiscoverForums extends Fragment {
+
     private RecyclerView recyclerView;
     private RecyclerView.Adapter recyclerAdapter;
     private LinearLayoutManager linearLayoutManager;
@@ -21,6 +31,8 @@ public class FragmentDiscoverForums extends Fragment {
     public FragmentDiscoverForums() {
         // Required empty public constructor
     }
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)  {
@@ -36,8 +48,6 @@ public class FragmentDiscoverForums extends Fragment {
         recyclerAdapter = new PostListAdapter(Data.getTitles(), Data.getContent());
         recyclerView.setAdapter(recyclerAdapter);
 
-
         return view;
     }
-
 }

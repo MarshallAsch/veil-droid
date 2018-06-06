@@ -1,30 +1,24 @@
 package ca.marshallasch.veil;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.button.MaterialButton;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
-
-import javax.annotation.Nullable;
-
 
 /**
+ * This class holds the login UI for the application.
+ *
  * @author Weihan Li
  * @version 1.0
  * @since 2018-05-30
- *
- * Description:
- * This class holds the login UI for the application
  */
 public class FragmentLogin extends Fragment {
 
@@ -34,7 +28,7 @@ public class FragmentLogin extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @android.support.annotation.Nullable ViewGroup container, @android.support.annotation.Nullable Bundle savedInstanceState)  {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)  {
         // hides the menu bar at the top so you have a full screen landing page
         ((MainActivity) getActivity()).getSupportActionBar().hide();
 
@@ -76,13 +70,12 @@ public class FragmentLogin extends Fragment {
     }
 
     /**
+     * Hides Android's soft keyboard.
      *
      * @param view
-     * Description: hides android's soft keyboard
      */
     protected void hideKeyboard(View view) {
         InputMethodManager in = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         in.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
     }
-
 }

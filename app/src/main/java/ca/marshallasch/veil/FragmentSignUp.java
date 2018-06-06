@@ -13,11 +13,13 @@ import android.widget.EditText;
 
 
 /**
+ * This class contains the the logic for signing up for an account.
+ *
  * @author Marshall Asch
  * @version 1.0
  * @since 2018-05-28
  */
-public class SignUp extends Fragment
+public class FragmentSignUp extends Fragment
 {
     /**
      * This is returned from {@link #checkPasswords(String, String)} to determine what was wrong with the password
@@ -40,7 +42,7 @@ public class SignUp extends Fragment
     /**
      * Required empty public constructor
      */
-    public SignUp(){
+    public FragmentSignUp(){
         super();
     }
 
@@ -48,7 +50,7 @@ public class SignUp extends Fragment
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
-        View view = inflater.inflate(R.layout.signup, container, false);
+        View view = inflater.inflate(R.layout.fragment_signup, container, false);
 
         firstNameInput = view.findViewById(R.id.first_name_text_edit);
         lastNameInput = view.findViewById(R.id.last_name_text_edit);
@@ -66,7 +68,6 @@ public class SignUp extends Fragment
 
         return view;
     }
-
 
     /**
      * This handles the account creation and input validation.

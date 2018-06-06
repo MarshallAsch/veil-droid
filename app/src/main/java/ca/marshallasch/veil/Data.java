@@ -1,15 +1,15 @@
 package ca.marshallasch.veil;
 
 /**
- * This class holds all the data fetching functions
+ * This class holds all the data fetching functions. This class will be replaced after persistant
+ * data storage is implemented.
  *
- * @author Weihan
+ * @author Weihan Li
+ * @version 1.0
  * @since 2018-06-04
  *
  * TODO: Change this false data into real data fetching functions
  */
-
-
 public class Data {
     private static String[] forumTitles = {"Nose Discharge",
             "Arm Swelling",
