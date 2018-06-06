@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:backgroundTint="@color/colorPrimaryDark"
             android:hint="@string/username"
-            android:inputType="text"/>
+            android:inputType="textEmailAddress"/>
 
     </android.support.design.widget.TextInputLayout>
 

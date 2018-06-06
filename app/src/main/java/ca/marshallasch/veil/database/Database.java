@@ -15,7 +15,6 @@ import android.support.annotation.WorkerThread;
 
 import org.mindrot.jbcrypt.BCrypt;
 
-import java.sql.Timestamp;
 import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -42,7 +41,7 @@ import ca.marshallasch.veil.utilities.Util;
 public class Database extends SQLiteOpenHelper
 {
     private static String DATABASE_NAME = "contentDiscoveryTables";
-    private static int DATABASE_VERSION = 1;
+    private static int DATABASE_VERSION = 3;
 
     // this is for the singleton
     private static Database instance = null;
@@ -65,6 +64,24 @@ public class Database extends SQLiteOpenHelper
     public static synchronized Database getInstance(final Context c)
     {
         if (instance == null) {
+            instance = new Database(c.getApplicationContext());
+        }
+        openCounter.incrementAndGet();
+        return instance;
+    }
+
+    /**
+     * This is used to initiate an instance of the class so only one will ever exist at a time.
+     * This is used for integration tests so that if the tests are run on a real device it will
+     * use a seperate database for testing.
+     *
+     * @param c the applications context
+     * @return the existing instance of the database, or creates one and returns that.
+     */
+    static synchronized Database getInstance_TETSING(final Context c)
+    {
+        if (instance == null) {
+            DATABASE_NAME += "_TESTING";
             instance = new Database(c.getApplicationContext());
         }
         openCounter.incrementAndGet();
@@ -100,7 +117,9 @@ public class Database extends SQLiteOpenHelper
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
     {
-
+        if (oldVersion == 1 && newVersion == 3) {
+            Migrations.v1ToV3(db);
+        }
     }
 
     /**
@@ -377,7 +396,7 @@ public class Database extends SQLiteOpenHelper
         values.put(UserEntry.COLUMN_TIMESTAMP, createdAt.getTime());
 
         // note this is a potentially long running operation.
-        long id = getWritableDatabase().insertWithOnConflict(UserContract.UserEntry.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+        long id = getWritableDatabase().insertWithOnConflict(UserEntry.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 
         // check if the creation was successful, return the user if it was
         return id != -1 ? user : null;
@@ -427,9 +446,10 @@ public class Database extends SQLiteOpenHelper
             String passwordHash = cursor.getString(cursor.getColumnIndexOrThrow(UserEntry.COLUMN_PASSWORD));
             String firstName = cursor.getString(cursor.getColumnIndexOrThrow(UserEntry.COLUMN_FIRST_NAME));
             String lastName = cursor.getString(cursor.getColumnIndexOrThrow(UserEntry.COLUMN_LAST_NAME));
-            Timestamp timestamp = Timestamp.valueOf(cursor.getString(cursor.getColumnIndexOrThrow(UserEntry.COLUMN_TIMESTAMP)));
+            //Timestamp timestamp = Timestamp.valueOf(cursor.getString(cursor.getColumnIndexOrThrow(UserEntry.COLUMN_TIMESTAMP)));
 
-            com.google.protobuf.Timestamp time = Util.millisToTimestamp(timestamp.getTime());
+            long millis = cursor.getLong(cursor.getColumnIndexOrThrow(UserEntry.COLUMN_TIMESTAMP));
+            com.google.protobuf.Timestamp time = Util.millisToTimestamp(millis);
 
             // check if the passwords match, only until first match is found
             if (BCrypt.checkpw(password, passwordHash)) {

@@ -11,6 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
+import ca.marshallasch.veil.database.Database;
+import ca.marshallasch.veil.proto.DhtProto;
+
 
 /**
  * This class contains the the logic for signing up for an account.
@@ -77,6 +80,9 @@ public class FragmentSignUp extends Fragment
     {
         String firstName = firstNameInput.getText().toString();
         String lastName = lastNameInput.getText().toString();
+        String email = emailAddressInput.getText().toString();
+        String password = passwordInput.getText().toString();
+        String passwordConf = passwordConfInput.getText().toString();
 
         if (firstName.length() == 0 || lastName.length() == 0) {
             Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.missing_name, Snackbar.LENGTH_SHORT).show();
@@ -93,7 +99,7 @@ public class FragmentSignUp extends Fragment
             return;
         }
 
-        switch (checkPasswords(passwordInput.getText().toString(), passwordConfInput.getText().toString())) {
+        switch (checkPasswords(password, passwordConf)) {
 
             case TOO_SIMPLE:
                 Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.password_complexity, Snackbar.LENGTH_SHORT).show();
@@ -108,8 +114,17 @@ public class FragmentSignUp extends Fragment
                 break;
         }
 
-        // TODO: 2018-05-29 create the user here
+        // create the user in the database
+        Database db = Database.getInstance(getActivity());
+        DhtProto.User user = db.createUser(firstName, lastName, email, password);
+        db.close();
 
+        if (user == null) {
+            Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.unknown_err, Snackbar.LENGTH_SHORT).show();
+        } else {
+            ((MainActivity) getActivity()).setCurrentUser(user);
+            ((MainActivity) getActivity()).navigateTo(new FragmentDashBoard(), true);
+        }
     }
 
     /**
