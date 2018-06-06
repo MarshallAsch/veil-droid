@@ -3,6 +3,8 @@ package ca.marshallasch.veil;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -11,6 +13,7 @@ import android.widget.Toast;
 
 import java.util.HashSet;
 
+import ca.marshallasch.veil.proto.DhtProto;
 import io.left.rightmesh.android.AndroidMeshManager;
 import io.left.rightmesh.android.MeshService;
 import io.left.rightmesh.id.MeshId;
@@ -35,6 +38,8 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
 
     // MeshManager instance - interface to the mesh network.
     AndroidMeshManager meshManager = null;
+
+    private DhtProto.User currentUser = null;
 
     private boolean meshActive = false;
 
@@ -169,5 +174,24 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         } else if (event.state == REMOVED){
             users.remove(event.peerUuid);
         }
+    }
+
+    /**
+     * Gets the current user.
+     * @return currentUser
+     */
+    @Nullable
+    public DhtProto.User getCurrentUser()
+    {
+        return currentUser;
+    }
+
+    /**
+     * Sets the current users, called when logging in.
+     * @param currentUser the user who is logged in
+     */
+    public void setCurrentUser(@NonNull DhtProto.User currentUser)
+    {
+        this.currentUser = currentUser;
     }
 }

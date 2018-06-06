@@ -7,6 +7,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 
@@ -22,7 +24,7 @@ public class DatabaseTest
     @Before
     public void setUp() throws Exception
     {
-        database = Database.getInstance(InstrumentationRegistry.getTargetContext());
+        database = Database.getInstance_TETSING(InstrumentationRegistry.getTargetContext());
     }
 
     @After
@@ -60,4 +62,22 @@ public class DatabaseTest
         assertFalse(database.checkBlocked(null));
 
     }
+
+    @Test
+    public void createUser()
+    {
+        assertNotNull(database.createUser("Marshall", "Asch", "email@email.com", "abc123"));
+        assertNotNull(database.createUser("Marshall", "Asch", "email@email.com", "abc123"));
+        assertNotNull(database.createUser("Marshall", "Asch", "email2@email.com", "abc1234"));
+    }
+
+    @Test
+    public void login()
+    {
+        assertNotNull(database.login("email@email.com", "abc123"));
+        assertNotNull(database.login("email2@email.com", "abc1234"));
+        assertNull(database.login("email2@email.com", "abc123"));
+        assertNull(database.login("email46@email.com", "abc123"));
+    }
+
 }
