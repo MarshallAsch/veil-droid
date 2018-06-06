@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
+import ca.marshallasch.veil.utilities.Util;
 import ca.marshallasch.veil.database.Database;
 import ca.marshallasch.veil.proto.DhtProto;
 
@@ -65,9 +66,15 @@ public class FragmentSignUp extends Fragment
         MaterialButton cancel = view.findViewById(R.id.cancel_button);
         MaterialButton done = view.findViewById(R.id.done_button);
 
-        cancel.setOnClickListener(v -> getFragmentManager().popBackStack());
+        cancel.setOnClickListener(v -> {
+            getFragmentManager().popBackStack();
+            Util.hideKeyboard(v, getActivity());
+        });
 
-        done.setOnClickListener(this::onDoneClicked);
+        done.setOnClickListener(v ->{
+            this.onDoneClicked(v);
+            Util.hideKeyboard(v, getActivity());
+        });
 
         return view;
     }
