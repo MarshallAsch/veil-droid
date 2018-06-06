@@ -15,7 +15,7 @@ import android.widget.TextView;
  * @version 1.0
  * @since 2018-06-04
  */
-public class ListCell extends RecyclerView.Adapter<ListCell.ViewHolder> {
+public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHolder> {
     private String[] titles;
     private String[] content;
 
@@ -42,7 +42,7 @@ public class ListCell extends RecyclerView.Adapter<ListCell.ViewHolder> {
      * @param content
      */
 
-    public ListCell(String[] titles, String[] content) {
+    public PostListAdapter(String[] titles, String[] content) {
         this.titles = titles;
         this.content = content;
     }
@@ -57,7 +57,7 @@ public class ListCell extends RecyclerView.Adapter<ListCell.ViewHolder> {
 
     @NonNull
     @Override
-    public ListCell.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public PostListAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_cell, parent, false);
         ViewHolder viewHolder = new ViewHolder(view);
 
