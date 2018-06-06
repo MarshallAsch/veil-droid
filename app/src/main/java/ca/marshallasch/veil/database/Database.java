@@ -446,7 +446,6 @@ public class Database extends SQLiteOpenHelper
             String passwordHash = cursor.getString(cursor.getColumnIndexOrThrow(UserEntry.COLUMN_PASSWORD));
             String firstName = cursor.getString(cursor.getColumnIndexOrThrow(UserEntry.COLUMN_FIRST_NAME));
             String lastName = cursor.getString(cursor.getColumnIndexOrThrow(UserEntry.COLUMN_LAST_NAME));
-            //Timestamp timestamp = Timestamp.valueOf(cursor.getString(cursor.getColumnIndexOrThrow(UserEntry.COLUMN_TIMESTAMP)));
 
             long millis = cursor.getLong(cursor.getColumnIndexOrThrow(UserEntry.COLUMN_TIMESTAMP));
             com.google.protobuf.Timestamp time = Util.millisToTimestamp(millis);
