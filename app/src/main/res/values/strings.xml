@@ -40,5 +40,10 @@
     <string name="enter">Enter</string>
     <string name="back">Back</string>
     <string name="username">Username</string>
+    
+    
+    <!-- Shared preferences keys -->
+    <string name="pref_notifications">pref_notifications</string>
+    <!-- set to 0 for default follow list, 1 for all, 2 for mute -->
 
 </resources>
