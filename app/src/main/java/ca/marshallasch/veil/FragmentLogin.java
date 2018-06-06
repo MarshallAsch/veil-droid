@@ -8,11 +8,16 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.button.MaterialButton;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+
+import ca.marshallasch.veil.database.Database;
+import ca.marshallasch.veil.proto.DhtProto;
 
 import ca.marshallasch.veil.utilities.Util;
 
@@ -24,6 +29,9 @@ import ca.marshallasch.veil.utilities.Util;
  * @since 2018-05-30
  */
 public class FragmentLogin extends Fragment {
+
+    private EditText emailAddressInput;
+    private EditText passwordInput;
 
     public FragmentLogin() {
         // Required empty public constructor
@@ -50,12 +58,30 @@ public class FragmentLogin extends Fragment {
         MaterialButton login = view.findViewById(R.id.enter_btn);
         MaterialButton cancel = view.findViewById(R.id.back_btn);
 
+
+        emailAddressInput = view.findViewById(R.id.username);
+        passwordInput = view.findViewById(R.id.password);
+
         login.setOnClickListener(view1 -> {
             Log.i("Fragment Login", "enter button pressed");
             //TODO: check username and password
             Util.hideKeyboard(view1, getActivity());
             ((MainActivity) getActivity()).navigateTo(new FragmentDashBoard(), true);
 
+            // check the user account in the database
+            // NOTE that this will find the fist matching email + password combination on the
+            // device
+            Database db = Database.getInstance(getActivity());
+            DhtProto.User user = db.login(emailAddressInput.getText().toString(), passwordInput.getText().toString());
+            db.close();
+
+            // check that a user was found
+            if (user == null) {
+                Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.username_pass_not_match, Snackbar.LENGTH_SHORT).show();
+            } else {
+                ((MainActivity) getActivity()).setCurrentUser(user);
+                ((MainActivity) getActivity()).navigateTo(new FragmentDashBoard(), true);
+            }
         });
 
         cancel.setOnClickListener(view1 -> {
