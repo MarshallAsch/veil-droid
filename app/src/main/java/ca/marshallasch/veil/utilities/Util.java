@@ -1,6 +1,11 @@
 package ca.marshallasch.veil.utilities;
 
+import android.app.Activity;
+import android.content.Context;
 import android.support.annotation.NonNull;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+
 import com.google.protobuf.Timestamp;
 
 /**
@@ -27,5 +32,17 @@ public class Util
                 .setSeconds(millis / 1000)
                 .setNanos((int) ((millis % 1000) * 1000000))
                 .build();
+    }
+
+    /**
+     * Hides Android's soft keyboard.
+     *
+     * @param view referring to the root view of the layout
+     */
+    public static void hideKeyboard(View view, Activity activity) {
+        InputMethodManager in = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+        if(in != null){
+            in.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }
     }
 }

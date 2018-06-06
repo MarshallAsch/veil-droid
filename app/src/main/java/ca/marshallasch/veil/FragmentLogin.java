@@ -1,5 +1,6 @@
 package ca.marshallasch.veil;
 
+import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
@@ -12,6 +13,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+
+import ca.marshallasch.veil.utilities.Util;
 
 /**
  * This class holds the login UI for the application.
@@ -26,6 +29,7 @@ public class FragmentLogin extends Fragment {
         // Required empty public constructor
     }
 
+    @SuppressLint("ClickableViewAccessibility")  // added to remove the linter warning on the setOnTouchListener{line 46}
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)  {
@@ -38,7 +42,7 @@ public class FragmentLogin extends Fragment {
 
         //hides keyboard if white space is pressed
         layout.setOnTouchListener((view12, ev) -> {
-            hideKeyboard(view12);
+            Util.hideKeyboard(view12, getActivity());
             return false;
         });
 
@@ -49,13 +53,13 @@ public class FragmentLogin extends Fragment {
         login.setOnClickListener(view1 -> {
             Log.i("Fragment Login", "enter button pressed");
             //TODO: check username and password
-            hideKeyboard(view1);
+            Util.hideKeyboard(view1, getActivity());
             ((MainActivity) getActivity()).navigateTo(new FragmentDashBoard(), true);
 
         });
 
         cancel.setOnClickListener(view1 -> {
-            hideKeyboard(view1);
+            Util.hideKeyboard(view1, getActivity());
             Log.i("Fragment Login", "back button pressed");
             getFragmentManager().popBackStack();
         });
@@ -63,19 +67,10 @@ public class FragmentLogin extends Fragment {
         return view;
     }
 
+
     @Override
     public void onDestroyView(){
         super.onDestroyView();
         ((MainActivity) getActivity()).getSupportActionBar().show();
-    }
-
-    /**
-     * Hides Android's soft keyboard.
-     *
-     * @param view
-     */
-    protected void hideKeyboard(View view) {
-        InputMethodManager in = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-        in.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
     }
 }
