@@ -1,7 +1,5 @@
 package ca.marshallasch.veil;
 
-
-import android.app.Activity;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,14 +8,26 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 
-public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
+/**
+ * This class serves as an adapter for {@link FragmentDiscoverForums}.
+ *
+ * @author  Weihan Li
+ * @version 1.0
+ * @since 2018-06-04
+ */
+public class ListCell extends RecyclerView.Adapter<ListCell.ViewHolder> {
     private String[] titles;
     private String[] content;
-    private Activity activity;
+
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private TextView title;
         private TextView contentPreview;
+
+        /**
+         * constructor for the ViewHolder class
+         * @param itemsView
+         */
         public ViewHolder(View itemsView){
             super(itemsView);
             title = itemsView.findViewById(R.id.title);
@@ -26,35 +36,50 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
         }
     }
 
+    /**
+     * Constructor for this current class
+     * @param titles
+     * @param content
+     */
 
-    public ListAdapter(String[] titles, String[] content, Activity activity) {
+    public ListCell(String[] titles, String[] content) {
         this.titles = titles;
         this.content = content;
-        this.activity = activity;
     }
 
 
+    /**
+     * Creates the view holder if there is no existing view holders for recycler view can reuse.
+     * @param parent
+     * @param viewType
+     * @return viewHolder
+     */
 
     @NonNull
     @Override
-    public ListAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ListCell.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_cell, parent, false);
         ViewHolder viewHolder = new ViewHolder(view);
 
         return viewHolder;
     }
 
+    /**
+     * Binds new information to the cell of the list based on position.
+     * @param viewHolder
+     * @param position
+     */
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, final int position) {
         viewHolder.title.setText(titles[position]);
         viewHolder.contentPreview.setText(content[position]);
     }
 
-    @Override
     /**
-     * Description:
-     * Returns the size of the data set. Called by layout manager.
+     * Returns the total number of items in the data set held by this adapter.
+     * @return titles.length
      */
+    @Override
     public int getItemCount() {
         return titles.length;
     }

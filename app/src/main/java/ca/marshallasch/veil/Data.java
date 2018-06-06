@@ -1,11 +1,11 @@
 package ca.marshallasch.veil;
 
 /**
+ * This class holds all the data fetching functions
+ *
  * @author Weihan
  * @since 2018-06-04
  *
- * Description:
- * This class holds all the data fetching functions
  * TODO: Change this false data into real data fetching functions
  */
 
