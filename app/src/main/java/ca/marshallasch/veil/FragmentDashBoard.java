@@ -60,6 +60,7 @@ public class FragmentDashBoard extends Fragment {
 
         discoverForumsBtn.setOnClickListener(view1 -> {
             Log.i("Fragment Dashboard", "discover forums pressed");
+            ((MainActivity) getActivity()).navigateTo(new FragmentDiscoverForums(), true);
         });
 
         personalForumsBtn.setOnClickListener(view1 -> {
