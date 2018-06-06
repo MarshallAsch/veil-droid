@@ -29,7 +29,7 @@
     <string name="invalid_email">Invalid Email Address</string>
     <string name="invalid_phone_number">Invalid Phone Number</string>
 
-    <string name="username_pass_not_match">Username and Password do not match</string>
+    <string name="username_pass_not_match">Invalid username or password</string>
 
     <string name="unknown_err">Unknown Error</string>
 
