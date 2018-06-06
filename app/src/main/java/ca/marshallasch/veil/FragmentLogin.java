@@ -63,11 +63,14 @@ public class FragmentLogin extends Fragment {
 
             hideKeyboard(view1);
 
+            // check the user account in the database
+            // NOTE that this will find the fist matching email + password combination on the
+            // device
             Database db = Database.getInstance(getActivity());
-
             DhtProto.User user = db.login(emailAddressInput.getText().toString(), passwordInput.getText().toString());
             db.close();
 
+            // check that a user was found
             if (user == null) {
                 Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.username_pass_not_match, Snackbar.LENGTH_SHORT).show();
             } else {
