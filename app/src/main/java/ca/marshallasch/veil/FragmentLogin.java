@@ -2,7 +2,6 @@ package ca.marshallasch.veil;
 
 import android.annotation.SuppressLint;
 import android.app.Fragment;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -13,12 +12,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 import ca.marshallasch.veil.database.Database;
 import ca.marshallasch.veil.proto.DhtProto;
-
 import ca.marshallasch.veil.utilities.Util;
 
 /**
@@ -64,9 +61,7 @@ public class FragmentLogin extends Fragment {
 
         login.setOnClickListener(view1 -> {
             Log.i("Fragment Login", "enter button pressed");
-            //TODO: check username and password
             Util.hideKeyboard(view1, getActivity());
-            ((MainActivity) getActivity()).navigateTo(new FragmentDashBoard(), true);
 
             // check the user account in the database
             // NOTE that this will find the fist matching email + password combination on the
