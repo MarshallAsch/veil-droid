@@ -1,5 +1,7 @@
 package ca.marshallasch.veil;
 
+import android.app.Activity;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -20,6 +22,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
 
     private String[] titles;
     private String[] content;
+    private Activity activity;
 
     /**
      * This is the cell for each post in the list.
@@ -46,9 +49,10 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
      * @param titles The list of post titles
      * @param content The content of each post.
      */
-    public PostListAdapter(String[] titles, String[] content) {
+    public PostListAdapter(String[] titles, String[] content, Activity activity) {
         this.titles = titles;
         this.content = content;
+        this.activity = activity;
     }
 
     /**
@@ -72,10 +76,19 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
      */
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, final int position) {
-
         // Going to need to trim the content before it gets added here.
         viewHolder.title.setText(titles[position]);
         viewHolder.contentPreview.setText(content[position]);
+
+        viewHolder.itemView.findViewById(R.id.view_btn).setOnClickListener(view -> {
+            FragmentViewPost fragViewPost = new FragmentViewPost();
+            //create a bundle to pass data to the next fragment for viewing
+            Bundle bundle = new Bundle();
+            bundle.putString(activity.getString(R.string.post_title_key), titles[position]);
+            bundle.putString(activity.getString(R.string.post_content_key), content[position]);
+            fragViewPost.setArguments(bundle);
+            ((MainActivity) activity).navigateTo(fragViewPost, true);
+        });
     }
 
     /**
