@@ -17,6 +17,15 @@ enum MessageType {
 
 }
 
+enum KeywordType {
+    TITLE_FULL = 0;
+    TITLE_PARTIAL = 1;
+    TAG = 2;
+    COMMENT_FOR = 3;
+    NAME = 4;
+    EMAIL = 5;
+}
+
 /**
  * This is the object that will be put into the hash table. So that when the data gets used the
  * correct object can be instantiated. The key that goes into the DHT is a hash of the serialized
@@ -79,10 +88,10 @@ message Comment {
 
 /**
  * This is for the revese indexing of the content that is in the DHT
- * the hash that this is inserted under is the hash of the keyword. The list of Hashes
- * will be they keys to the content, ether users, posts or comments.
+ * the hash that this is inserted under is the hash of the keyword.
  */
 message Keyword {
     string keyword = 1;
-    repeated string hashes = 2;     // these are the hashes that the keyword maps to
+    string hash = 2;
+    KeywordType type = 3;
 }

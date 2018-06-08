@@ -4,6 +4,7 @@ import android.util.Pair;
 
 import java.util.List;
 
+import ca.marshallasch.veil.exceptions.TooManyResultsException;
 import ca.marshallasch.veil.proto.DhtProto;
 
 /**
@@ -50,7 +51,7 @@ public interface ForumStorage
      * @param hash the unique SHA256 hash of the post
      * @return a key value pair containing the hash and the post object
      */
-    Pair<String, DhtProto.Post> findPostByHash(String hash);
+    Pair<String, DhtProto.Post> findPostByHash(String hash) throws TooManyResultsException;
 
     /**
      * Look up a post by some keywords, how the keyword string is handled is implementation
@@ -94,7 +95,7 @@ public interface ForumStorage
      * @param hash the unique SHA256 hash of the comment
      * @return a key value pair containing the hash and the comment object
      */
-    Pair<String, DhtProto.Comment> findCommentByHash(String hash);
+    Pair<String, DhtProto.Comment> findCommentByHash(String hash) throws TooManyResultsException;
 
 
     /*******************************************************
@@ -119,7 +120,7 @@ public interface ForumStorage
      * @param userHash the unique SHA256 hash identifying the user
      * @return a key value pair containing the hash and the user object
      */
-    Pair<String, DhtProto.User> findUserByHash(String userHash);
+    Pair<String, DhtProto.User> findUserByHash(String userHash) throws TooManyResultsException;
 
     /**
      * Search for a user object by the keyword. This could be their name or email/username. How the
