@@ -9,13 +9,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ca.marshallasch.veil.proto.DhtProto;
+import ca.marshallasch.veil.utilities.Util;
 
 /**
  * @author Marshall Asch
@@ -38,18 +37,21 @@ public class MemoryStore implements ForumStorage
         // try loading from mem or create new
         File mapFile = new File(c.getFilesDir(), "HASH_MAP");
         HashMap<String, List<DhtProto.DhtWrapper>> tempMap = null;
-        try {
-            FileInputStream fileInputStream = new FileInputStream(mapFile);
-            ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
 
-            tempMap = (HashMap<String, List<DhtProto.DhtWrapper>>) objectInputStream.readObject();
+        if (mapFile.exists()) {
+            try {
+                FileInputStream fileInputStream = new FileInputStream(mapFile);
+                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
 
-            objectInputStream.close();
-            fileInputStream.close();
+                tempMap = (HashMap<String, List<DhtProto.DhtWrapper>>) objectInputStream.readObject();
 
-        }
-        catch (Exception e) {
-            e.printStackTrace();
+                objectInputStream.close();
+                fileInputStream.close();
+
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         // create a new map if one does not exist
@@ -94,18 +96,9 @@ public class MemoryStore implements ForumStorage
     @Override
     public String insertPost(DhtProto.Post post)
     {
-        try {
-            MessageDigest dm = MessageDigest.getInstance("SHA-256");
-            byte[] hash = dm.digest(post.toByteArray());
+        String hash = Util.generateHash(post.toByteArray());
 
-            String hashStr = dm.toString();
-            Log.d("HASH", hashStr);
-
-        }
-        catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            return null;
-        }
+        Log.d("HASH",  hash);
         return null;
     }
 
