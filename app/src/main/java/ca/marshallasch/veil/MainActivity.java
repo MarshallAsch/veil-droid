@@ -14,6 +14,7 @@ import android.widget.Toast;
 import java.util.HashSet;
 
 import ca.marshallasch.veil.proto.DhtProto;
+import ca.marshallasch.veil.utilities.Util;
 import io.left.rightmesh.android.AndroidMeshManager;
 import io.left.rightmesh.android.MeshService;
 import io.left.rightmesh.id.MeshId;
@@ -51,6 +52,17 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         setContentView(R.layout.activity_main);
 
         navigateTo( new FragmentLanding(), false);
+
+        DhtProto.Post p = DhtProto.Post.newBuilder()
+                .setAuthorId("55555")
+                .setAuthorName("bob smith")
+                .setTimestamp(Util.millisToTimestamp(44444444))
+                .setTitle("good post")
+                .setMessage("this is the mesage body")
+                .addTags("tag1")
+                .addTags("tag2")
+                .build();
+        MemoryStore.getInstance(this).insertPost(p);
     }
 
     /**
