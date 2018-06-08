@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.button.MaterialButton;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -36,7 +37,7 @@ public class FragmentDashBoard extends Fragment {
         // hides the menu bar at the top so you have a full screen landing page
         View view = inflater.inflate(R.layout.fragment_dash_board, container,false);
 
-        //disabling back press logic for this fragment
+        //disabling back press logic for this fragment so it doesn't route to the wrong page
         view.setFocusableInTouchMode(true);
         view.requestFocus();
 
@@ -64,7 +65,8 @@ public class FragmentDashBoard extends Fragment {
 
         logoutBtn.setOnClickListener(view1 -> {
             Log.i(TAG, "logout button pressed");
-            getFragmentManager().popBackStack();
+            //clears entire back stack without calling the onCreate of each fragment
+            getFragmentManager().popBackStackImmediate(null, getFragmentManager().POP_BACK_STACK_INCLUSIVE);
         });
 
         discoverForumsBtn.setOnClickListener(view1 -> {

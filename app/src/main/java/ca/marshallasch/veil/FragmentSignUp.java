@@ -72,8 +72,9 @@ public class FragmentSignUp extends Fragment
         });
 
         done.setOnClickListener(v ->{
-            this.onDoneClicked(v);
+            //route to login after sign up
             Util.hideKeyboard(v, getActivity());
+            this.onDoneClicked();
         });
 
         return view;
@@ -81,9 +82,8 @@ public class FragmentSignUp extends Fragment
 
     /**
      * This handles the account creation and input validation.
-     * @param view the button that was pressed (unused)
      */
-    private void onDoneClicked(View view)
+    private void onDoneClicked()
     {
         String firstName = firstNameInput.getText().toString();
         String lastName = lastNameInput.getText().toString();
