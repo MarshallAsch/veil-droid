@@ -230,22 +230,115 @@ public class MemoryStore implements ForumStorage
         return posts;
     }
 
+    /**
+     * This function will insert the comment object into the local hash table. This will also add
+     * record for looking up the comment by the post it is part of.
+     *
+     * @param comment the comment object that will be added
+     * @param postHash the post identifier that the comment is being added to
+     * @return the hash  identifying the comment
+     */
     @Override
     public String insertComment(DhtProto.Comment comment, String postHash)
     {
-        return null;
+        String hash = Util.generateHash(comment.toByteArray());
+
+        DhtProto.DhtWrapper wrapper = DhtProto.DhtWrapper.newBuilder()
+                .setComment(comment)
+                .setType(DhtProto.MessageType.COMMENT)
+                .build();
+
+        insert(wrapper, hash);
+
+        // the keyword item is empty
+        DhtProto.DhtWrapper keyword = generateKeyword(null, hash, COMMENT_FOR);
+        insert(keyword, postHash);
+
+        return hash;
     }
 
-    @Override
-    public List<Pair<String, DhtProto.Comment>> findCommentsByPost(String postHash)
-    {
-        return null;
-    }
-
+    /**
+     * This function will get all the comments that are associated with the given post.
+     *
+     * @param postHash he unique SHA256 hash of the post
+     * @return the list of results
+     */
     @Override
     @Nullable
-    public Pair<String, DhtProto.Comment> findCommentByHash(String hash)
+    public List<Pair<String, DhtProto.Comment>> findCommentsByPost(String postHash)
     {
+        ArrayList<DhtProto.DhtWrapper> entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(postHash);
+
+        if (entries == null) {
+            return null;
+        }
+        ArrayList<String> commentHashes = new ArrayList<>();
+
+        for (DhtProto.DhtWrapper wrapper: entries) {
+
+            // make sure that it is a user item
+            if (wrapper.getType() == DhtProto.MessageType.KEYWORD) {
+
+                // only include results that are for comments
+                DhtProto.KeywordType type = wrapper.getKeyword().getType();
+                if (type == COMMENT_FOR) {
+                    commentHashes.add(wrapper.getKeyword().getHash());
+                }
+            }
+        }
+
+        ArrayList<Pair<String, DhtProto.Comment>> comments = new ArrayList<>();
+
+        // find all the user objects
+        for(String hash: commentHashes) {
+
+            try {
+                comments.add(findCommentByHash(hash));
+            }
+            catch (TooManyResultsException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return comments;
+    }
+
+    /**
+     * This will get a comment object for a specific hash. This will throw an exception if
+     * more then 1 resulting comment is found with the same hash, this should not ever occur but
+     * the exception is there to handle the possibility.
+     *
+     * @param hash the unique SHA256 hash of the comment
+     * @return null if no matching comment is found or the result that contains the comment object
+     * @throws TooManyResultsException gets thrown if more then 1 comment is found with the same hash.
+     */
+    @Override
+    @Nullable
+    public Pair<String, DhtProto.Comment> findCommentByHash(String hash) throws TooManyResultsException
+    {
+        ArrayList<DhtProto.DhtWrapper> entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(hash);
+
+        if (entries == null) {
+            return null;
+        }
+        ArrayList<DhtProto.Comment> comments = new ArrayList<>();
+
+        for (DhtProto.DhtWrapper wrapper: entries) {
+
+            // make sure that it is a comment item
+            if (wrapper.getType() == DhtProto.MessageType.COMMENT) {
+                comments.add(wrapper.getComment());
+            }
+        }
+
+        // make sure that only 1 result was found
+        if (comments.size() > 1) {
+            throw new TooManyResultsException("Too many results for: " + hash);
+        } else if (comments.size() == 1) {
+            return new Pair<>(hash, comments.get(0));
+        }
+
+        // otherwise there were no results found.
         return null;
     }
 
@@ -309,7 +402,7 @@ public class MemoryStore implements ForumStorage
 
         for (DhtProto.DhtWrapper wrapper: entries) {
 
-            // make sure that it is a post item
+            // make sure that it is a user item
             if (wrapper.getType() == DhtProto.MessageType.USER) {
                 users.add(wrapper.getUser());
             }
@@ -394,7 +487,6 @@ public class MemoryStore implements ForumStorage
     private DhtProto.DhtWrapper generateKeyword(String keyword, String dataHash, DhtProto.KeywordType type) {
 
         keyword = keyword.toLowerCase(Locale.getDefault());
-        String hash = Util.generateHash(keyword.getBytes());
 
         DhtProto.Keyword keywordObj = DhtProto.Keyword.newBuilder()
                 .setHash(dataHash)
