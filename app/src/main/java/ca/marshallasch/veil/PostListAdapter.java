@@ -9,6 +9,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * This class serves as an adapter for {@link FragmentDiscoverForums}. This class will hold the list
@@ -84,9 +87,17 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
             FragmentViewPost fragViewPost = new FragmentViewPost();
             //create a bundle to pass data to the next fragment for viewing
             Bundle bundle = new Bundle();
-            bundle.put
-            bundle.putString(activity.getString(R.string.post_title_key), titles[position]);
-            bundle.putString(activity.getString(R.string.post_content_key), content[position]);
+            //TODO: Make a real list of Comments
+            ArrayList<CommentItem> comments = new ArrayList<>();
+            //TODO: take out fillers for the constructor of post Item
+            PostItem postItem = new PostItem(
+                    titles[position],
+                    content[position],
+                    "Jane Doe",
+                    "01332C876518A793B7C1B8DFAF6D4B404FF5DB09B21C6627CA59710CC24F696A",
+                    comments,
+                    "2018-06-04");
+            bundle.putSerializable(String.valueOf(R.string.post_object_key), postItem);
             fragViewPost.setArguments(bundle);
             ((MainActivity) activity).navigateTo(fragViewPost, true);
         });

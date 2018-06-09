@@ -42,15 +42,14 @@
     <string name="username">Username</string>
     <string name="log_out">Log Out</string>
 
+    <!-- Error Messages -->
+    <string name="failed_to_load_title">Failed to load title</string>
+    <string name="failed_to_load_content">Failed to load content</string>
+
     <!-- Bundle keys -->
-    <string name="post_title_key">post_title_key</string>
-    <string name="post_content_key">post_content_key</string>
+    <string name="post_object_key">post_object_key</string>
 
     <!-- Shared preferences keys -->
     <string name="pref_notifications">pref_notifications</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <!-- set to 0 for default follow list, 1 for all, 2 for mute -->
 
 </resources>

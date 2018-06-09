@@ -1,5 +1,7 @@
 package ca.marshallasch.veil;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -7,7 +9,7 @@ import java.util.List;
  * A Post Item Should Hold:
  * - Post title (String)
  * - Post Content (String)
- * - Comments (List of Comment Object(s))
+ * - Comments (ArrayList of Comment Object(s))
  * - Original Poster Name (String)
  * - Original Poster Hash (String)
  * - Timestamp (String)
@@ -16,12 +18,20 @@ import java.util.List;
  * @version 1.0
  * @since 2018-06-08
  */
-public class PostItem {
+public class PostItem implements Serializable {
     private String title, content, opName, opHash, timeStamp;
-    private List<CommentItem> commentItemList;
+    private ArrayList<CommentItem> commentItemList;
 
-    //constructor
-    public PostItem(String _title, String _content, String _opName, String _opHash, List<CommentItem> _commentItemList,String _timeStamp){
+    /**
+     * Constructor for post item
+     * @param _title the title of the post
+     * @param _content the content of the post
+     * @param _opName the name of the original poster as a string
+     * @param _opHash the hash Id of the original poster as a string
+     * @param _commentItemList the comments on the post as a list of {@link CommentItem}
+     * @param _timeStamp the time stamp of the post as a string
+     */
+    public PostItem(String _title, String _content, String _opName, String _opHash, ArrayList<CommentItem> _commentItemList, String _timeStamp){
         title = _title;
         content = _content;
         opName = _opName;

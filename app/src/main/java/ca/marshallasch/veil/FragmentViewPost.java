@@ -1,13 +1,13 @@
 package ca.marshallasch.veil;
 
-import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 
 
 /**
@@ -20,6 +20,8 @@ import android.widget.TextView;
  */
 public class FragmentViewPost extends Fragment {
     private String postTitle, postContent;
+    private PostItem postObject;
+
     public FragmentViewPost() {
         // Required empty public constructor
     }
@@ -34,16 +36,21 @@ public class FragmentViewPost extends Fragment {
 
         //if the bundle is not null then use the data from there else use the data from the saved instance
         if(bundle != null) {
-            postTitle = bundle.getString("post_title_key");
-            postContent = bundle.getString("post_content_key");
+            postObject = (PostItem) bundle.getSerializable(String.valueOf(R.string.post_object_key));
         } else if (savedInstanceState != null){
-            postTitle = savedInstanceState.getString("post_title_key");
-            postContent = savedInstanceState.getString("post_content_key");
+            postObject = (PostItem) savedInstanceState.getSerializable(String.valueOf(R.string.post_object_key));
         }
 
-        //set title and content, if they are not available then add in filler strings
-        postTitle = postTitle == null ? "No Data" : postTitle;
-        postContent = postContent == null ? "No Content" : postContent;
+        //if the post object is not null set values of post else set filler values
+        if(postObject != null){
+            postTitle = postObject.getPostTitle();
+            postContent = postObject.getPostContent();
+        }
+        else{
+            postTitle = String.valueOf(R.string.failed_to_load_title);
+            postContent = String.valueOf(R.string.failed_to_load_content);
+        }
+
 
         TextView viewTitle = view.findViewById(R.id.title);
         TextView viewContent = view.findViewById(R.id.content);
