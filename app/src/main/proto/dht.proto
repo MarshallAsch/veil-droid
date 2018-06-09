@@ -1,4 +1,4 @@
-/// Protocol for enuk
+/// Protocol for Long term data storage within the hash tables
 
 syntax = "proto3";
 package ca.marshallasch.veil.proto;

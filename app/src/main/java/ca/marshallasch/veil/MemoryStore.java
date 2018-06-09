@@ -13,11 +13,14 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ca.marshallasch.veil.exceptions.TooManyResultsException;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.utilities.Util;
+
+import static ca.marshallasch.veil.proto.DhtProto.KeywordType.*;
 
 /**
  * @author Marshall Asch
@@ -120,18 +123,20 @@ public class MemoryStore implements ForumStorage
 
         // add the tags to index the post
         for (String tag: tags) {
-            keyword = generateKeyword(tag, hash, DhtProto.KeywordType.TAG);
+            tag = tag.toLowerCase(Locale.getDefault());
+            keyword = generateKeyword(tag, hash, TAG);
             insert(keyword, Util.generateHash(tag.getBytes()));
         }
 
         // add the full text title to the index
-        keyword = generateKeyword(title, hash, DhtProto.KeywordType.TITLE_FULL);
-        insert(keyword, Util.generateHash(title.getBytes()));
+        keyword = generateKeyword(title, hash, TITLE_FULL);
+        insert(keyword, Util.generateHash(title.toLowerCase(Locale.getDefault()).getBytes()));
 
         // tokenize the title and add the tokens
         String[] titleKeywords = title.split(" ");
         for (String tag: titleKeywords) {
-            keyword = generateKeyword(tag, hash, DhtProto.KeywordType.TITLE_PARTIAL);
+            tag = tag.toLowerCase(Locale.getDefault());
+            keyword = generateKeyword(tag, hash, TITLE_PARTIAL);
             insert(keyword, Util.generateHash(tag.getBytes()));
         }
 
@@ -142,6 +147,7 @@ public class MemoryStore implements ForumStorage
      * This will get a post object for a specific hash. This will throw an exception if
      * more then 1 resulting post is found with the same hash, this should not ever occur but
      * the exception is there to handle the possibility.
+     *
      * @param hash the unique SHA256 hash of the post
      * @return null if no matching post is found or the result that contains the post object
      * @throws TooManyResultsException gets thrown if more then 1 post is found with the same hash.
@@ -176,10 +182,52 @@ public class MemoryStore implements ForumStorage
         return null;
     }
 
+    /**
+     * This keyword must be a single token to search for, and it must match exactly.
+     * The keyword will be normalized to lowercase.
+     *
+     * @param keyword the keyword string to look up
+     * @return the list of results
+     */
     @Override
+    @Nullable
     public List<Pair<String, DhtProto.Post>> findPostsByKeyword(String keyword)
     {
-        return null;
+        keyword = keyword.toLowerCase(Locale.getDefault());
+        ArrayList<DhtProto.DhtWrapper> entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(Util.generateHash(keyword.getBytes()));
+
+        if (entries == null) {
+            return null;
+        }
+        ArrayList<String> postHashes = new ArrayList<>();
+
+        for (DhtProto.DhtWrapper wrapper: entries) {
+
+            // make sure that it is a post item
+            if (wrapper.getType() == DhtProto.MessageType.KEYWORD) {
+
+                // only include results that are for posts
+                DhtProto.KeywordType type = wrapper.getKeyword().getType();
+                if (type == TAG || type == TITLE_PARTIAL || type == TITLE_FULL) {
+                    postHashes.add(wrapper.getKeyword().getHash());
+                }
+            }
+        }
+
+        ArrayList<Pair<String, DhtProto.Post>> posts = new ArrayList<>();
+
+        // find all the post objects
+        for(String hash: postHashes) {
+
+            try {
+                posts.add(findPostByHash(hash));
+            }
+            catch (TooManyResultsException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return posts;
     }
 
     @Override
@@ -195,27 +243,135 @@ public class MemoryStore implements ForumStorage
     }
 
     @Override
+    @Nullable
     public Pair<String, DhtProto.Comment> findCommentByHash(String hash)
     {
         return null;
     }
 
+    /**
+     * Insert a user entry into the hash table along with some indexing records to look up
+     * the user. The users hash is currently the hash of the uuid
+     *
+     * @param user the public user object to store (does not contain the password)
+     * @return the hash that is used to identify the user.
+     */
     @Override
     public String insertUser(DhtProto.User user)
     {
-        return null;
+        String hash = Util.generateHash(user.getUuid().getBytes());
+        String email = user.getEmail();
+        String firstName = user.getFirstName();
+        String lastName = user.getLastName();
+        String fullName = firstName + " " + lastName;
+
+        DhtProto.DhtWrapper wrapper = generateKeyword(email, hash, EMAIL);
+        insert(wrapper, Util.generateHash(email.toLowerCase(Locale.getDefault()).getBytes()));
+
+        // add indexes for the user in the table
+        wrapper = generateKeyword(firstName, hash, NAME);
+        insert(wrapper, Util.generateHash(firstName.toLowerCase(Locale.getDefault()).getBytes()));
+
+        wrapper = generateKeyword(lastName, hash, NAME);
+        insert(wrapper, Util.generateHash(lastName.toLowerCase(Locale.getDefault()).getBytes()));
+
+        wrapper = generateKeyword(fullName, hash, NAME);
+        insert(wrapper, Util.generateHash(fullName.toLowerCase(Locale.getDefault()).getBytes()));
+
+        // insert the user item
+        wrapper = DhtProto.DhtWrapper.newBuilder()
+                .setType(DhtProto.MessageType.USER)
+                .setUser(user)
+                .build();
+        insert(wrapper, hash);
+
+        return hash;
     }
 
+    /**
+     * This will get a user object for a specific hash. This will throw an exception if
+     * more then 1 resulting user is found with the same hash, this should not ever occur but
+     * the exception is there to handle the possibility.
+     *
+     * @param userHash the unique SHA256 hash identifying the user
+     * @return null if no matching user is found or the result that contains the user object
+     * @throws TooManyResultsException gets thrown if more then 1 user is found with the same hash.
+     */
     @Override
-    public Pair<String, DhtProto.User> findUserByHash(String userHash)
+    public Pair<String, DhtProto.User> findUserByHash(String userHash) throws TooManyResultsException
     {
+        ArrayList<DhtProto.DhtWrapper> entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(userHash);
+
+        if (entries == null) {
+            return null;
+        }
+        ArrayList<DhtProto.User> users = new ArrayList<>();
+
+        for (DhtProto.DhtWrapper wrapper: entries) {
+
+            // make sure that it is a post item
+            if (wrapper.getType() == DhtProto.MessageType.USER) {
+                users.add(wrapper.getUser());
+            }
+        }
+
+        // make sure that only 1 result was found
+        if (users.size() > 1) {
+            throw new TooManyResultsException("Too many results for: " + userHash);
+        } else if (users.size() == 1) {
+            return new Pair<>(userHash, users.get(0));
+        }
+
+        // otherwise there were no results found.
         return null;
     }
 
+    /**
+     * This keyword must be a single token to search for, and it must match exactly.
+     * The keyword will be normalized to lowercase. It can be a name or email.
+     *
+     * @param name the keyword to search for.
+     * @return the list of results
+     */
     @Override
+    @Nullable
     public List<Pair<String, DhtProto.User>> findUsersByName(String name)
     {
-        return null;
+        name = name.toLowerCase(Locale.getDefault());
+        ArrayList<DhtProto.DhtWrapper> entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(Util.generateHash(name.getBytes()));
+
+        if (entries == null) {
+            return null;
+        }
+        ArrayList<String> userHashes = new ArrayList<>();
+
+        for (DhtProto.DhtWrapper wrapper: entries) {
+
+            // make sure that it is a user item
+            if (wrapper.getType() == DhtProto.MessageType.KEYWORD) {
+
+                // only include results that are for posts
+                DhtProto.KeywordType type = wrapper.getKeyword().getType();
+                if (type == EMAIL || type == NAME) {
+                    userHashes.add(wrapper.getKeyword().getHash());
+                }
+            }
+        }
+
+        ArrayList<Pair<String, DhtProto.User>> users = new ArrayList<>();
+
+        // find all the user objects
+        for(String hash: userHashes) {
+
+            try {
+                users.add(findUserByHash(hash));
+            }
+            catch (TooManyResultsException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return users;
     }
 
     @Override
@@ -228,6 +384,8 @@ public class MemoryStore implements ForumStorage
 
     /**
      * This function will generate a keyword object used for indexing the objects in the table.
+     * The keyword is normalized to lowercase to make future searches case insensitive.
+     *
      * @param keyword the keyword it is mapping
      * @param dataHash the data it is mapping the key to
      * @param type the type of keyword it is. {@link DhtProto.KeywordType}
@@ -235,6 +393,7 @@ public class MemoryStore implements ForumStorage
      */
     private DhtProto.DhtWrapper generateKeyword(String keyword, String dataHash, DhtProto.KeywordType type) {
 
+        keyword = keyword.toLowerCase(Locale.getDefault());
         String hash = Util.generateHash(keyword.getBytes());
 
         DhtProto.Keyword keywordObj = DhtProto.Keyword.newBuilder()
