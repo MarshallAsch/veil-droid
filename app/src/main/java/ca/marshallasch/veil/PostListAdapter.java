@@ -84,6 +84,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
             FragmentViewPost fragViewPost = new FragmentViewPost();
             //create a bundle to pass data to the next fragment for viewing
             Bundle bundle = new Bundle();
+            bundle.put
             bundle.putString(activity.getString(R.string.post_title_key), titles[position]);
             bundle.putString(activity.getString(R.string.post_content_key), content[position]);
             fragViewPost.setArguments(bundle);
