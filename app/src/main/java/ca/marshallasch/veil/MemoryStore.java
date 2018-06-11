@@ -136,7 +136,7 @@ public class MemoryStore implements ForumStorage
         String[] titleKeywords = title.split(" ");
         for (String tag: titleKeywords) {
             tag = tag.toLowerCase(Locale.getDefault());
-            keyword = generateKeyword(tag, hash, TITLE_PARTIAL);
+            keyword = generateKeyword(title, hash, TITLE_PARTIAL);
             insert(keyword, Util.generateHash(tag.getBytes()));
         }
 
@@ -250,7 +250,8 @@ public class MemoryStore implements ForumStorage
 
         insert(wrapper, hash);
 
-        // the keyword item is empty
+        // the keyword item is empty because it is unused in the search,
+        // this is the search item so it can be associates with a post
         DhtProto.DhtWrapper keyword = generateKeyword(null, hash, COMMENT_FOR);
         insert(keyword, postHash);
 
@@ -362,10 +363,10 @@ public class MemoryStore implements ForumStorage
         insert(wrapper, Util.generateHash(email.toLowerCase(Locale.getDefault()).getBytes()));
 
         // add indexes for the user in the table
-        wrapper = generateKeyword(firstName, hash, NAME);
+        wrapper = generateKeyword(fullName, hash, NAME);
         insert(wrapper, Util.generateHash(firstName.toLowerCase(Locale.getDefault()).getBytes()));
 
-        wrapper = generateKeyword(lastName, hash, NAME);
+        wrapper = generateKeyword(fullName, hash, NAME);
         insert(wrapper, Util.generateHash(lastName.toLowerCase(Locale.getDefault()).getBytes()));
 
         wrapper = generateKeyword(fullName, hash, NAME);
