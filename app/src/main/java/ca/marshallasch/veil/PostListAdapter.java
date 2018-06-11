@@ -2,6 +2,7 @@ package ca.marshallasch.veil;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,6 +12,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import ca.marshallasch.veil.proto.DhtProto;
 
 
 /**
@@ -88,16 +91,15 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
             //create a bundle to pass data to the next fragment for viewing
             Bundle bundle = new Bundle();
             //TODO: Make a real list of Comments
-            ArrayList<CommentItem> comments = new ArrayList<>();
             //TODO: take out fillers for the constructor of post Item
-            PostItem postItem = new PostItem(
-                    titles[position],
-                    content[position],
-                    "Jane Doe",
-                    "01332C876518A793B7C1B8DFAF6D4B404FF5DB09B21C6627CA59710CC24F696A",
-                    comments,
-                    "2018-06-04");
-            bundle.putSerializable(String.valueOf(R.string.post_object_key), postItem);
+            DhtProto.Post post = DhtProto.Post.newBuilder()
+                    .setTitle(titles[position])
+                    .setMessage(content[position])
+                    .build();
+
+            bundle.putByteArray(String.valueOf(R.string.post_object_key), post.toByteArray());
+
+
             fragViewPost.setArguments(bundle);
             ((MainActivity) activity).navigateTo(fragViewPost, true);
         });

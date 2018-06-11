@@ -8,6 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.protobuf.InvalidProtocolBufferException;
+
+import ca.marshallasch.veil.proto.DhtProto;
 
 
 /**
@@ -20,7 +23,7 @@ import android.widget.TextView;
  */
 public class FragmentViewPost extends Fragment {
     private String postTitle, postContent;
-    private PostItem postObject;
+    private DhtProto.Post postObject;
 
     public FragmentViewPost() {
         // Required empty public constructor
@@ -36,15 +39,23 @@ public class FragmentViewPost extends Fragment {
 
         //if the bundle is not null then use the data from there else use the data from the saved instance
         if(bundle != null) {
-            postObject = (PostItem) bundle.getSerializable(String.valueOf(R.string.post_object_key));
+           try{
+               postObject = DhtProto.Post.parseFrom(bundle.getByteArray(String.valueOf(R.string.post_object_key)));
+           } catch (InvalidProtocolBufferException e){
+               e.printStackTrace();
+           }
         } else if (savedInstanceState != null){
-            postObject = (PostItem) savedInstanceState.getSerializable(String.valueOf(R.string.post_object_key));
+            try{
+                postObject = DhtProto.Post.parseFrom(savedInstanceState.getByteArray(String.valueOf(R.string.post_object_key)));
+            } catch (InvalidProtocolBufferException e){
+                e.printStackTrace();
+            }
         }
 
         //if the post object is not null set values of post else set filler values
         if(postObject != null){
-            postTitle = postObject.getPostTitle();
-            postContent = postObject.getPostContent();
+            postTitle = postObject.getTitle();
+            postContent = postObject.getMessage();
         }
         else{
             postTitle = String.valueOf(R.string.failed_to_load_title);
