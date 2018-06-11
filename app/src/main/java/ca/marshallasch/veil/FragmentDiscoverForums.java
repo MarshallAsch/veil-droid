@@ -45,7 +45,7 @@ public class FragmentDiscoverForums extends Fragment {
 
         linearLayoutManager  = new LinearLayoutManager(activity);
         recyclerView.setLayoutManager(linearLayoutManager);
-        recyclerAdapter = new PostListAdapter(Data.getTitles(), Data.getContent());
+        recyclerAdapter = new PostListAdapter(Data.getTitles(), Data.getContent(), getActivity());
         recyclerView.setAdapter(recyclerAdapter);
 
         return view;
