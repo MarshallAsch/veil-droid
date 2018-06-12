@@ -21,6 +21,7 @@
     <string name="title_title">Title</string>
     <string name="title_hint">A short title for your question.</string>
     <string name="tags_title">Tags</string>
+    <string name="tags_hint">A comma separated list of tag words</string>
     <string name="message_hint">Some more details about the question you wish to ask.</string>
 
     
@@ -39,6 +40,8 @@
     <string name="username_pass_not_match">Invalid username or password</string>
 
     <string name="unknown_err">Unknown Error</string>
+
+    <string name="failed_to_save_data">Can not save the data</string>
 
     <!-- General strings for use throughout the app -->
     <string name="done">Done</string>

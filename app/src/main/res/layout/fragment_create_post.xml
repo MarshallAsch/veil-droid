@@ -19,10 +19,22 @@
         app:layout_constraintStart_toStartOf="@+id/title_text_input"
         app:layout_constraintTop_toTopOf="parent"/>
 
+    <TextView
+        android:id="@+id/textView8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:text="@string/tags_title"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        app:layout_constraintBottom_toTopOf="@+id/tags_text_input"
+        app:layout_constraintStart_toStartOf="@+id/tags_text_input"/>
+
     <EditText
         android:id="@+id/post_message"
         android:layout_width="0dp"
-        android:layout_height="323dp"
+        android:layout_height="258dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
@@ -45,11 +57,10 @@
         android:layout_marginRight="16dp"
         android:layout_marginStart="16dp"
         android:hint="@string/title_hint"
-        app:layout_constraintBottom_toTopOf="@+id/post_message"
+        app:layout_constraintBottom_toTopOf="@+id/textView8"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        >
+        app:layout_constraintStart_toStartOf="parent">
 
         <android.support.design.widget.TextInputEditText
             android:id="@+id/title_text_edit"
@@ -58,6 +69,32 @@
             android:inputType="text|textAutoCorrect|textAutoComplete"
             android:maxLines="1"/>
     </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/tags_text_input"
+
+        android:layout_width="0dp"
+        android:layout_height="67dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginStart="16dp"
+        android:hint="@string/tags_hint"
+        app:layout_constraintBottom_toTopOf="@+id/post_message"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        >
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/tags_text_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text|textAutoCorrect|textAutoComplete"
+            android:maxLines="1"/>
+    </android.support.design.widget.TextInputLayout>
+
 
     <android.support.design.button.MaterialButton
         android:id="@+id/cancel_button"
