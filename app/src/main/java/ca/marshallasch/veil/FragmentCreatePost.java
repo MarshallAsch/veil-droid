@@ -89,17 +89,19 @@ public class FragmentCreatePost extends Fragment
         String tags = tagsInput.getText().toString();
         String title = titleInput.getText().toString();
         String message = messageInput.getText().toString();
-        String authorName = currentUser.getFirstName() + " " + currentUser.getLastName();
-        String authorID = currentUser.getUuid();
         String uuid = UUID.randomUUID().toString();
         String hash = null;
         Date now = new Date();
         Timestamp timestamp = Util.millisToTimestamp(now.getTime());
 
         // check input
-        if (title.length() == 0 || message.length() == 0) {
+        if (title.length() == 0 || message.length() == 0 || currentUser == null) {
             return false;
         }
+
+        String authorName = currentUser.getFirstName() + " " + currentUser.getLastName();
+        String authorID = currentUser.getUuid();
+
 
         ArrayList<String> tagList = (ArrayList<String>) Arrays.asList(tags.split(","));
 
