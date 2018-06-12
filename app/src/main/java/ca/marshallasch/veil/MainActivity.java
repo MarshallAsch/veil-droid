@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -51,6 +52,39 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         setContentView(R.layout.activity_main);
 
         navigateTo( new FragmentLanding(), false);
+
+        // Gets an instance of the Android-specific MeshManager singleton.
+        meshManager = AndroidMeshManager.getInstance(this, this);
+    }
+
+    /**
+     * Called when activity is on screen.
+     */
+    @Override
+    protected void onResume() {
+        try {
+            super.onResume();
+            meshManager.resume();
+        } catch (MeshService.ServiceDisconnectedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Called when the app is being closed (not just navigated away from). Shuts down
+     * the {@link AndroidMeshManager} instance.
+     */
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+
+        try {
+            meshManager.stop();
+        }
+        catch (MeshService.ServiceDisconnectedException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -127,6 +161,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
                     Toast.makeText(getApplicationContext(), status, Toast.LENGTH_SHORT).show();
                     return;
                 }
+                Log.d("MESH", "initilized");
 
             case RESUME:  // over the mesh!
 
@@ -172,6 +207,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         // Update peer list.
         PeerChangedEvent event = (PeerChangedEvent) e;
         if (event.state != REMOVED && !users.contains(event.peerUuid)) {
+            Log.d("FOUND", "found user: " + event.peerUuid);
             users.add(event.peerUuid);
         } else if (event.state == REMOVED){
             users.remove(event.peerUuid);
