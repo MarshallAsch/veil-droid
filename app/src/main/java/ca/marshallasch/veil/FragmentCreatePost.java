@@ -24,6 +24,7 @@ import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.utilities.Util;
 
 /**
+ * This is the class to create a new post item and will add it to the data stores.
  * @author Marshall Asch
  * @version 1.0
  * @since 2018-06-11
