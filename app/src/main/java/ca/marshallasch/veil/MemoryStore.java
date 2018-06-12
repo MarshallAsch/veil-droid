@@ -23,6 +23,12 @@ import ca.marshallasch.veil.utilities.Util;
 import static ca.marshallasch.veil.proto.DhtProto.KeywordType.*;
 
 /**
+ * This class is a data store for forum. It is implemented as a local hash table. This implementation
+ * should be fairly similar to the targeted implementation in a distributed hash table.
+ * Inorder for the different devices to get a copy of the posts and the messages it will rely on
+ * the peer discovery data exchange protocol for now.
+ *
+ *
  * @author Marshall Asch
  * @version 1.0
  * @since 2018-06-08
