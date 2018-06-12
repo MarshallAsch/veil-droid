@@ -3,7 +3,7 @@ package ca.marshallasch.veil;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Pair;
+import android.support.v4.util.Pair;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,17 +35,21 @@ import static ca.marshallasch.veil.proto.DhtProto.KeywordType.*;
  */
 public class MemoryStore implements ForumStorage
 {
-    private HashMap<String, List<DhtProto.DhtWrapper>> hashMap;
+    // Made package-private so that it can be accessed for testing.
+    HashMap<String, List<DhtProto.DhtWrapper>> hashMap;
 
 
     private static MemoryStore instance;
     private static final AtomicInteger openCounter = new AtomicInteger();
 
-    private Context context;
-
     private MemoryStore(Context c) {
 
-        context = c;
+        // if there is no context then do not load a persistent file
+        if (c == null) {
+            hashMap = new HashMap<>();
+            return;
+        }
+
         // try loading from mem or create new
         File mapFile = new File(c.getFilesDir(), "HASH_MAP");
         HashMap<String, List<DhtProto.DhtWrapper>> tempMap = null;
@@ -86,7 +90,12 @@ public class MemoryStore implements ForumStorage
     /**
      * This function will update the saved copy of the hash map to the disk.
      */
-    public void close() {
+    public void close(Context context) {
+
+        // if there is no context then don't save the file
+        if (context == null) {
+            return;
+        }
 
         File mapFile = new File(context.getFilesDir(), "HASH_MAP");
 
@@ -114,6 +123,10 @@ public class MemoryStore implements ForumStorage
     @Override
     public String insertPost(DhtProto.Post post)
     {
+        if (post == null) {
+            return null;
+        }
+
         String hash = Util.generateHash(post.toByteArray());
 
         DhtProto.DhtWrapper wrapper = DhtProto.DhtWrapper.newBuilder()
