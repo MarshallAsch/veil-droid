@@ -2,16 +2,12 @@ package ca.marshallasch.veil;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import ca.marshallasch.veil.proto.DhtProto;
 
@@ -33,7 +29,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
     /**
      * This is the cell for each post in the list.
      */
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+     static class ViewHolder extends RecyclerView.ViewHolder {
         private TextView title;
         private TextView contentPreview;
 
@@ -41,7 +37,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
          * constructor for the ViewHolder class
          * @param itemsView the XML layout for the cell. Currently is a list_cell.xml
          */
-        public ViewHolder(View itemsView){
+        ViewHolder(View itemsView){
             super(itemsView);
             title = itemsView.findViewById(R.id.title);
             contentPreview = itemsView.findViewById(R.id.content_preview);
@@ -64,7 +60,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
     /**
      * Creates the cell view if there is no existing cells available for recycler view can reuse.
      * @param parent the list that it belongs to
-     * @param viewType the type of view that is needed, incase there is more then one type in the list
+     * @param viewType the type of view that is needed, in case there is more then one type in the list
      * @return viewHolder
      */
     @NonNull

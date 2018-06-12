@@ -22,13 +22,13 @@ public class DatabaseTest
 
     private Database database;
     @Before
-    public void setUp() throws Exception
+    public void setUp()
     {
         database = Database.getInstance_TETSING(InstrumentationRegistry.getTargetContext());
     }
 
     @After
-    public void tearDown() throws Exception
+    public void tearDown()
     {
         database.close();
     }

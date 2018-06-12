@@ -64,4 +64,16 @@
     <string name="pref_notifications">pref_notifications</string>
 
 
+    <string name="title_place_holder">Title</string>
+    <string name="preview_place_holder">Message Content</string>
+    <string name="dash_color_description">background colour styling</string>
+    <string name="profile_picture_description">Profile Picture</string>
+    <string name="email_placeholder">placeholderemail@placeholder.com</string>
+    <string name="name_placeholder">PLACEHOLDER NAME</string>
+    <string name="discover_forums">Discover Forums</string>
+    <string name="your_forums">Your Forums</string>
+    <string name="view">View</string>
+
+    <string name="full_name_placeholder">%s %s</string>
+
 </resources>

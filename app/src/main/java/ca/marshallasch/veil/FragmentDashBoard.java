@@ -1,6 +1,7 @@
 package ca.marshallasch.veil;
 
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -50,7 +51,7 @@ public class FragmentDashBoard extends Fragment {
 
         // buttons and event listeners
         MaterialButton logoutBtn = view.findViewById(R.id.logout_btn);
-        MaterialButton discoverForumsBtn = view.findViewById(R.id.discover_fourms_btn);
+        MaterialButton discoverForumsBtn = view.findViewById(R.id.discover_forums_btn);
         MaterialButton personalForumsBtn = view.findViewById(R.id.personal_forums_btn);
         FloatingActionButton newPostButton = view.findViewById(R.id.new_post);
 
@@ -61,13 +62,14 @@ public class FragmentDashBoard extends Fragment {
 
         if (currentUser != null) {
             emailAddress.setText(currentUser.getEmail());
-            name.setText(currentUser.getFirstName() + " " + currentUser.getLastName());
+            name.setText(getString(R.string.full_name_placeholder, currentUser.getFirstName(), currentUser.getLastName()));
+
         }
 
         logoutBtn.setOnClickListener(view1 -> {
             Log.i(TAG, "logout button pressed");
             //clears entire back stack without calling the onCreate of each fragment
-            getFragmentManager().popBackStackImmediate(null, getFragmentManager().POP_BACK_STACK_INCLUSIVE);
+            getFragmentManager().popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         });
 
         discoverForumsBtn.setOnClickListener(view1 -> {

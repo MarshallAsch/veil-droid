@@ -23,15 +23,9 @@ import android.view.ViewGroup;
  */
 public class FragmentDiscoverForums extends Fragment {
 
-    private RecyclerView recyclerView;
-    private RecyclerView.Adapter recyclerAdapter;
-    private LinearLayoutManager linearLayoutManager;
-    private Activity activity;
-
     public FragmentDiscoverForums() {
         // Required empty public constructor
     }
-
 
     @Nullable
     @Override
@@ -39,13 +33,13 @@ public class FragmentDiscoverForums extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_discover_forums, container,false);
 
-        activity = getActivity();
-        recyclerView = view.findViewById(R.id.list_view);
+        Activity activity = getActivity();
+        RecyclerView recyclerView = view.findViewById(R.id.list_view);
         recyclerView.setHasFixedSize(true);
 
-        linearLayoutManager  = new LinearLayoutManager(activity);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(activity);
         recyclerView.setLayoutManager(linearLayoutManager);
-        recyclerAdapter = new PostListAdapter(Data.getTitles(), Data.getContent(), getActivity());
+        RecyclerView.Adapter recyclerAdapter = new PostListAdapter(Data.getTitles(), Data.getContent(), getActivity());
         recyclerView.setAdapter(recyclerAdapter);
 
         return view;
