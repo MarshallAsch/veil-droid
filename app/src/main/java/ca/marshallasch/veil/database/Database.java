@@ -41,7 +41,7 @@ import ca.marshallasch.veil.utilities.Util;
 public class Database extends SQLiteOpenHelper
 {
     private static String DATABASE_NAME = "contentDiscoveryTables";
-    private static int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 3;
 
     // this is for the singleton
     private static Database instance = null;
@@ -73,7 +73,7 @@ public class Database extends SQLiteOpenHelper
     /**
      * This is used to initiate an instance of the class so only one will ever exist at a time.
      * This is used for integration tests so that if the tests are run on a real device it will
-     * use a seperate database for testing.
+     * use a separate database for testing.
      *
      * @param c the applications context
      * @return the existing instance of the database, or creates one and returns that.
@@ -510,7 +510,7 @@ public class Database extends SQLiteOpenHelper
      *
      * Since this calls {@link #getReadableDatabase()}, do not call this from the main thread
      * @param tableName The name of the table to get the count for
-     * @return
+     * @return the number of matching rows
      */
     @WorkerThread
     public int getCount(@NonNull String tableName) {
