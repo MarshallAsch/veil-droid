@@ -6,7 +6,7 @@
     android:layout_height="match_parent">
 
     <android.support.design.button.MaterialButton
-        android:id="@+id/discover_fourms_btn"
+        android:id="@+id/discover_forums_btn"
         android:layout_width="322dp"
         android:layout_height="85dp"
         android:layout_alignParentTop="true"
@@ -18,7 +18,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:background="@color/colorPrimary"
-        android:text="Discover Forums"
+        android:text="@string/discover_forums"
         app:backgroundTint="@color/colorPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -39,12 +39,12 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:background="@color/colorPrimary"
-        android:text="Your Forums"
+        android:text="@string/your_forums"
         app:backgroundTint="@color/colorPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/discover_fourms_btn"
+        app:layout_constraintTop_toBottomOf="@+id/discover_forums_btn"
         app:layout_constraintVertical_bias="0.0" />
 
     <ImageView
@@ -61,7 +61,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"
-        app:srcCompat="@drawable/background" />
+        app:srcCompat="@drawable/background"
+        android:contentDescription="@string/dash_color_description"/>
 
     <ImageView
         android:id="@+id/profile_img"
@@ -75,12 +76,13 @@
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:src="@drawable/profilepic"
+        android:src="@drawable/profile_picture"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.072" />
+        app:layout_constraintVertical_bias="0.072"
+        android:contentDescription="@string/profile_picture_description"/>
 
     <TextView
         android:id="@+id/user_email"
@@ -93,7 +95,7 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
-        android:text="placeholderemail@placeholder.com"
+        android:text="@string/email_placeholder"
         android:textColor="@android:color/darker_gray"
         app:layout_constraintBottom_toBottomOf="@+id/imageView"
         app:layout_constraintEnd_toEndOf="parent"
@@ -111,7 +113,7 @@
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="PLACEHOLDER NAME"
+        android:text="@string/name_placeholder"
         android:textColor="@color/white"
         app:layout_constraintBottom_toTopOf="@+id/user_email"
         app:layout_constraintEnd_toEndOf="parent"
