@@ -216,7 +216,7 @@ public class MemoryStore implements ForumStorage
         ArrayList<DhtProto.DhtWrapper> entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(Util.generateHash(keyword.getBytes()));
 
         if (entries == null) {
-            return null;
+            return new ArrayList<>();
         }
         ArrayList<String> postHashes = new ArrayList<>();
 

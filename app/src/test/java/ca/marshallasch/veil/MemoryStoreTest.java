@@ -5,6 +5,8 @@ import android.support.v4.util.Pair;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.ArrayList;
+
 import ca.marshallasch.veil.exceptions.TooManyResultsException;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.utilities.Util;
@@ -134,6 +136,45 @@ public class MemoryStoreTest
     @Test
     public void findPostsByKeyword()
     {
+        MemoryStore memoryStore = MemoryStore.getInstance(null);
+        DhtProto.Post p = DhtProto.Post.newBuilder()
+                .setTitle("Post4")
+                .setMessage("TMessage body does not matter")
+                .addTags("Pop")
+                .addTags("sprite")
+                .build();
+
+
+        // check that the post insert works
+        String hash = memoryStore.insertPost(p);
+        Assert.assertNotNull(hash);
+
+        DhtProto.Post p2 = DhtProto.Post.newBuilder()
+                .setTitle("Post5")
+                .setMessage("TMessage body does not matter")
+                .addTags("coke")
+                .addTags("sprite")
+                .build();
+
+
+        // check that the post insert works
+        hash = memoryStore.insertPost(p2);
+        Assert.assertNotNull(hash);
+
+        // check 2 search results
+        ArrayList<Pair<String, DhtProto.Post>> posts = (ArrayList<Pair<String, DhtProto.Post>>) memoryStore.findPostsByKeyword("sprite");
+        Assert.assertNotNull(posts);
+        Assert.assertEquals(2, posts.size());
+
+        // check 1 search result
+        posts = (ArrayList<Pair<String, DhtProto.Post>>) memoryStore.findPostsByKeyword("coke");
+        Assert.assertNotNull(posts);
+        Assert.assertEquals(1, posts.size());
+
+        // no results
+        posts = (ArrayList<Pair<String, DhtProto.Post>>) memoryStore.findPostsByKeyword("bob marley");
+        Assert.assertNotNull(posts);
+        Assert.assertEquals(0, posts.size());
     }
 
     @Test
