@@ -11,11 +11,13 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import ca.marshallasch.veil.comparators.CommentPairComparator;
 import ca.marshallasch.veil.exceptions.TooManyResultsException;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.utilities.Util;
@@ -279,18 +281,19 @@ public class MemoryStore implements ForumStorage
 
     /**
      * This function will get all the comments that are associated with the given post.
+     * The comments are sorted by the time that they were created.
      *
      * @param postHash he unique SHA256 hash of the post
      * @return the list of results
      */
     @Override
-    @Nullable
+    @NonNull
     public List<Pair<String, DhtProto.Comment>> findCommentsByPost(String postHash)
     {
         ArrayList<DhtProto.DhtWrapper> entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(postHash);
 
         if (entries == null) {
-            return null;
+            return new ArrayList<>();
         }
         ArrayList<String> commentHashes = new ArrayList<>();
 
@@ -319,6 +322,8 @@ public class MemoryStore implements ForumStorage
                 e.printStackTrace();
             }
         }
+
+        Collections.sort(comments, new CommentPairComparator());
 
         return comments;
     }
@@ -372,6 +377,10 @@ public class MemoryStore implements ForumStorage
     @Override
     public String insertUser(DhtProto.User user)
     {
+        if (user == null) {
+            return null;
+        }
+
         String hash = Util.generateHash(user.getUuid().getBytes());
         String email = user.getEmail();
         String firstName = user.getFirstName();
@@ -450,11 +459,15 @@ public class MemoryStore implements ForumStorage
     @Nullable
     public List<Pair<String, DhtProto.User>> findUsersByName(String name)
     {
+        if (name == null) {
+            return new ArrayList<>();
+        }
+
         name = name.toLowerCase(Locale.getDefault());
         ArrayList<DhtProto.DhtWrapper> entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(Util.generateHash(name.getBytes()));
 
         if (entries == null) {
-            return null;
+            return new ArrayList<>();
         }
         ArrayList<String> userHashes = new ArrayList<>();
 
