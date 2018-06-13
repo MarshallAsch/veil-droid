@@ -44,7 +44,7 @@ public class MemoryStore implements ForumStorage
     private static MemoryStore instance;
     private static final AtomicInteger openCounter = new AtomicInteger();
 
-    private MemoryStore(Context c) {
+    private MemoryStore(@Nullable  Context c) {
 
         // if there is no context then do not load a persistent file
         if (c == null) {
@@ -80,7 +80,7 @@ public class MemoryStore implements ForumStorage
         }
     }
 
-    public static synchronized MemoryStore getInstance(final Context c)
+    public static synchronized MemoryStore getInstance(@Nullable final Context c)
     {
         if (instance == null) {
             instance = new MemoryStore(c);
@@ -92,7 +92,7 @@ public class MemoryStore implements ForumStorage
     /**
      * This function will update the saved copy of the hash map to the disk.
      */
-    public void close(Context context) {
+    public void close(@Nullable Context context) {
 
         // if there is no context then don't save the file
         if (context == null) {
