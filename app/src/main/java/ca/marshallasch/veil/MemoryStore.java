@@ -258,7 +258,7 @@ public class MemoryStore implements ForumStorage
      * @return the hash  identifying the comment
      */
     @Override
-    public String insertComment(DhtProto.Comment comment, String postHash)
+    public String insertComment(@NonNull DhtProto.Comment comment, @NonNull String postHash)
     {
         String hash = Util.generateHash(comment.toByteArray());
 
@@ -504,9 +504,15 @@ public class MemoryStore implements ForumStorage
      * @param type the type of keyword it is. {@link DhtProto.KeywordType}
      * @return the wraper object to insert into the hashmap
      */
-    private DhtProto.DhtWrapper generateKeyword(String keyword, String dataHash, DhtProto.KeywordType type) {
+    @NonNull
+    private DhtProto.DhtWrapper generateKeyword(@Nullable String keyword, String dataHash, DhtProto.KeywordType type) {
 
-        keyword = keyword.toLowerCase(Locale.getDefault());
+        // according to the protobuf spec, the default value for a string is empty not null
+        if (keyword == null) {
+            keyword = "";
+        } else {
+            keyword = keyword.toLowerCase(Locale.getDefault());
+        }
 
         DhtProto.Keyword keywordObj = DhtProto.Keyword.newBuilder()
                 .setHash(dataHash)

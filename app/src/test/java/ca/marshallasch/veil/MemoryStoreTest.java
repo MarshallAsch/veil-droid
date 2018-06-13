@@ -180,6 +180,44 @@ public class MemoryStoreTest
     @Test
     public void insertComment()
     {
+        MemoryStore memoryStore = MemoryStore.getInstance(null);
+        DhtProto.Post p = DhtProto.Post.newBuilder()
+                .setTitle("Post6")
+                .build();
+
+        // if the post is null then the hash should be as well
+        Assert.assertNull(memoryStore.insertPost(null));
+
+        // check that the empty post works
+        String postHash = memoryStore.insertPost(p);
+        Assert.assertNotNull(postHash);
+
+
+        DhtProto.Comment comment = DhtProto.Comment.newBuilder()
+                .setMessage("Comment on the odd post")
+                .build();
+
+        // check that the comment works
+        String hash = memoryStore.insertComment(comment, postHash);
+        Assert.assertNotNull(hash);
+
+        // check that the keyword item for the comment got inserted
+        String hash2 = memoryStore.hashMap.get(postHash).get(1).getKeyword().getHash();
+
+        Assert.assertEquals(DhtProto.KeywordType.COMMENT_FOR, memoryStore.hashMap.get(postHash).get(1).getKeyword().getType());
+        Assert.assertEquals(hash, hash2);
+
+
+        // check that a second comment for the post can be added
+        comment = DhtProto.Comment.newBuilder()
+                .setMessage("Another comment for the post")
+                .build();
+
+        // check that the comment works
+        hash = memoryStore.insertComment(comment, postHash);
+        Assert.assertNotNull(hash);
+
+        Assert.assertEquals(3, memoryStore.hashMap.get(postHash).size());
     }
 
     @Test
