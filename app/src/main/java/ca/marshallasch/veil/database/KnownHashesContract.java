@@ -13,7 +13,7 @@ import android.provider.BaseColumns;
  * @version 1.0
  * @since 2018-05-29
  */
-final class KnownHashesContract
+public final class KnownHashesContract
 {
     static final String SQL_CREATE_KNOWN_HASHES = "CREATE TABLE " + KnownHashesEntry.TABLE_NAME + " (" +
             KnownHashesEntry._ID + " INTEGER PRIMARY KEY," +

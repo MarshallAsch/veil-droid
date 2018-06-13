@@ -6,7 +6,7 @@
     <string name="signup_menu_title">Signup</string>
     <string name="landing_menu_title">Landing Page</string>
 
-    <!-- Signup page titles-->
+    <!-- Sign up page titles-->
     <string name="email_title">Email Address</string>
     <string name="phone_title">Phone Number</string>
     <string name="password_title">Password</string>
@@ -17,6 +17,14 @@
 
     <string name="password_requirements_label">At least 8 characters long, 1 uppercase, 1 lowercase, 1 number, and 1 special character</string>
 
+    <!-- Create Post strings -->
+    <string name="title_title">Title</string>
+    <string name="title_hint">A short title for your question.</string>
+    <string name="tags_title">Tags</string>
+    <string name="tags_hint">A comma separated list of tag words</string>
+    <string name="message_hint">Some more details about the question you wish to ask.</string>
+
+    
 
     <!-- SnackBar messages -->
     <string name="password_required">Password is missing</string>
@@ -33,6 +41,8 @@
 
     <string name="unknown_err">Unknown Error</string>
 
+    <string name="failed_to_save_data">Can not save the data</string>
+
     <!-- General strings for use throughout the app -->
     <string name="done">Done</string>
     <string name="application_logo">Application Logo</string>
@@ -41,6 +51,7 @@
     <string name="back">Back</string>
     <string name="username">Username</string>
     <string name="log_out">Log Out</string>
+    <string name="save">Save</string>
 
     <!-- Error Messages -->
     <string name="failed_to_load_title">Failed to load title</string>
@@ -51,6 +62,7 @@
 
     <!-- Shared preferences keys -->
     <string name="pref_notifications">pref_notifications</string>
+
 
     <string name="title_place_holder">Title</string>
     <string name="preview_place_holder">Message Content</string>
