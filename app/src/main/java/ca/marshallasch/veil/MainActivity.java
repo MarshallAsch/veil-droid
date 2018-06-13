@@ -2,6 +2,7 @@ package ca.marshallasch.veil;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -33,12 +34,15 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
     private static final int DATA_PORT = 9182;
     // private static final int DISCOVERY_PORT = 9183;       // This port will be used for the DHT
                                                             // to keep all of that traffic separate
-
+    private static final
     // Set to keep track of peers connected to the mesh.
     HashSet<MeshId> users = new HashSet<>();
 
     // MeshManager instance - interface to the mesh network.
     AndroidMeshManager meshManager = null;
+
+    //MemoryStore instance - for storing data in local hashtable
+    MemoryStore memoryStore = MemoryStore.getInstance(this);
 
     private DhtProto.User currentUser = null;
 
@@ -47,11 +51,20 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.AppTheme);
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //set the starting page to the landing fragment
         navigateTo( new FragmentLanding(), false);
+
+        DhtProto.Post post = DhtProto.Post.newBuilder().
+                setTitle("Mem Store 1").
+                setMessage("Post one store in memory store ").
+                build();
+        memoryStore.insertPost(post);
+        for (int i = 0; i < memoryStore.getAllKnownHashes().size(); i++){
+            Log.e("Main Activity",memoryStore.getAllKnownHashes().get(i));
+        }
 
         // Gets an instance of the Android-specific MeshManager singleton.
         meshManager = AndroidMeshManager.getInstance(this, this);

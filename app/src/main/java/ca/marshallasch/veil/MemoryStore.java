@@ -474,6 +474,18 @@ public class MemoryStore implements ForumStorage
         return users;
     }
 
+    /**
+     * Returns all the keys to the hash map.
+     *
+     * @return a arraylist of a all the hash keys in the hash map
+     */
+
+    public ArrayList<String> getAllKnownHashes(){
+        ArrayList<String> knownHashes = new ArrayList<>(hashMap.keySet());
+        return knownHashes;
+    }
+
+
     @Override
     public boolean updateUser(DhtProto.User user)
     {
@@ -524,5 +536,6 @@ public class MemoryStore implements ForumStorage
         entries.add(data);
         hashMap.put(key, entries);
     }
+
 
 }
