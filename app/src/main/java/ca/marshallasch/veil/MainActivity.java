@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
     protected void onDestroy()
     {
         super.onDestroy();
-        MemoryStore.getInstance(this).close();  // make sure the data gets saved
+        MemoryStore.getInstance(this).close(this);  // make sure the data gets saved
 
         try {
             meshManager.stop();
