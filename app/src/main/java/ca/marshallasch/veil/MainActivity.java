@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
     AndroidMeshManager meshManager = null;
 
     //MemoryStore instance - for storing data in local hashtable
-    MemoryStore memoryStore = MemoryStore.getInstance(this);
+    MemoryStore memoryStore = null;
 
     private DhtProto.User currentUser = null;
 
@@ -57,14 +57,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         //set the starting page to the landing fragment
         navigateTo( new FragmentLanding(), false);
 
-        DhtProto.Post post = DhtProto.Post.newBuilder().
-                setTitle("Mem Store 1").
-                setMessage("Post one store in memory store ").
-                build();
-        memoryStore.insertPost(post);
-        for (int i = 0; i < memoryStore.getAllKnownHashes().size(); i++){
-            Log.e("Main Activity",memoryStore.getAllKnownHashes().get(i));
-        }
+        memoryStore = MemoryStore.getInstance(this);
 
         // Gets an instance of the Android-specific MeshManager singleton.
         meshManager = AndroidMeshManager.getInstance(this, this);
