@@ -13,6 +13,8 @@ import static org.junit.Assert.assertTrue;
 
 
 /**
+ * Testing class for the database
+ *
  * @author Marshall Asch
  * @version 1.0
  * @since 2018-05-31
@@ -78,6 +80,12 @@ public class DatabaseTest
         assertNotNull(database.login("email2@email.com", "abc1234"));
         assertNull(database.login("email2@email.com", "abc123"));
         assertNull(database.login("email46@email.com", "abc123"));
+    }
+
+    @Test
+    public void insertKnownPost(){
+        //null comment insert test
+        assertTrue(database.insertKnownPost("123456789012345678901234567890123456", null));
     }
 
 }
