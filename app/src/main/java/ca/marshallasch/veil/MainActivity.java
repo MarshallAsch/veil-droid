@@ -1,10 +1,10 @@
 package ca.marshallasch.veil;
 
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -130,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         }
 
         //replace the fragment
-        getFragmentManager().beginTransaction()
+        getSupportFragmentManager().beginTransaction()
                 .addToBackStack(null)
                 .replace(R.id.fragment_container, frag)
                 .commit();
@@ -181,7 +181,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
      * @param addToBackStack Whether or not the current fragment should be added to the back stack.
      */
     public void navigateTo(Fragment fragment, boolean addToBackStack){
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         if(addToBackStack){
             transaction.addToBackStack(null);
         }
