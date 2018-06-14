@@ -39,6 +39,15 @@ public class Util
                 .build();
     }
 
+    public static long timestampToMillis(@NonNull Timestamp time) {
+
+        long seconds = time.getSeconds();
+        long nanos = time.getNanos();
+
+        return seconds * 1000 + (nanos / 1000000);
+    }
+
+
     /**
      * Creates a {@link Date} item from the {@link Timestamp} object.
      * @param timestamp the timestamp to convert

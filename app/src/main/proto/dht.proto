@@ -10,20 +10,22 @@ import "google/protobuf/timestamp.proto";
  * This identifies what type of data is contained within the DHT wrapper object.
  */
 enum MessageType {
-    USER = 0;
-    POST = 1;
-    COMMENT = 2;
-    KEYWORD = 3;
+    UNKNOWN = 0;
+    USER = 1;
+    POST = 2;
+    COMMENT = 3;
+    KEYWORD = 4;
 
 }
 
 enum KeywordType {
-    TITLE_FULL = 0;
-    TITLE_PARTIAL = 1;
-    TAG = 2;
-    COMMENT_FOR = 3;
-    NAME = 4;
-    EMAIL = 5;
+    UNKOWN = 0;
+    TITLE_FULL = 1;
+    TITLE_PARTIAL = 2;
+    TAG = 3;
+    COMMENT_FOR = 4;
+    NAME = 5;
+    EMAIL = 6;
 }
 
 /**
