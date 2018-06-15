@@ -71,18 +71,12 @@ public class FragmentLogin extends Fragment {
             db.close();
 
             // check that a user was found
-
-            //TODO: (DEBUGGING CODE) [START] RESTORE AFTER FINISH TESTING ===============================================
-            /*if (user == null) {
+            if (user == null) {
                 Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.username_pass_not_match, Snackbar.LENGTH_SHORT).show();
             } else {
                 ((MainActivity) getActivity()).setCurrentUser(user);
                 ((MainActivity) getActivity()).navigateTo(new FragmentDashBoard(), true);
-            }*/
-
-            ((MainActivity) getActivity()).setCurrentUser(user);
-            ((MainActivity) getActivity()).navigateTo(new FragmentDashBoard(), true);
-            //TODO: (DEBUGGING CODE) [END] RESTORE AFTER FINISH TESTING ===============================================
+            }
         });
 
         cancel.setOnClickListener(view1 -> {

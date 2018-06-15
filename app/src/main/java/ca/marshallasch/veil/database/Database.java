@@ -114,8 +114,10 @@ public class Database extends SQLiteOpenHelper
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
-    {
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        if(oldVersion == 1){
+            Migrations.upgradeV3(db);
+        }
         if (oldVersion < 4) {
             Migrations.upgradeV4(db);
         }
@@ -301,8 +303,8 @@ public class Database extends SQLiteOpenHelper
     @WorkerThread
     public boolean insertKnownPost(@Size(max = 36) String posthash, @Nullable @Size(max = 36) String commentHash) {
 
-        // the post hash has to be set but the comment hash can be null
-        if (posthash == null) {
+        // the post hash has to be set but the comment hash can be null, if the post hash is empty return false too.
+        if (posthash == null || posthash.isEmpty()) {
             return false;
         }
 

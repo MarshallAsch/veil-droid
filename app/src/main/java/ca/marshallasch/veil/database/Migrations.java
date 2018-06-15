@@ -15,9 +15,9 @@ final class Migrations
      * In this version change the users table was added.
      * @param db the underlying database object
      */
-    /*static void upgradeV3(SQLiteDatabase db) {
+    static void upgradeV3(SQLiteDatabase db) {
         db.execSQL(UserContract.SQL_CREATE_USERS);
-    }*/
+    }
 
     /**
      * In this version change the known posts table was added and the known hashes table was dropped
@@ -25,5 +25,6 @@ final class Migrations
      */
     static void upgradeV4(SQLiteDatabase db){
         db.execSQL(KnownPostsContract.SQL_CREATE_KNOWN_HASHES);
+        db.execSQL("DROP TABLE IF EXISTS KnownHashes");
     }
 }

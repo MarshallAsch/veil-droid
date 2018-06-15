@@ -15,8 +15,8 @@ public final class KnownPostsContract {
     // DB query string
     static final String SQL_CREATE_KNOWN_HASHES = "CREATE TABLE " +  KnownPostsEntry.TABLE_NAME + "(" +
             KnownPostsEntry._ID + " INTERGER PRIMARY KEY," +
-            KnownPostsEntry.COLUMN_COMMENT_HASH + "VARCHAR(36) UNIQUE," +
-            KnownPostsEntry.COLUMN_POST_HASH + "VARCHAR(36))";
+            KnownPostsEntry.COLUMN_COMMENT_HASH + " VARCHAR(36) UNIQUE," +
+            KnownPostsEntry.COLUMN_POST_HASH + " VARCHAR(36))";
 
     // Constructor made private to eliminate people from accidentally instantiating this contract class
     private KnownPostsContract(){}
