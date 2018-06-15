@@ -162,8 +162,8 @@
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
                     android:text="@android:string/cancel"
-                    android:textColorLink="@color/colorPrimary"
                     android:textColor="@color/colorPrimary"
+                    android:textColorLink="@color/colorPrimary"
                     app:layout_constraintEnd_toStartOf="@+id/done_button"/>
 
                 <android.support.design.button.MaterialButton

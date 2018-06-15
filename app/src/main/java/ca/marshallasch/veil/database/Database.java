@@ -7,23 +7,28 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.preference.PreferenceManager;
-import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.Size;
 import android.support.annotation.WorkerThread;
+import android.support.v4.util.Pair;
 
 import org.mindrot.jbcrypt.BCrypt;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import ca.marshallasch.veil.ForumStorage;
+import ca.marshallasch.veil.MemoryStore;
 import ca.marshallasch.veil.R;
 import ca.marshallasch.veil.database.BlockContract.BlockEntry;
-import ca.marshallasch.veil.database.KnownHashesContract.KnownHashesEntry;
 import ca.marshallasch.veil.database.NotificationContract.NotificationEntry;
 import ca.marshallasch.veil.database.UserContract.UserEntry;
+import ca.marshallasch.veil.database.KnownPostsContract.KnownPostsEntry;
+import ca.marshallasch.veil.exceptions.TooManyResultsException;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.utilities.Util;
 
@@ -41,7 +46,7 @@ import ca.marshallasch.veil.utilities.Util;
 public class Database extends SQLiteOpenHelper
 {
     private static String DATABASE_NAME = "contentDiscoveryTables";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
     // this is for the singleton
     private static Database instance = null;
@@ -109,16 +114,18 @@ public class Database extends SQLiteOpenHelper
     {
         db.execSQL(BlockContract.SQL_CREATE_BLOCK_USERS);
         db.execSQL(NotificationContract.SQL_CREATE_POST_NOTIFICATION);
-        db.execSQL(KnownHashesContract.SQL_CREATE_KNOWN_HASHES);
         db.execSQL(UserContract.SQL_CREATE_USERS);
+        db.execSQL(KnownPostsContract.SQL_CREATE_KNOWN_POSTS);
 
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
-    {
-        if (oldVersion == 1 && newVersion == 3) {
-            Migrations.v1ToV3(db);
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        if(oldVersion == 1){
+            Migrations.upgradeV3(db);
+        }
+        if (oldVersion < 4) {
+            Migrations.upgradeV4(db);
         }
     }
 
@@ -293,61 +300,29 @@ public class Database extends SQLiteOpenHelper
 
     /**
      * This will add a entry to the table to make it easier for look up later.
-     *
      * Since this calls {@link #getWritableDatabase()}, do not call this from the main thread
      *
-     * @param hash the key for the DHT
-     * @param uuid the ID of entry
-     * @param timestamp the timestamp that the element was originally created at
-     * @param type the type of entry it is
-     * @return true if it was inserted successfully, false otherwise
+     * @param posthash The SHA256 hash of the post object
+     * @param commentHash the SHA256 hash of the comment object
+     * @return
      */
     @WorkerThread
-    public boolean insertKnownHash(@Size(max = 36) String hash, @Size(max = 36) String uuid, Date timestamp, @IntRange(from = 0, to = 3) int type) {
+    public boolean insertKnownPost(@Size(max = 36) String posthash, @Nullable @Size(max = 36) String commentHash) {
 
-        // check params
-        if (hash == null || uuid == null || timestamp == null) {
+        // the post hash has to be set but the comment hash can be null, if the post hash is empty return false too.
+        if (posthash == null || posthash.isEmpty()) {
             return false;
         }
 
         ContentValues values = new ContentValues();
 
-        values.put(KnownHashesEntry.COLUMN_HASH, hash);
-        values.put(KnownHashesEntry.COLUMN_ID, uuid);
-        values.put(KnownHashesEntry.COLUMN_TIMESTAMP, timestamp.getTime());
-        values.put(KnownHashesEntry.COLUMN_TYPE, type);
-        values.put(KnownHashesEntry.COLUMN_READ, KnownHashesEntry.UNREAD);
+        values.put(KnownPostsEntry.COLUMN_POST_HASH, posthash);
+        values.put(KnownPostsEntry.COLUMN_COMMENT_HASH, commentHash);
 
         // note this is a potentially long running operation.
-        long id = getWritableDatabase().insertWithOnConflict(KnownHashesEntry.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+        long id = getWritableDatabase().insertWithOnConflict(KnownPostsEntry.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 
         return id != -1;
-    }
-
-    /**
-     * This function will be called when space needs to be made for new entries after they get
-     * sufficiency old.
-     *
-     * Since this calls {@link #getWritableDatabase()}, do not call this from the main thread
-     * @param hash the hash to forget
-     * @return true if the record is successfully removed otherwise false.
-     */
-    @WorkerThread
-    public boolean removeKnownHash(@Size(max = 36) String hash) {
-        if (hash == null) {
-            return false;
-        }
-
-        // Define 'where' part of query.
-        String selection = KnownHashesEntry.COLUMN_HASH + " = ?";
-
-        // Specify arguments in placeholder order.
-        String[] selectionArgs = {hash};
-
-        int numDeleted = getWritableDatabase().delete(KnownHashesEntry.TABLE_NAME, selection, selectionArgs);
-
-        // makes sure only 1 row was removed, anything else would be an error
-        return numDeleted == 1;
     }
 
     // TODO: 2018-06-04 Create accessors to get the information for different content types.
@@ -471,6 +446,52 @@ public class Database extends SQLiteOpenHelper
     // TODO: 2018-06-05 Add functions to export the user profile
     // TODO: 2018-06-05 Add function to import a user profile
     // TODO: 2018-06-05 Add A function to update the account information
+
+
+    @WorkerThread
+    public List<DhtProto.Post> getAllPosts() {
+
+        String[] projection = {
+                KnownPostsEntry.COLUMN_POST_HASH
+        };
+
+        Cursor cursor = getReadableDatabase().query(
+                true,
+                KnownPostsEntry.TABLE_NAME,   // The table to query
+                projection,             // The array of columns to return (pass null to get all)
+                null,              // The columns for the WHERE clause
+                null,          // The values for the WHERE clause
+                null,          // don't group the rows
+                null,           // don't filter by row groups
+                null,           // don't sort
+                null                // no limit to the results
+        );
+
+        Pair<String, DhtProto.Post> postPair;
+        ForumStorage dataStore = MemoryStore.getInstance(context);
+        List<DhtProto.Post> posts = new ArrayList<>();
+
+        // get each post that is in the list
+        while(cursor.moveToNext()) {
+            String hash = cursor.getString(cursor.getColumnIndexOrThrow(KnownPostsEntry.COLUMN_POST_HASH));
+
+            postPair = null;
+            try {
+                postPair = dataStore.findPostByHash(hash);
+            }
+            catch (TooManyResultsException e) {
+                e.printStackTrace();
+            }
+
+            // add the post to the list
+            if (postPair != null) {
+                posts.add(postPair.second);
+            }
+        }
+        cursor.close();
+
+        return posts;
+    }
 
     /**
      * Count the number of matching rows in the table

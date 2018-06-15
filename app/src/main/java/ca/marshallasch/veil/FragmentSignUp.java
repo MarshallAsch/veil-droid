@@ -3,18 +3,17 @@ package ca.marshallasch.veil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.app.Fragment;
 import android.support.design.button.MaterialButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
-import ca.marshallasch.veil.utilities.Util;
 import ca.marshallasch.veil.database.Database;
 import ca.marshallasch.veil.proto.DhtProto;
-
+import ca.marshallasch.veil.utilities.Util;
 
 /**
  * This class contains the the logic for signing up for an account.
@@ -129,6 +128,8 @@ public class FragmentSignUp extends Fragment
         if (user == null) {
             Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.unknown_err, Snackbar.LENGTH_SHORT).show();
         } else {
+            MemoryStore.getInstance(getActivity()).insertUser(user);
+
             ((MainActivity) getActivity()).setCurrentUser(user);
             ((MainActivity) getActivity()).navigateTo(new FragmentDashBoard(), true);
         }

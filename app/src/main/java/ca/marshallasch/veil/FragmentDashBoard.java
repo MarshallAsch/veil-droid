@@ -1,11 +1,12 @@
 package ca.marshallasch.veil;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.button.MaterialButton;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -26,10 +27,10 @@ import ca.marshallasch.veil.proto.DhtProto;
 public class FragmentDashBoard extends Fragment {
 
     private static final String TAG = "Fragment Dashboard";
+
     public FragmentDashBoard() {
         // Required empty public constructor
     }
-
 
     @Nullable
     @Override
@@ -52,6 +53,7 @@ public class FragmentDashBoard extends Fragment {
         MaterialButton logoutBtn = view.findViewById(R.id.logout_btn);
         MaterialButton discoverForumsBtn = view.findViewById(R.id.discover_forums_btn);
         MaterialButton personalForumsBtn = view.findViewById(R.id.personal_forums_btn);
+        FloatingActionButton newPostButton = view.findViewById(R.id.new_post);
 
         TextView name = view.findViewById(R.id.name);
         TextView emailAddress = view.findViewById(R.id.user_email);
@@ -79,6 +81,11 @@ public class FragmentDashBoard extends Fragment {
             Log.i(TAG, "Your forums button pressed");
 
             // TODO: 2018-06-06 Do something here other then just logging a message
+        });
+
+        newPostButton.setOnClickListener(view1 -> {
+            ((MainActivity) getActivity()).navigateTo(new FragmentCreatePost(), true);
+
         });
 
         return view;

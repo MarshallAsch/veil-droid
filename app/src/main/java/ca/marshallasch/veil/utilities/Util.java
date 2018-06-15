@@ -11,6 +11,7 @@ import com.google.protobuf.Timestamp;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 
 /**
  * This class is for application wide static utility functions to help reduce the amount of repeated
@@ -36,6 +37,30 @@ public class Util
                 .setSeconds(millis / 1000)
                 .setNanos((int) ((millis % 1000) * 1000000))
                 .build();
+    }
+
+    public static long timestampToMillis(@NonNull Timestamp time) {
+
+        long seconds = time.getSeconds();
+        long nanos = time.getNanos();
+
+        return seconds * 1000 + (nanos / 1000000);
+    }
+
+
+    /**
+     * Creates a {@link Date} item from the {@link Timestamp} object.
+     * @param timestamp the timestamp to convert
+     * @return a new Date object with the same time.
+     */
+    @NonNull
+    public static Date timestampToDate (@NonNull Timestamp timestamp) {
+
+        long seconds = timestamp.getSeconds();
+        long nanos = timestamp.getNanos();
+        long millis = seconds * 1000 + (nanos / 1000000);
+
+        return new Date(millis);
     }
 
     /**

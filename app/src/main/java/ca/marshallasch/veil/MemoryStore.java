@@ -3,7 +3,7 @@ package ca.marshallasch.veil;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Pair;
+import android.support.v4.util.Pair;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,11 +11,13 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import ca.marshallasch.veil.comparators.CommentPairComparator;
 import ca.marshallasch.veil.exceptions.TooManyResultsException;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.utilities.Util;
@@ -35,17 +37,21 @@ import static ca.marshallasch.veil.proto.DhtProto.KeywordType.*;
  */
 public class MemoryStore implements ForumStorage
 {
-    private HashMap<String, List<DhtProto.DhtWrapper>> hashMap;
+    // Made package-private so that it can be accessed for testing.
+    HashMap<String, List<DhtProto.DhtWrapper>> hashMap;
 
 
     private static MemoryStore instance;
     private static final AtomicInteger openCounter = new AtomicInteger();
 
-    private Context context;
+    private MemoryStore(@Nullable  Context c) {
 
-    private MemoryStore(Context c) {
+        // if there is no context then do not load a persistent file
+        if (c == null) {
+            hashMap = new HashMap<>();
+            return;
+        }
 
-        context = c;
         // try loading from mem or create new
         File mapFile = new File(c.getFilesDir(), "HASH_MAP");
         HashMap<String, List<DhtProto.DhtWrapper>> tempMap = null;
@@ -74,7 +80,7 @@ public class MemoryStore implements ForumStorage
         }
     }
 
-    public static synchronized MemoryStore getInstance(final Context c)
+    public static synchronized MemoryStore getInstance(@Nullable final Context c)
     {
         if (instance == null) {
             instance = new MemoryStore(c);
@@ -86,7 +92,12 @@ public class MemoryStore implements ForumStorage
     /**
      * This function will update the saved copy of the hash map to the disk.
      */
-    public void close() {
+    public void close(@Nullable Context context) {
+
+        // if there is no context then don't save the file
+        if (context == null) {
+            return;
+        }
 
         File mapFile = new File(context.getFilesDir(), "HASH_MAP");
 
@@ -114,6 +125,10 @@ public class MemoryStore implements ForumStorage
     @Override
     public String insertPost(DhtProto.Post post)
     {
+        if (post == null) {
+            return null;
+        }
+
         String hash = Util.generateHash(post.toByteArray());
 
         DhtProto.DhtWrapper wrapper = DhtProto.DhtWrapper.newBuilder()
@@ -203,7 +218,7 @@ public class MemoryStore implements ForumStorage
         ArrayList<DhtProto.DhtWrapper> entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(Util.generateHash(keyword.getBytes()));
 
         if (entries == null) {
-            return null;
+            return new ArrayList<>();
         }
         ArrayList<String> postHashes = new ArrayList<>();
 
@@ -245,7 +260,7 @@ public class MemoryStore implements ForumStorage
      * @return the hash  identifying the comment
      */
     @Override
-    public String insertComment(DhtProto.Comment comment, String postHash)
+    public String insertComment(@NonNull DhtProto.Comment comment, @NonNull String postHash)
     {
         String hash = Util.generateHash(comment.toByteArray());
 
@@ -266,18 +281,19 @@ public class MemoryStore implements ForumStorage
 
     /**
      * This function will get all the comments that are associated with the given post.
+     * The comments are sorted by the time that they were created.
      *
      * @param postHash he unique SHA256 hash of the post
      * @return the list of results
      */
     @Override
-    @Nullable
+    @NonNull
     public List<Pair<String, DhtProto.Comment>> findCommentsByPost(String postHash)
     {
         ArrayList<DhtProto.DhtWrapper> entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(postHash);
 
         if (entries == null) {
-            return null;
+            return new ArrayList<>();
         }
         ArrayList<String> commentHashes = new ArrayList<>();
 
@@ -306,6 +322,8 @@ public class MemoryStore implements ForumStorage
                 e.printStackTrace();
             }
         }
+
+        Collections.sort(comments, new CommentPairComparator());
 
         return comments;
     }
@@ -359,6 +377,10 @@ public class MemoryStore implements ForumStorage
     @Override
     public String insertUser(DhtProto.User user)
     {
+        if (user == null) {
+            return null;
+        }
+
         String hash = Util.generateHash(user.getUuid().getBytes());
         String email = user.getEmail();
         String firstName = user.getFirstName();
@@ -437,11 +459,15 @@ public class MemoryStore implements ForumStorage
     @Nullable
     public List<Pair<String, DhtProto.User>> findUsersByName(String name)
     {
+        if (name == null) {
+            return new ArrayList<>();
+        }
+
         name = name.toLowerCase(Locale.getDefault());
         ArrayList<DhtProto.DhtWrapper> entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(Util.generateHash(name.getBytes()));
 
         if (entries == null) {
-            return null;
+            return new ArrayList<>();
         }
         ArrayList<String> userHashes = new ArrayList<>();
 
@@ -503,9 +529,15 @@ public class MemoryStore implements ForumStorage
      * @param type the type of keyword it is. {@link DhtProto.KeywordType}
      * @return the wraper object to insert into the hashmap
      */
-    private DhtProto.DhtWrapper generateKeyword(String keyword, String dataHash, DhtProto.KeywordType type) {
+    @NonNull
+    private DhtProto.DhtWrapper generateKeyword(@Nullable String keyword, String dataHash, DhtProto.KeywordType type) {
 
-        keyword = keyword.toLowerCase(Locale.getDefault());
+        // according to the protobuf spec, the default value for a string is empty not null
+        if (keyword == null) {
+            keyword = "";
+        } else {
+            keyword = keyword.toLowerCase(Locale.getDefault());
+        }
 
         DhtProto.Keyword keywordObj = DhtProto.Keyword.newBuilder()
                 .setHash(dataHash)
