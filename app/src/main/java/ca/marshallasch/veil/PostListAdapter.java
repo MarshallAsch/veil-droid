@@ -9,6 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.List;
+
 import ca.marshallasch.veil.proto.DhtProto;
 
 
@@ -22,8 +24,7 @@ import ca.marshallasch.veil.proto.DhtProto;
  */
 public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHolder> {
 
-    private String[] titles;
-    private String[] content;
+    private List<DhtProto.Post> posts;
     private Activity activity;
 
     /**
@@ -48,13 +49,11 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
     /**
      * Constructor for this current class. Will set the list content for the cells.
      *
-     * @param titles The list of post titles
-     * @param content The content of each post.
+     * @param posts The list of posts to display
      */
-    public PostListAdapter(String[] titles, String[] content, Activity activity) {
-        this.titles = titles;
-        this.content = content;
+    public PostListAdapter(List<DhtProto.Post> posts, Activity activity) {
         this.activity = activity;
+        this.posts = posts;
     }
 
     /**
@@ -79,22 +78,15 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, final int position) {
         // Going to need to trim the content before it gets added here.
-        viewHolder.title.setText(titles[position]);
-        viewHolder.contentPreview.setText(content[position]);
+        viewHolder.title.setText(posts.get(position).getTitle());
+        viewHolder.contentPreview.setText(posts.get(position).getMessage());
 
         viewHolder.itemView.findViewById(R.id.view_btn).setOnClickListener(view -> {
             FragmentViewPost fragViewPost = new FragmentViewPost();
             //create a bundle to pass data to the next fragment for viewing
             Bundle bundle = new Bundle();
-            //TODO: Make a real list of Comments
-            //TODO: take out fillers for the constructor of post Item
-            DhtProto.Post post = DhtProto.Post.newBuilder()
-                    .setTitle(titles[position])
-                    .setMessage(content[position])
-                    .build();
 
-            bundle.putByteArray(String.valueOf(R.string.post_object_key), post.toByteArray());
-
+            bundle.putByteArray(String.valueOf(R.string.post_object_key), posts.get(position).toByteArray());
 
             fragViewPost.setArguments(bundle);
             ((MainActivity) activity).navigateTo(fragViewPost, true);
@@ -103,10 +95,10 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
 
     /**
      * Returns the total number of items in the data set held by this adapter.
-     * @return titles.length
+     * @return posts.size()
      */
     @Override
     public int getItemCount() {
-        return titles.length;
+        return posts.size();
     }
 }
