@@ -46,7 +46,7 @@ import ca.marshallasch.veil.utilities.Util;
 public class Database extends SQLiteOpenHelper
 {
     private static String DATABASE_NAME = "contentDiscoveryTables";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
     // this is for the singleton
     private static Database instance = null;
@@ -115,7 +115,7 @@ public class Database extends SQLiteOpenHelper
         db.execSQL(BlockContract.SQL_CREATE_BLOCK_USERS);
         db.execSQL(NotificationContract.SQL_CREATE_POST_NOTIFICATION);
         db.execSQL(UserContract.SQL_CREATE_USERS);
-        db.execSQL(KnownPostsContract.SQL_CREATE_KNOWN_HASHES);
+        db.execSQL(KnownPostsContract.SQL_CREATE_KNOWN_POSTS);
 
     }
 
@@ -452,22 +452,19 @@ public class Database extends SQLiteOpenHelper
     public List<DhtProto.Post> getAllPosts() {
 
         String[] projection = {
-                KnownHashesEntry.COLUMN_HASH
+                KnownPostsEntry.COLUMN_POST_HASH
         };
 
-        // Filter results to only the post type
-        String selection = KnownHashesEntry.COLUMN_TYPE + " = ?";
-        String[] selectionArgs = { String.valueOf(KnownHashesEntry.TYPE_POST) };
-        String sortOrder = KnownHashesEntry.COLUMN_TIMESTAMP + " DESC";
-
         Cursor cursor = getReadableDatabase().query(
-                KnownHashesEntry.TABLE_NAME,   // The table to query
+                true,
+                KnownPostsEntry.TABLE_NAME,   // The table to query
                 projection,             // The array of columns to return (pass null to get all)
-                selection,              // The columns for the WHERE clause
-                selectionArgs,          // The values for the WHERE clause
+                null,              // The columns for the WHERE clause
+                null,          // The values for the WHERE clause
                 null,          // don't group the rows
                 null,           // don't filter by row groups
-                sortOrder              // sort by timestamp
+                null,           // don't sort
+                null                // no limit to the results
         );
 
         Pair<String, DhtProto.Post> postPair;
@@ -476,7 +473,7 @@ public class Database extends SQLiteOpenHelper
 
         // get each post that is in the list
         while(cursor.moveToNext()) {
-            String hash = cursor.getString(cursor.getColumnIndexOrThrow(KnownHashesEntry.COLUMN_HASH));
+            String hash = cursor.getString(cursor.getColumnIndexOrThrow(KnownPostsEntry.COLUMN_POST_HASH));
 
             postPair = null;
             try {

@@ -13,7 +13,7 @@ import android.provider.BaseColumns;
 public final class KnownPostsContract {
 
     // DB query string
-    static final String SQL_CREATE_KNOWN_HASHES = "CREATE TABLE " +  KnownPostsEntry.TABLE_NAME + "(" +
+    static final String SQL_CREATE_KNOWN_POSTS = "CREATE TABLE " +  KnownPostsEntry.TABLE_NAME + "(" +
             KnownPostsEntry._ID + " INTERGER PRIMARY KEY," +
             KnownPostsEntry.COLUMN_COMMENT_HASH + " VARCHAR(36) UNIQUE," +
             KnownPostsEntry.COLUMN_POST_HASH + " VARCHAR(36))";

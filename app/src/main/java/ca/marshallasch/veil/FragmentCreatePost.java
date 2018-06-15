@@ -19,7 +19,6 @@ import java.util.Date;
 import java.util.UUID;
 
 import ca.marshallasch.veil.database.Database;
-import ca.marshallasch.veil.database.KnownHashesContract;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.utilities.Util;
 

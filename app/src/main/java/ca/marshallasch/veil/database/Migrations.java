@@ -24,7 +24,7 @@ final class Migrations
      * @param db the underlying database object
      */
     static void upgradeV4(SQLiteDatabase db){
-        db.execSQL(KnownPostsContract.SQL_CREATE_KNOWN_HASHES);
+        db.execSQL(KnownPostsContract.SQL_CREATE_KNOWN_POSTS);
         db.execSQL("DROP TABLE IF EXISTS KnownHashes");
     }
 }
