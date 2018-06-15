@@ -123,7 +123,10 @@ public class FragmentCreatePost extends Fragment
 
             // add it know the known hash list
             Database db = Database.getInstance(getActivity());
-            db.insertKnownHash(hash, uuid, now, KnownHashesContract.KnownHashesEntry.TYPE_POST);
+
+            //Hash = hash of the post object mirrored in the data store
+            // & comment will be set to null since there are no comments yet.
+            db.insertKnownPost(hash, null);
             db.close();
             return true;
         } else {
