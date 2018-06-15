@@ -12,18 +12,24 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.Size;
 import android.support.annotation.WorkerThread;
+import android.support.v4.util.Pair;
 
 import org.mindrot.jbcrypt.BCrypt;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import ca.marshallasch.veil.ForumStorage;
+import ca.marshallasch.veil.MemoryStore;
 import ca.marshallasch.veil.R;
 import ca.marshallasch.veil.database.BlockContract.BlockEntry;
 import ca.marshallasch.veil.database.KnownHashesContract.KnownHashesEntry;
 import ca.marshallasch.veil.database.NotificationContract.NotificationEntry;
 import ca.marshallasch.veil.database.UserContract.UserEntry;
+import ca.marshallasch.veil.exceptions.TooManyResultsException;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.utilities.Util;
 
@@ -471,6 +477,55 @@ public class Database extends SQLiteOpenHelper
     // TODO: 2018-06-05 Add functions to export the user profile
     // TODO: 2018-06-05 Add function to import a user profile
     // TODO: 2018-06-05 Add A function to update the account information
+
+
+    @WorkerThread
+    public List<DhtProto.Post> getAllPosts() {
+
+        String[] projection = {
+                KnownHashesEntry.COLUMN_HASH
+        };
+
+        // Filter results to only the post type
+        String selection = KnownHashesEntry.COLUMN_TYPE + " = ?";
+        String[] selectionArgs = { String.valueOf(KnownHashesEntry.TYPE_POST) };
+        String sortOrder = KnownHashesEntry.COLUMN_TIMESTAMP + " DESC";
+
+        Cursor cursor = getReadableDatabase().query(
+                KnownHashesEntry.TABLE_NAME,   // The table to query
+                projection,             // The array of columns to return (pass null to get all)
+                selection,              // The columns for the WHERE clause
+                selectionArgs,          // The values for the WHERE clause
+                null,          // don't group the rows
+                null,           // don't filter by row groups
+                sortOrder              // sort by timestamp
+        );
+
+        Pair<String, DhtProto.Post> postPair;
+        ForumStorage dataStore = MemoryStore.getInstance(context);
+        List<DhtProto.Post> posts = new ArrayList<>();
+
+        // get each post that is in the list
+        while(cursor.moveToNext()) {
+            String hash = cursor.getString(cursor.getColumnIndexOrThrow(KnownHashesEntry.COLUMN_HASH));
+
+            postPair = null;
+            try {
+                postPair = dataStore.findPostByHash(hash);
+            }
+            catch (TooManyResultsException e) {
+                e.printStackTrace();
+            }
+
+            // add the post to the list
+            if (postPair != null) {
+                posts.add(postPair.second);
+            }
+        }
+        cursor.close();
+
+        return posts;
+    }
 
     /**
      * Count the number of matching rows in the table

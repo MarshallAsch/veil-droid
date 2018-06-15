@@ -11,6 +11,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.List;
+
+import ca.marshallasch.veil.database.Database;
+import ca.marshallasch.veil.proto.DhtProto;
+
 /**
  *
  * This class holds UI logic for viewing the list of posts.
@@ -37,9 +42,13 @@ public class FragmentDiscoverForums extends Fragment {
         RecyclerView recyclerView = view.findViewById(R.id.list_view);
         recyclerView.setHasFixedSize(true);
 
+        Database db = Database.getInstance(getActivity());
+        List<DhtProto.Post> posts = db.getAllPosts();
+        db.close();
+
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(activity);
         recyclerView.setLayoutManager(linearLayoutManager);
-        RecyclerView.Adapter recyclerAdapter = new PostListAdapter(Data.getTitles(), Data.getContent(), getActivity());
+        RecyclerView.Adapter recyclerAdapter = new PostListAdapter(posts, getActivity());
         recyclerView.setAdapter(recyclerAdapter);
 
         return view;

@@ -60,7 +60,7 @@ public class FragmentCreatePost extends Fragment
         currentUser = ((MainActivity) getActivity()).getCurrentUser();
 
 
-        dataStore = null;   // TODO: 2018-06-12 replace this with the concrete data store
+        dataStore = MemoryStore.getInstance(getActivity());
 
         cancel.setOnClickListener(view1 -> {
             Util.hideKeyboard(view1, getActivity());
@@ -104,7 +104,7 @@ public class FragmentCreatePost extends Fragment
         String authorID = currentUser.getUuid();
 
 
-        ArrayList<String> tagList = (ArrayList<String>) Arrays.asList(tags.split(","));
+        ArrayList<String> tagList = new ArrayList<>(Arrays.asList(tags.split(",")));
 
         // make the actual post object
         DhtProto.Post post = DhtProto.Post.newBuilder()
