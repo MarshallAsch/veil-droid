@@ -59,7 +59,7 @@ public class FragmentCreatePost extends Fragment
         currentUser = ((MainActivity) getActivity()).getCurrentUser();
 
 
-        dataStore = MemoryStore.getInstance(getActivity());
+        dataStore = HashTableStore.getInstance(getActivity());
 
         cancel.setOnClickListener(view1 -> {
             Util.hideKeyboard(view1, getActivity());

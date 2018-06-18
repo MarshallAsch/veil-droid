@@ -35,16 +35,16 @@ import static ca.marshallasch.veil.proto.DhtProto.KeywordType.*;
  * @version 1.0
  * @since 2018-06-08
  */
-public class MemoryStore implements ForumStorage
+public class HashTableStore implements ForumStorage
 {
     // Made package-private so that it can be accessed for testing.
     HashMap<String, List<DhtProto.DhtWrapper>> hashMap;
 
 
-    private static MemoryStore instance;
+    private static HashTableStore instance;
     private static final AtomicInteger openCounter = new AtomicInteger();
 
-    private MemoryStore(@Nullable  Context c) {
+    private HashTableStore(@Nullable  Context c) {
 
         // if there is no context then do not load a persistent file
         if (c == null) {
@@ -80,10 +80,10 @@ public class MemoryStore implements ForumStorage
         }
     }
 
-    public static synchronized MemoryStore getInstance(@Nullable final Context c)
+    public static synchronized HashTableStore getInstance(@Nullable final Context c)
     {
         if (instance == null) {
-            instance = new MemoryStore(c);
+            instance = new HashTableStore(c);
         }
         openCounter.incrementAndGet();
         return instance;
@@ -92,7 +92,7 @@ public class MemoryStore implements ForumStorage
     /**
      * This function will update the saved copy of the hash map to the disk.
      */
-    public void close(@Nullable Context context) {
+    public void save(@Nullable Context context) {
 
         // if there is no context then don't save the file
         if (context == null) {
