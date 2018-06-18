@@ -11,12 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
-import com.google.protobuf.Timestamp;
-
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.UUID;
 
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.utilities.Util;
@@ -83,32 +79,16 @@ public class FragmentCreatePost extends Fragment
         String tags = tagsInput.getText().toString();
         String title = titleInput.getText().toString();
         String message = messageInput.getText().toString();
-        String uuid = UUID.randomUUID().toString();
-        String hash = null;
-        Date now = new Date();
-        Timestamp timestamp = Util.millisToTimestamp(now.getTime());
 
         // check input
         if (title.length() == 0 || message.length() == 0 || currentUser == null) {
             return false;
         }
 
-        String authorName = currentUser.getFirstName() + " " + currentUser.getLastName();
-        String authorID = currentUser.getUuid();
-
-
         ArrayList<String> tagList = new ArrayList<>(Arrays.asList(tags.split(",")));
 
-        // make the actual post object
-        DhtProto.Post post = DhtProto.Post.newBuilder()
-                .setUuid(uuid)
-                .setAuthorId(authorID)
-                .setAuthorName(authorName)
-                .setTitle(title)
-                .setMessage(message)
-                .addAllTags(tagList)
-                .setTimestamp(timestamp)
-                .build();
+        DhtProto.Post post = Util.createPost(title, message, currentUser, tagList);
+
 
 
         DataStore dataStore = DataStore.getInstance(getContext());

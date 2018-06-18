@@ -16,6 +16,8 @@ import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.proto.Sync;
 
 /**
+ * This class is a delegate class for all of the data access to use this instead of the underling
+ * storage objects.
  * @author Marshall Asch
  * @version 1.0
  * @since 2018-06-15
@@ -73,29 +75,29 @@ public class DataStore
 
     /**
      * Gets all the known posts in a the data store
-     * @return the list of posts pairs.
+     * @return the list of posts.
      */
-    public List<Pair<String, DhtProto.Post>> getKnownPosts() {
+    public List<DhtProto.Post> getKnownPosts() {
 
         List<String> hashes = db.getPostHashes();
 
-        Pair<String, DhtProto.Post> postPair;
-        List<Pair<String, DhtProto.Post>> posts = new ArrayList<>();
+        DhtProto.Post post;
+        List<DhtProto.Post> posts = new ArrayList<>();
 
         // get each post that is in the list
         for (String hash: hashes) {
 
-            postPair = null;
+            post = null;
             try {
-                postPair = hashTableStore.findPostByHash(hash);
+                post = hashTableStore.findPostByHash(hash);
             }
             catch (TooManyResultsException e) {
                 e.printStackTrace();
             }
 
             // add the post to the list
-            if (postPair != null) {
-                posts.add(postPair);
+            if (post != null) {
+                posts.add(post);
             }
         }
 
@@ -138,6 +140,10 @@ public class DataStore
     }
 
 
+    /**
+     * Generate teh object for syncing the database between devices.
+     * @return the mapping object
+     */
     public Sync.MappingMessage getDatabase() {
 
         List<Pair<String, String>> knownPosts = db.dumpKnownPosts();
@@ -156,6 +162,11 @@ public class DataStore
         return builder.build();
     }
 
+    /**
+     * Generate the syncing object for the data store. It will contain all of the objects
+     * for the posts and the comments only.
+     * @return the message object
+     */
     public Sync.HashData getDataStore() {
 
         List<Pair<String, DhtProto.DhtWrapper>> data = hashTableStore.getData();
@@ -175,6 +186,10 @@ public class DataStore
         return builder.build();
     }
 
+    /**
+     * Will insert the database sync object into the database.
+     * @param message the message to insert
+     */
     public void syncDatabase(Sync.MappingMessage message) {
 
         List<Sync.CommentMapping> mapping = message.getMappingsList();
@@ -185,6 +200,10 @@ public class DataStore
         }
     }
 
+    /**
+     * Will insert all of the synced data from another device.
+     * @param message the data sync object.
+     */
     public void syncData(Sync.HashData message) {
 
         List<Sync.HashPair> mapping = message.getEntriesList();

@@ -59,7 +59,6 @@
 
     <!-- Bundle keys -->
     <string name="post_object_key">post_object_key</string>
-    <string name="post_hash_key">post_hash_key</string>
 
     <!-- Shared preferences keys -->
     <string name="pref_notifications">pref_notifications</string>

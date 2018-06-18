@@ -127,7 +127,9 @@ public class HashTableStore implements ForumStorage
 
     /**
      * This function will insert the post object into the local hash table. This will also add
-     * records for the tags and the title to help search for the post later
+     * records for the tags and the title to help search for the post later. The post uuid <b>MUST</b>
+     * be set to the hash for the post, this can be done by calling
+     * {@link Util#createPost(String, String, DhtProto.User, List)}.
      * @param post the post item to store
      * @return the hash  identifying the post
      */
@@ -138,7 +140,7 @@ public class HashTableStore implements ForumStorage
             return null;
         }
 
-        String hash = Util.generateHash(post.toByteArray());
+        String hash = post.getUuid();
 
         DhtProto.DhtWrapper wrapper = DhtProto.DhtWrapper.newBuilder()
                 .setPost(post)
@@ -179,12 +181,12 @@ public class HashTableStore implements ForumStorage
      * the exception is there to handle the possibility.
      *
      * @param hash the unique SHA256 hash of the post
-     * @return null if no matching post is found or the result that contains the post object
+     * @return null if no matching post is found or the post object
      * @throws TooManyResultsException gets thrown if more then 1 post is found with the same hash.
      */
     @Override
     @Nullable
-    public Pair<String, DhtProto.Post> findPostByHash(String hash) throws TooManyResultsException
+    public DhtProto.Post findPostByHash(String hash) throws TooManyResultsException
     {
         ArrayList<DhtProto.DhtWrapper> entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(hash);
 
@@ -205,7 +207,7 @@ public class HashTableStore implements ForumStorage
         if (posts.size() > 1) {
             throw new TooManyResultsException("Too many results for: " + hash);
         } else if (posts.size() == 1) {
-            return new Pair<>(hash, posts.get(0));
+            return  posts.get(0);
         }
 
         // otherwise there were no results found.
@@ -221,7 +223,7 @@ public class HashTableStore implements ForumStorage
      */
     @Override
     @Nullable
-    public List<Pair<String, DhtProto.Post>> findPostsByKeyword(String keyword)
+    public List<DhtProto.Post> findPostsByKeyword(String keyword)
     {
         keyword = keyword.toLowerCase(Locale.getDefault());
         ArrayList<DhtProto.DhtWrapper> entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(Util.generateHash(keyword.getBytes()));
@@ -244,7 +246,7 @@ public class HashTableStore implements ForumStorage
             }
         }
 
-        ArrayList<Pair<String, DhtProto.Post>> posts = new ArrayList<>();
+        ArrayList<DhtProto.Post> posts = new ArrayList<>();
 
         // find all the post objects
         for(String hash: postHashes) {

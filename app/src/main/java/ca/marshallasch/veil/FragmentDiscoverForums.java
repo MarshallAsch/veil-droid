@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -43,7 +42,7 @@ public class FragmentDiscoverForums extends Fragment {
         recyclerView.setHasFixedSize(true);
 
 
-        List<Pair<String, DhtProto.Post>> posts = DataStore.getInstance(activity).getKnownPosts();
+        List<DhtProto.Post> posts = DataStore.getInstance(activity).getKnownPosts();
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(activity);
         recyclerView.setLayoutManager(linearLayoutManager);

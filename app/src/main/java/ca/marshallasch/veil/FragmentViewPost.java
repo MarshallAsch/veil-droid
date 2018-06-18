@@ -39,18 +39,18 @@ public class FragmentViewPost extends Fragment {
         if(bundle != null) {
            try{
                postObject = DhtProto.Post.parseFrom(bundle.getByteArray(getString(R.string.post_object_key)));
-               postHash = bundle.getString(getString(R.string.post_hash_key));
            } catch (InvalidProtocolBufferException e){
                e.printStackTrace();
            }
         } else if (savedInstanceState != null){
             try{
                 postObject = DhtProto.Post.parseFrom(savedInstanceState.getByteArray(getString(R.string.post_object_key)));
-                postHash = savedInstanceState.getString(getString(R.string.post_hash_key));
             } catch (InvalidProtocolBufferException e){
                 e.printStackTrace();
             }
         }
+
+
 
         //if the post object is not null set values of post else set filler values
         String postTitle;
@@ -58,6 +58,7 @@ public class FragmentViewPost extends Fragment {
         if(postObject != null){
             postTitle = postObject.getTitle();
             postContent = postObject.getMessage();
+            postHash = postObject.getUuid();
         }
         else{
             postTitle = getString(R.string.failed_to_load_title);
