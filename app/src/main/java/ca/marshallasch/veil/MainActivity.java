@@ -12,12 +12,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import java.util.HashSet;
+import com.google.protobuf.InvalidProtocolBufferException;
 
 import ca.marshallasch.veil.proto.DhtProto;
+import ca.marshallasch.veil.proto.Sync;
 import io.left.rightmesh.android.AndroidMeshManager;
 import io.left.rightmesh.android.MeshService;
 import io.left.rightmesh.id.MeshId;
+import io.left.rightmesh.mesh.MeshManager.DataReceivedEvent;
 import io.left.rightmesh.mesh.MeshManager.PeerChangedEvent;
 import io.left.rightmesh.mesh.MeshManager.RightMeshEvent;
 import io.left.rightmesh.mesh.MeshStateListener;
@@ -33,9 +35,6 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
     private static final int DATA_PORT = 9182;
     // private static final int DISCOVERY_PORT = 9183;       // This port will be used for the DHT
                                                             // to keep all of that traffic separate
-    private static final
-    // Set to keep track of peers connected to the mesh.
-    HashSet<MeshId> users = new HashSet<>();
 
     // MeshManager instance - interface to the mesh network.
     AndroidMeshManager meshManager = null;
@@ -91,6 +90,14 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         catch (MeshService.ServiceDisconnectedException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    protected void onStop()
+    {
+        super.onStop();
+
+        dataStore.save(this);
     }
 
     /**
@@ -201,6 +208,26 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
      */
     private void handleDataReceived(RightMeshEvent e) {
         // TODO: 2018-05-28 Add in logic to handle the incoming data
+        DataReceivedEvent event = (DataReceivedEvent) e;
+
+        Sync.Message message;
+        try {
+            message = Sync.Message.parseFrom(event.data);
+        }
+        catch (InvalidProtocolBufferException e1) {
+            e1.printStackTrace();
+            return;
+        }
+
+        Sync.SyncMessageType type = message.getType();
+
+        if (type == Sync.SyncMessageType.HASH_DATA) {
+            dataStore.syncData(message.getData());
+        } else if (type == Sync.SyncMessageType.MAPPING_MESSAGE) {
+            dataStore.syncDatabase(message.getMapping());
+        }
+
+        dataStore.save(this);
     }
 
     /**
@@ -212,11 +239,31 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
 
         // Update peer list.
         PeerChangedEvent event = (PeerChangedEvent) e;
-        if (event.state != REMOVED && !users.contains(event.peerUuid)) {
+        if (event.state != REMOVED) {
             Log.d("FOUND", "found user: " + event.peerUuid);
-            users.add(event.peerUuid);
-        } else if (event.state == REMOVED){
-            users.remove(event.peerUuid);
+
+
+            Sync.HashData hashData = dataStore.getDataStore();
+            Sync.MappingMessage mappingMessage =  dataStore.getDatabase();
+
+            // send messages to the peer.
+            try {
+
+                Sync.Message message = Sync.Message.newBuilder()
+                        .setType(Sync.SyncMessageType.HASH_DATA)
+                        .setData(hashData)
+                        .build();
+                meshManager.sendDataReliable(event.peerUuid, DATA_PORT, message.toByteArray());
+
+                message = Sync.Message.newBuilder()
+                        .setType(Sync.SyncMessageType.MAPPING_MESSAGE)
+                        .setMapping(mappingMessage)
+                        .build();
+                meshManager.sendDataReliable(event.peerUuid, DATA_PORT, message.toByteArray());
+            }
+            catch (RightMeshException e1) {
+                e1.printStackTrace();
+            }
         }
     }
 

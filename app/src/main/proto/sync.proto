@@ -6,6 +6,18 @@ option java_outer_classname = "Sync";
 
 import "dht.proto";
 
+//used to figure out what type of message to parse
+enum SyncMessageType {
+    MAPPING_MESSAGE = 0;
+    HASH_DATA = 1;
+}
+
+// message wrapper for all messages so that the correct one can be recreated
+message Message {
+    SyncMessageType type = 1;
+    MappingMessage mapping = 2;
+    HashData data = 3;
+}
 
 message CommentMapping {
     string postHash = 1;
