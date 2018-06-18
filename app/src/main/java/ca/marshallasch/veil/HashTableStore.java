@@ -553,7 +553,7 @@ public class HashTableStore implements ForumStorage
      * @param data the data to put into the table
      * @param key the key that it will go under
      */
-    private void insert(@NonNull  DhtProto.DhtWrapper data, String key) {
+    public void insert(@NonNull  DhtProto.DhtWrapper data, String key) {
 
         ArrayList<DhtProto.DhtWrapper> entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(key);
 
@@ -561,7 +561,10 @@ public class HashTableStore implements ForumStorage
             entries = new ArrayList<>();
         }
 
-        entries.add(data);
+        if (!entries.contains(data)) {
+            entries.add(data);
+        }
+
         hashMap.put(key, entries);
     }
 
@@ -593,5 +596,4 @@ public class HashTableStore implements ForumStorage
 
         return data;
     }
-
 }

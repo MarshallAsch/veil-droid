@@ -175,4 +175,24 @@ public class DataStore
         return builder.build();
     }
 
+    public void syncDatabase(Sync.MappingMessage message) {
+
+        List<Sync.CommentMapping> mapping = message.getMappingsList();
+
+        // insert all of the mappings
+        for (Sync.CommentMapping entry: mapping) {
+            db.insertKnownPost(entry.getPostHash(), entry.getCommentHash());
+        }
+    }
+
+    public void syncData(Sync.HashData message) {
+
+        List<Sync.HashPair> mapping = message.getEntriesList();
+
+        // insert all of the mappings
+        for (Sync.HashPair entry: mapping) {
+            hashTableStore.insert (entry.getEntry(), entry.getHash());
+        }
+    }
+
 }
