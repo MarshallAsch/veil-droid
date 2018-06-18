@@ -22,6 +22,7 @@ import ca.marshallasch.veil.proto.DhtProto;
  */
 public class FragmentViewPost extends Fragment {
     private DhtProto.Post postObject;
+    private String postHash;
 
     public FragmentViewPost() {
         // Required empty public constructor
@@ -37,17 +38,19 @@ public class FragmentViewPost extends Fragment {
         //if the bundle is not null then use the data from there else use the data from the saved instance
         if(bundle != null) {
            try{
-               postObject = DhtProto.Post.parseFrom(bundle.getByteArray(String.valueOf(R.string.post_object_key)));
+               postObject = DhtProto.Post.parseFrom(bundle.getByteArray(getString(R.string.post_object_key)));
            } catch (InvalidProtocolBufferException e){
                e.printStackTrace();
            }
         } else if (savedInstanceState != null){
             try{
-                postObject = DhtProto.Post.parseFrom(savedInstanceState.getByteArray(String.valueOf(R.string.post_object_key)));
+                postObject = DhtProto.Post.parseFrom(savedInstanceState.getByteArray(getString(R.string.post_object_key)));
             } catch (InvalidProtocolBufferException e){
                 e.printStackTrace();
             }
         }
+
+
 
         //if the post object is not null set values of post else set filler values
         String postTitle;
@@ -55,6 +58,7 @@ public class FragmentViewPost extends Fragment {
         if(postObject != null){
             postTitle = postObject.getTitle();
             postContent = postObject.getMessage();
+            postHash = postObject.getUuid();
         }
         else{
             postTitle = getString(R.string.failed_to_load_title);
