@@ -128,8 +128,6 @@ public class FragmentSignUp extends Fragment
         if (user == null) {
             Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.unknown_err, Snackbar.LENGTH_SHORT).show();
         } else {
-            HashTableStore.getInstance(getActivity()).insertUser(user);
-
             ((MainActivity) getActivity()).setCurrentUser(user);
             ((MainActivity) getActivity()).navigateTo(new FragmentDashBoard(), true);
         }

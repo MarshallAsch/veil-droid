@@ -15,6 +15,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ca.marshallasch.veil.comparators.CommentPairComparator;
@@ -22,13 +24,20 @@ import ca.marshallasch.veil.exceptions.TooManyResultsException;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.utilities.Util;
 
-import static ca.marshallasch.veil.proto.DhtProto.KeywordType.*;
+import static ca.marshallasch.veil.proto.DhtProto.KeywordType.COMMENT_FOR;
+import static ca.marshallasch.veil.proto.DhtProto.KeywordType.EMAIL;
+import static ca.marshallasch.veil.proto.DhtProto.KeywordType.NAME;
+import static ca.marshallasch.veil.proto.DhtProto.KeywordType.TAG;
+import static ca.marshallasch.veil.proto.DhtProto.KeywordType.TITLE_FULL;
+import static ca.marshallasch.veil.proto.DhtProto.KeywordType.TITLE_PARTIAL;
 
 /**
  * This class is a data store for forum. It is implemented as a local hash table. This implementation
  * should be fairly similar to the targeted implementation in a distributed hash table.
  * Inorder for the different devices to get a copy of the posts and the messages it will rely on
  * the peer discovery data exchange protocol for now.
+ *
+ * Do not access this class directly for the data. you should go through {@link DataStore}.
  *
  *
  * @author Marshall Asch
@@ -507,7 +516,6 @@ public class HashTableStore implements ForumStorage
     }
 
 
-
     /**
      * This function will generate a keyword object used for indexing the objects in the table.
      * The keyword is normalized to lowercase to make future searches case insensitive.
@@ -555,6 +563,35 @@ public class HashTableStore implements ForumStorage
 
         entries.add(data);
         hashMap.put(key, entries);
+    }
+
+
+    /**
+     * This is not a good way to do this, should probably make it better.
+     * todo fix this.
+     * @return a list of posts and comments
+     */
+    public List<Pair<String, DhtProto.DhtWrapper>> getData() {
+
+        List<Pair<String, DhtProto.DhtWrapper>> data = new ArrayList<>();
+
+        Set<Map.Entry<String, List<DhtProto.DhtWrapper>>> set = hashMap.entrySet();
+
+        for(Map.Entry<String, List<DhtProto.DhtWrapper>> entry: set) {
+            String hash = entry.getKey();
+            List<DhtProto.DhtWrapper> list = entry.getValue();
+
+            // make sure the data is for a post or a comment only
+            for (DhtProto.DhtWrapper element: list) {
+
+                if (element.getType() == DhtProto.MessageType.COMMENT || element.getType() == DhtProto.MessageType.POST) {
+                    data.add(new Pair<String, DhtProto.DhtWrapper>(hash, element));
+                }
+            }
+
+        }
+
+        return data;
     }
 
 }

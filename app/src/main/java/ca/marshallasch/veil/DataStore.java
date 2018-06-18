@@ -13,6 +13,7 @@ import ca.marshallasch.veil.comparators.CommentPairComparator;
 import ca.marshallasch.veil.database.Database;
 import ca.marshallasch.veil.exceptions.TooManyResultsException;
 import ca.marshallasch.veil.proto.DhtProto;
+import ca.marshallasch.veil.proto.Sync;
 
 /**
  * @author Marshall Asch
@@ -135,4 +136,43 @@ public class DataStore
         return comments;
 
     }
+
+
+    public Sync.MappingMessage getDatabase() {
+
+        List<Pair<String, String>> knownPosts = db.dumpKnownPosts();
+
+        Sync.MappingMessage.Builder builder = Sync.MappingMessage.newBuilder();
+
+        // add it to the list
+        for (Pair<String, String> pair: knownPosts) {
+            builder.addMappings(Sync.CommentMapping.newBuilder()
+                    .setPostHash(pair.first)
+                    .setCommentHash(pair.second)
+                    .build());
+        }
+
+        // build the message to send to other devices
+        return builder.build();
+    }
+
+    public Sync.HashData getDataStore() {
+
+        List<Pair<String, DhtProto.DhtWrapper>> data = hashTableStore.getData();
+
+
+        Sync.HashData.Builder builder = Sync.HashData.newBuilder();
+
+        // generate the list
+        for(Pair<String, DhtProto.DhtWrapper> pair: data) {
+
+            builder.addEntries(Sync.HashPair.newBuilder()
+                    .setHash(pair.first)
+                    .setEntry(pair.second)
+                    .build());
+        }
+
+        return builder.build();
+    }
+
 }
