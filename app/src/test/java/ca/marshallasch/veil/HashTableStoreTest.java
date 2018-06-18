@@ -18,34 +18,34 @@ import ca.marshallasch.veil.utilities.Util;
  * @version 1.0
  * @since 2018-06-12
  */
-public class MemoryStoreTest
+public class HashTableStoreTest
 {
     @Test
     public void getInstance()
     {
-        MemoryStore memoryStore = MemoryStore.getInstance(null);
+        HashTableStore hashTableStore = HashTableStore.getInstance(null);
 
         // make sure that got a value
-        Assert.assertNotNull(memoryStore);
+        Assert.assertNotNull(hashTableStore);
 
         // make sure that they are the same instance
-        Assert.assertEquals(memoryStore, MemoryStore.getInstance(null));
+        Assert.assertEquals(hashTableStore, HashTableStore.getInstance(null));
     }
 
     @Test
     public void insertPost()
     {
-        MemoryStore memoryStore = MemoryStore.getInstance(null);
+        HashTableStore hashTableStore = HashTableStore.getInstance(null);
         DhtProto.Post p = DhtProto.Post.newBuilder()
                 .build();
 
         // if the post is null then the hash should be as well
-        Assert.assertNull(memoryStore.insertPost(null));
+        Assert.assertNull(hashTableStore.insertPost(null));
 
         // check that the empty post works
-        String hash = memoryStore.insertPost(p);
+        String hash = hashTableStore.insertPost(p);
         Assert.assertNotNull(hash);
-        DhtProto.Post p2 = memoryStore.hashMap.get(hash).get(0).getPost();
+        DhtProto.Post p2 = hashTableStore.hashMap.get(hash).get(0).getPost();
         Assert.assertEquals(p, p2);
 
 
@@ -54,18 +54,18 @@ public class MemoryStoreTest
                 .build();
 
         // check that the post works
-        hash = memoryStore.insertPost(p);
+        hash = hashTableStore.insertPost(p);
         Assert.assertNotNull(hash);
 
         // check that the keyword item for the post got inserted
-        String hash2 = memoryStore.hashMap.get(Util.generateHash("post".getBytes())).get(0).getKeyword().getHash();
+        String hash2 = hashTableStore.hashMap.get(Util.generateHash("post".getBytes())).get(0).getKeyword().getHash();
         Assert.assertEquals(hash, hash2);
     }
 
     @Test
     public void findPostByHash()
     {
-        MemoryStore memoryStore = MemoryStore.getInstance(null);
+        HashTableStore hashTableStore = HashTableStore.getInstance(null);
         DhtProto.Post p = DhtProto.Post.newBuilder()
                 .setTitle("Post2")
                 .setMessage("This is a nice and short message in the post body")
@@ -73,12 +73,12 @@ public class MemoryStoreTest
 
 
         // check that the post insert works
-        String hash = memoryStore.insertPost(p);
+        String hash = hashTableStore.insertPost(p);
         Assert.assertNotNull(hash);
         Pair<String, DhtProto.Post> pair = null;
 
         try {
-            pair = memoryStore.findPostByHash(hash);
+            pair = hashTableStore.findPostByHash(hash);
         }
         catch (TooManyResultsException e) {
             e.printStackTrace();
@@ -96,14 +96,14 @@ public class MemoryStoreTest
 
 
         // check that the post insert works
-        hash = memoryStore.insertPost(p);
-        hash = memoryStore.insertPost(p);       // insert a duplicate
+        hash = hashTableStore.insertPost(p);
+        hash = hashTableStore.insertPost(p);       // insert a duplicate
 
         Assert.assertNotNull(hash);
         pair = null;
 
         try {
-            pair = memoryStore.findPostByHash(hash);        // this should throw an exception
+            pair = hashTableStore.findPostByHash(hash);        // this should throw an exception
         }
         catch (TooManyResultsException e) {
             assert true;
@@ -114,7 +114,7 @@ public class MemoryStoreTest
         // check null search
         pair = null;
         try {
-            pair = memoryStore.findPostByHash(null);
+            pair = hashTableStore.findPostByHash(null);
         }
         catch (TooManyResultsException e) {
             e.printStackTrace();
@@ -126,7 +126,7 @@ public class MemoryStoreTest
         // check no matching key
         pair = null;
         try {
-            pair = memoryStore.findPostByHash("abc");
+            pair = hashTableStore.findPostByHash("abc");
         }
         catch (TooManyResultsException e) {
             e.printStackTrace();
@@ -138,7 +138,7 @@ public class MemoryStoreTest
     @Test
     public void findPostsByKeyword()
     {
-        MemoryStore memoryStore = MemoryStore.getInstance(null);
+        HashTableStore hashTableStore = HashTableStore.getInstance(null);
         DhtProto.Post p = DhtProto.Post.newBuilder()
                 .setTitle("Post4")
                 .setMessage("TMessage body does not matter")
@@ -148,7 +148,7 @@ public class MemoryStoreTest
 
 
         // check that the post insert works
-        String hash = memoryStore.insertPost(p);
+        String hash = hashTableStore.insertPost(p);
         Assert.assertNotNull(hash);
 
         DhtProto.Post p2 = DhtProto.Post.newBuilder()
@@ -160,21 +160,21 @@ public class MemoryStoreTest
 
 
         // check that the post insert works
-        hash = memoryStore.insertPost(p2);
+        hash = hashTableStore.insertPost(p2);
         Assert.assertNotNull(hash);
 
         // check 2 search results
-        ArrayList<Pair<String, DhtProto.Post>> posts = (ArrayList<Pair<String, DhtProto.Post>>) memoryStore.findPostsByKeyword("sprite");
+        ArrayList<Pair<String, DhtProto.Post>> posts = (ArrayList<Pair<String, DhtProto.Post>>) hashTableStore.findPostsByKeyword("sprite");
         Assert.assertNotNull(posts);
         Assert.assertEquals(2, posts.size());
 
         // check 1 search result
-        posts = (ArrayList<Pair<String, DhtProto.Post>>) memoryStore.findPostsByKeyword("coke");
+        posts = (ArrayList<Pair<String, DhtProto.Post>>) hashTableStore.findPostsByKeyword("coke");
         Assert.assertNotNull(posts);
         Assert.assertEquals(1, posts.size());
 
         // no results
-        posts = (ArrayList<Pair<String, DhtProto.Post>>) memoryStore.findPostsByKeyword("bob marley");
+        posts = (ArrayList<Pair<String, DhtProto.Post>>) hashTableStore.findPostsByKeyword("bob marley");
         Assert.assertNotNull(posts);
         Assert.assertEquals(0, posts.size());
     }
@@ -182,13 +182,13 @@ public class MemoryStoreTest
     @Test
     public void insertComment()
     {
-        MemoryStore memoryStore = MemoryStore.getInstance(null);
+        HashTableStore hashTableStore = HashTableStore.getInstance(null);
         DhtProto.Post p = DhtProto.Post.newBuilder()
                 .setTitle("Post6")
                 .build();
 
         // check that the post works (it is a prereq
-        String postHash = memoryStore.insertPost(p);
+        String postHash = hashTableStore.insertPost(p);
         Assert.assertNotNull(postHash);
 
 
@@ -197,13 +197,13 @@ public class MemoryStoreTest
                 .build();
 
         // check that the comment works
-        String hash = memoryStore.insertComment(comment, postHash);
+        String hash = hashTableStore.insertComment(comment, postHash);
         Assert.assertNotNull(hash);
 
         // check that the keyword item for the comment got inserted
-        String hash2 = memoryStore.hashMap.get(postHash).get(1).getKeyword().getHash();
+        String hash2 = hashTableStore.hashMap.get(postHash).get(1).getKeyword().getHash();
 
-        Assert.assertEquals(DhtProto.KeywordType.COMMENT_FOR, memoryStore.hashMap.get(postHash).get(1).getKeyword().getType());
+        Assert.assertEquals(DhtProto.KeywordType.COMMENT_FOR, hashTableStore.hashMap.get(postHash).get(1).getKeyword().getType());
         Assert.assertEquals(hash, hash2);
 
 
@@ -213,22 +213,22 @@ public class MemoryStoreTest
                 .build();
 
         // check that the comment works
-        hash = memoryStore.insertComment(comment, postHash);
+        hash = hashTableStore.insertComment(comment, postHash);
         Assert.assertNotNull(hash);
 
-        Assert.assertEquals(3, memoryStore.hashMap.get(postHash).size());
+        Assert.assertEquals(3, hashTableStore.hashMap.get(postHash).size());
     }
 
     @Test
     public void findCommentsByPost()
     {
-        MemoryStore memoryStore = MemoryStore.getInstance(null);
+        HashTableStore hashTableStore = HashTableStore.getInstance(null);
         DhtProto.Post p = DhtProto.Post.newBuilder()
                 .setTitle("Post7")
                 .build();
 
         // check that the post works (it is a prereq
-        String postHash = memoryStore.insertPost(p);
+        String postHash = hashTableStore.insertPost(p);
         Assert.assertNotNull(postHash);
 
 
@@ -238,7 +238,7 @@ public class MemoryStoreTest
                 .build();
 
         // check that the comment works
-        String hash1 = memoryStore.insertComment(comment, postHash);
+        String hash1 = hashTableStore.insertComment(comment, postHash);
         Assert.assertNotNull(hash1);
 
         comment = DhtProto.Comment.newBuilder()
@@ -247,12 +247,12 @@ public class MemoryStoreTest
                 .build();
 
         // check that the comment works
-        String hash2 = memoryStore.insertComment(comment, postHash);
+        String hash2 = hashTableStore.insertComment(comment, postHash);
         Assert.assertNotNull(hash2);
 
         // done prereqs
 
-        List<Pair<String, DhtProto.Comment>> list = memoryStore.findCommentsByPost(postHash);
+        List<Pair<String, DhtProto.Comment>> list = hashTableStore.findCommentsByPost(postHash);
 
         Assert.assertNotNull(list);
         Assert.assertEquals(2, list.size());
@@ -267,17 +267,17 @@ public class MemoryStoreTest
                 .build();
 
         // check that the post works (it is a prereq
-        String postHash2 = memoryStore.insertPost(p);
+        String postHash2 = hashTableStore.insertPost(p);
         Assert.assertNotNull(postHash2);
 
         // there should be no comments, empty list
-        list = memoryStore.findCommentsByPost(postHash2);
+        list = hashTableStore.findCommentsByPost(postHash2);
 
         Assert.assertNotNull(list);
         Assert.assertEquals(0, list.size());
 
         // there should be no comments, empty list
-        list = memoryStore.findCommentsByPost(null);
+        list = hashTableStore.findCommentsByPost(null);
 
         Assert.assertNotNull(list);
         Assert.assertEquals(0, list.size());
@@ -286,13 +286,13 @@ public class MemoryStoreTest
     @Test
     public void findCommentByHash()
     {
-        MemoryStore memoryStore = MemoryStore.getInstance(null);
+        HashTableStore hashTableStore = HashTableStore.getInstance(null);
         DhtProto.Post p = DhtProto.Post.newBuilder()
                 .setTitle("Post9")
                 .build();
 
         // check that the post works (it is a prereq)
-        String postHash = memoryStore.insertPost(p);
+        String postHash = hashTableStore.insertPost(p);
         Assert.assertNotNull(postHash);
 
 
@@ -302,12 +302,12 @@ public class MemoryStoreTest
                 .build();
 
         // check that the comment works
-        String hash1 = memoryStore.insertComment(comment, postHash);
+        String hash1 = hashTableStore.insertComment(comment, postHash);
         Assert.assertNotNull(hash1);
 
         Pair<String, DhtProto.Comment> pair = null;
         try {
-            pair = memoryStore.findCommentByHash(hash1);
+            pair = hashTableStore.findCommentByHash(hash1);
         }
         catch (TooManyResultsException e) {
             e.printStackTrace();
@@ -321,7 +321,7 @@ public class MemoryStoreTest
         // null search
         pair = null;
         try {
-            pair = memoryStore.findCommentByHash(null);
+            pair = hashTableStore.findCommentByHash(null);
         }
         catch (TooManyResultsException e) {
             e.printStackTrace();
@@ -333,7 +333,7 @@ public class MemoryStoreTest
         // no matches
         pair = null;
         try {
-            pair = memoryStore.findCommentByHash(postHash);
+            pair = hashTableStore.findCommentByHash(postHash);
         }
         catch (TooManyResultsException e) {
             e.printStackTrace();
@@ -346,34 +346,34 @@ public class MemoryStoreTest
     @Test
     public void insertUser()
     {
-        MemoryStore memoryStore = MemoryStore.getInstance(null);
+        HashTableStore hashTableStore = HashTableStore.getInstance(null);
         DhtProto.User user = DhtProto.User.newBuilder()
                 .setFirstName("bob")
                 .setLastName("John")
                 .setUuid(UUID.randomUUID().toString())
                 .build();
 
-        String hash = memoryStore.insertUser(user);
+        String hash = hashTableStore.insertUser(user);
         Assert.assertNotNull(hash);
 
         // check that the user is where it should be
-        DhtProto.User u2 = memoryStore.hashMap.get(hash).get(0).getUser();
+        DhtProto.User u2 = hashTableStore.hashMap.get(hash).get(0).getUser();
         Assert.assertEquals(user, u2);
 
         // check that the first name search token is inserted
-        String hash2 = memoryStore.hashMap.get(Util.generateHash("bob".getBytes())).get(0).getKeyword().getHash();
+        String hash2 = hashTableStore.hashMap.get(Util.generateHash("bob".getBytes())).get(0).getKeyword().getHash();
         Assert.assertEquals(hash, hash2);
 
 
         // check insert of null user
-        hash = memoryStore.insertUser(null);
+        hash = hashTableStore.insertUser(null);
         Assert.assertNull(hash);
     }
 
     @Test
     public void findUserByHash()
     {
-        MemoryStore memoryStore = MemoryStore.getInstance(null);
+        HashTableStore hashTableStore = HashTableStore.getInstance(null);
 
         String uuid = UUID.randomUUID().toString();
         DhtProto.User user = DhtProto.User.newBuilder()
@@ -382,12 +382,12 @@ public class MemoryStoreTest
                 .setUuid(uuid)
                 .build();
 
-        String hash = memoryStore.insertUser(user);
+        String hash = hashTableStore.insertUser(user);
         Assert.assertNotNull(hash);
 
         Pair<String, DhtProto.User> pair = null;
         try {
-            pair = memoryStore.findUserByHash(Util.generateHash(uuid.getBytes()));
+            pair = hashTableStore.findUserByHash(Util.generateHash(uuid.getBytes()));
         }
         catch (TooManyResultsException e) {
             e.printStackTrace();
@@ -400,7 +400,7 @@ public class MemoryStoreTest
         // invalid result
         pair = null;
         try {
-            pair = memoryStore.findUserByHash(Util.generateHash("userID".getBytes()));
+            pair = hashTableStore.findUserByHash(Util.generateHash("userID".getBytes()));
         }
         catch (TooManyResultsException e) {
             e.printStackTrace();
@@ -412,7 +412,7 @@ public class MemoryStoreTest
         // invalid hash
         pair = null;
         try {
-            pair = memoryStore.findUserByHash(null);
+            pair = hashTableStore.findUserByHash(null);
         }
         catch (TooManyResultsException e) {
             e.printStackTrace();
@@ -425,7 +425,7 @@ public class MemoryStoreTest
     @Test
     public void findUsersByName()
     {
-        MemoryStore memoryStore = MemoryStore.getInstance(null);
+        HashTableStore hashTableStore = HashTableStore.getInstance(null);
 
         DhtProto.User user = DhtProto.User.newBuilder()
                 .setFirstName("John")
@@ -433,7 +433,7 @@ public class MemoryStoreTest
                 .setUuid(UUID.randomUUID().toString())
                 .build();
 
-        String hash = memoryStore.insertUser(user);
+        String hash = hashTableStore.insertUser(user);
         Assert.assertNotNull(hash);
 
         DhtProto.User user2 = DhtProto.User.newBuilder()
@@ -442,37 +442,37 @@ public class MemoryStoreTest
                 .setUuid(UUID.randomUUID().toString())
                 .build();
 
-        hash = memoryStore.insertUser(user2);
+        hash = hashTableStore.insertUser(user2);
         Assert.assertNotNull(hash);
 
         List<Pair<String, DhtProto.User>> list = null;
-        list = memoryStore.findUsersByName("john doe");
+        list = hashTableStore.findUsersByName("john doe");
 
         Assert.assertNotNull(list);
         Assert.assertEquals(1, list.size());
         Assert.assertEquals(user, list.get(0).second);
 
         // check case insensitivity
-        list = memoryStore.findUsersByName("John Doe");
+        list = hashTableStore.findUsersByName("John Doe");
 
         Assert.assertNotNull(list);
         Assert.assertEquals(1, list.size());
         Assert.assertEquals(user, list.get(0).second);
 
         // check no match
-        list = memoryStore.findUsersByName("john micheal");
+        list = hashTableStore.findUsersByName("john micheal");
 
         Assert.assertNotNull(list);
         Assert.assertEquals(0, list.size());
 
         // check null search
-        list = memoryStore.findUsersByName(null);
+        list = hashTableStore.findUsersByName(null);
 
         Assert.assertNotNull(list);
         Assert.assertEquals(0, list.size());
 
         // check multiple results
-        list = memoryStore.findUsersByName("john");
+        list = hashTableStore.findUsersByName("john");
 
         Assert.assertNotNull(list);
         Assert.assertEquals(2, list.size());

@@ -21,14 +21,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import ca.marshallasch.veil.ForumStorage;
-import ca.marshallasch.veil.MemoryStore;
 import ca.marshallasch.veil.R;
 import ca.marshallasch.veil.database.BlockContract.BlockEntry;
+import ca.marshallasch.veil.database.KnownPostsContract.KnownPostsEntry;
 import ca.marshallasch.veil.database.NotificationContract.NotificationEntry;
 import ca.marshallasch.veil.database.UserContract.UserEntry;
-import ca.marshallasch.veil.database.KnownPostsContract.KnownPostsEntry;
-import ca.marshallasch.veil.exceptions.TooManyResultsException;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.utilities.Util;
 
@@ -449,7 +446,7 @@ public class Database extends SQLiteOpenHelper
 
 
     @WorkerThread
-    public List<DhtProto.Post> getAllPosts() {
+    public List<String> getPostHashes() {
 
         String[] projection = {
                 KnownPostsEntry.COLUMN_POST_HASH
@@ -467,30 +464,92 @@ public class Database extends SQLiteOpenHelper
                 null                // no limit to the results
         );
 
-        Pair<String, DhtProto.Post> postPair;
-        ForumStorage dataStore = MemoryStore.getInstance(context);
-        List<DhtProto.Post> posts = new ArrayList<>();
+        List<String> hashes = new ArrayList<>();
 
-        // get each post that is in the list
+        // get each post hash that is in the list
         while(cursor.moveToNext()) {
             String hash = cursor.getString(cursor.getColumnIndexOrThrow(KnownPostsEntry.COLUMN_POST_HASH));
 
-            postPair = null;
-            try {
-                postPair = dataStore.findPostByHash(hash);
-            }
-            catch (TooManyResultsException e) {
-                e.printStackTrace();
-            }
-
-            // add the post to the list
-            if (postPair != null) {
-                posts.add(postPair.second);
-            }
+            // add the hash to the list
+            hashes.add(hash);
         }
         cursor.close();
 
-        return posts;
+        return hashes;
+    }
+
+    @WorkerThread
+    public List<String> getCommentHashes(String postHash) {
+
+        String[] projection = {
+                KnownPostsEntry.COLUMN_COMMENT_HASH
+        };
+
+        // Filter results WHERE userID = 'id'
+        String where = KnownPostsEntry.COLUMN_POST_HASH + " = ? AND " + KnownPostsEntry.COLUMN_COMMENT_HASH + " NOT NULL" ;
+        String[] whereArgs = {postHash};
+
+
+        Cursor cursor = getReadableDatabase().query(
+                true,
+                KnownPostsEntry.TABLE_NAME,   // The table to query
+                projection,             // The array of columns to return (pass null to get all)
+                where,              // The columns for the WHERE clause
+                whereArgs,          // The values for the WHERE clause
+                null,          // don't group the rows
+                null,           // don't filter by row groups
+                null,           // don't sort
+                null                // no limit to the results
+        );
+
+        List<String> hashes = new ArrayList<>();
+
+        // get each post hash that is in the list
+        while(cursor.moveToNext()) {
+            String hash = cursor.getString(cursor.getColumnIndexOrThrow(KnownPostsEntry.COLUMN_COMMENT_HASH));
+
+            // add the hash to the list
+            hashes.add(hash);
+        }
+        cursor.close();
+
+        return hashes;
+    }
+
+    public List<Pair<String, String>> dumpKnownPosts() {
+
+        String[] projection = {
+                KnownPostsEntry.COLUMN_POST_HASH,
+                KnownPostsEntry.COLUMN_COMMENT_HASH
+        };
+
+
+        Cursor cursor = getReadableDatabase().query(
+                KnownPostsEntry.TABLE_NAME,   // The table to query
+                projection,             // The array of columns to return (pass null to get all)
+                null,              // The columns for the WHERE clause
+                null,          // The values for the WHERE clause
+                null,          // don't group the rows
+                null,           // don't filter by row groups
+                null          // don't sort
+        );
+
+        List<Pair<String, String>> hashes = new ArrayList<>();
+
+        String postHash;
+        String commentHash;
+
+        // get each post hash that is in the list
+        while(cursor.moveToNext()) {
+            postHash = cursor.getString(cursor.getColumnIndexOrThrow(KnownPostsEntry.COLUMN_POST_HASH));
+            commentHash = cursor.getString(cursor.getColumnIndexOrThrow(KnownPostsEntry.COLUMN_COMMENT_HASH));
+
+            // add the hash to the list
+            hashes.add(new Pair<>(postHash, commentHash));
+        }
+        cursor.close();
+
+        return hashes;
     }
 
     /**
