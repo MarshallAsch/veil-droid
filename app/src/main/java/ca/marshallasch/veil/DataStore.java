@@ -141,7 +141,7 @@ public class DataStore
 
 
     /**
-     * Generate teh object for syncing the database between devices.
+     * Generate the object for syncing the database between devices.
      * @return the mapping object
      */
     public Sync.MappingMessage getDatabase() {
