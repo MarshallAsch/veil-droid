@@ -20,6 +20,11 @@ import ca.marshallasch.veil.utilities.Util;
  */
 public class HashTableStoreTest
 {
+
+    DhtProto.User author = DhtProto.User.newBuilder()
+            .setFirstName("User")
+            .setLastName("LastName")
+            .build();
     @Test
     public void getInstance()
     {
@@ -36,8 +41,8 @@ public class HashTableStoreTest
     public void insertPost()
     {
         HashTableStore hashTableStore = HashTableStore.getInstance(null);
-        DhtProto.Post p = DhtProto.Post.newBuilder()
-                .build();
+        DhtProto.Post p = Util.createPost("Post0", "This is a nice and short message in the post body", author, null);
+
 
         // if the post is null then the hash should be as well
         Assert.assertNull(hashTableStore.insertPost(null));
@@ -49,9 +54,7 @@ public class HashTableStoreTest
         Assert.assertEquals(p, p2);
 
 
-        p = DhtProto.Post.newBuilder()
-                .setTitle("Post title 1")
-                .build();
+        p = Util.createPost("Post1", "This is a nice and short message in the post body", author, null);
 
         // check that the post works
         hash = hashTableStore.insertPost(p);
@@ -66,33 +69,26 @@ public class HashTableStoreTest
     public void findPostByHash()
     {
         HashTableStore hashTableStore = HashTableStore.getInstance(null);
-        DhtProto.Post p = DhtProto.Post.newBuilder()
-                .setTitle("Post2")
-                .setMessage("This is a nice and short message in the post body")
-                .build();
+        DhtProto.Post p = Util.createPost("Post2", "This is a nice and short message in the post body", author, null);
 
 
         // check that the post insert works
         String hash = hashTableStore.insertPost(p);
         Assert.assertNotNull(hash);
-        Pair<String, DhtProto.Post> pair = null;
+        DhtProto.Post post = null;
 
         try {
-            pair = hashTableStore.findPostByHash(hash);
+            post = hashTableStore.findPostByHash(hash);
         }
         catch (TooManyResultsException e) {
             e.printStackTrace();
             assert false;
         }
-        Assert.assertEquals(p, pair.second);
-        Assert.assertEquals(hash, pair.first);
+        Assert.assertEquals(p, post);
+        Assert.assertEquals(hash, post.getUuid());
 
 
-
-        p = DhtProto.Post.newBuilder()
-                .setTitle("Post3")
-                .setMessage("This is a nice and short message in the post body")
-                .build();
+        Util.createPost("Post3", "This is a nice and short message in the post body", author, null);
 
 
         // check that the post insert works
@@ -100,63 +96,58 @@ public class HashTableStoreTest
         hash = hashTableStore.insertPost(p);       // insert a duplicate
 
         Assert.assertNotNull(hash);
-        pair = null;
+        post = null;
 
         try {
-            pair = hashTableStore.findPostByHash(hash);        // this should throw an exception
+            post = hashTableStore.findPostByHash(hash);        // this should throw an exception
         }
         catch (TooManyResultsException e) {
             assert true;
         }
-        Assert.assertNull(pair);
+        Assert.assertNull(post);
 
 
         // check null search
-        pair = null;
+        post = null;
         try {
-            pair = hashTableStore.findPostByHash(null);
+            post = hashTableStore.findPostByHash(null);
         }
         catch (TooManyResultsException e) {
             e.printStackTrace();
             assert false;
         }
-        Assert.assertNull(pair);
+        Assert.assertNull(post);
 
 
         // check no matching key
-        pair = null;
+        post = null;
         try {
-            pair = hashTableStore.findPostByHash("abc");
+            post = hashTableStore.findPostByHash("abc");
         }
         catch (TooManyResultsException e) {
             e.printStackTrace();
             assert false;
         }
-        Assert.assertNull(pair);
+        Assert.assertNull(post);
     }
 
     @Test
     public void findPostsByKeyword()
     {
         HashTableStore hashTableStore = HashTableStore.getInstance(null);
-        DhtProto.Post p = DhtProto.Post.newBuilder()
-                .setTitle("Post4")
-                .setMessage("TMessage body does not matter")
-                .addTags("Pop")
-                .addTags("sprite")
-                .build();
+
+        List<String> tags = new ArrayList<String>(){{add("pop"); add("sprite");}};
+
+        DhtProto.Post  p = Util.createPost("Post4", "This is a nice and short message in the post body", author, tags);
+
 
 
         // check that the post insert works
         String hash = hashTableStore.insertPost(p);
         Assert.assertNotNull(hash);
 
-        DhtProto.Post p2 = DhtProto.Post.newBuilder()
-                .setTitle("Post5")
-                .setMessage("TMessage body does not matter")
-                .addTags("coke")
-                .addTags("sprite")
-                .build();
+        tags = new ArrayList<String>(){{add("coke"); add("sprite");}};
+        DhtProto.Post p2 = Util.createPost("Post5", "This is a nice and short message in the post body", author, tags);
 
 
         // check that the post insert works
@@ -164,17 +155,17 @@ public class HashTableStoreTest
         Assert.assertNotNull(hash);
 
         // check 2 search results
-        ArrayList<Pair<String, DhtProto.Post>> posts = (ArrayList<Pair<String, DhtProto.Post>>) hashTableStore.findPostsByKeyword("sprite");
+        ArrayList<DhtProto.Post> posts =  (ArrayList<DhtProto.Post>) hashTableStore.findPostsByKeyword("sprite");
         Assert.assertNotNull(posts);
         Assert.assertEquals(2, posts.size());
 
         // check 1 search result
-        posts = (ArrayList<Pair<String, DhtProto.Post>>) hashTableStore.findPostsByKeyword("coke");
+        posts = (ArrayList<DhtProto.Post>) hashTableStore.findPostsByKeyword("coke");
         Assert.assertNotNull(posts);
         Assert.assertEquals(1, posts.size());
 
         // no results
-        posts = (ArrayList<Pair<String, DhtProto.Post>>) hashTableStore.findPostsByKeyword("bob marley");
+        posts = (ArrayList<DhtProto.Post>) hashTableStore.findPostsByKeyword("bob marley");
         Assert.assertNotNull(posts);
         Assert.assertEquals(0, posts.size());
     }
@@ -183,9 +174,8 @@ public class HashTableStoreTest
     public void insertComment()
     {
         HashTableStore hashTableStore = HashTableStore.getInstance(null);
-        DhtProto.Post p = DhtProto.Post.newBuilder()
-                .setTitle("Post6")
-                .build();
+        DhtProto.Post p = Util.createPost("Post6", "This is a nice and short message in the post body", author, null);
+
 
         // check that the post works (it is a prereq
         String postHash = hashTableStore.insertPost(p);
@@ -223,9 +213,8 @@ public class HashTableStoreTest
     public void findCommentsByPost()
     {
         HashTableStore hashTableStore = HashTableStore.getInstance(null);
-        DhtProto.Post p = DhtProto.Post.newBuilder()
-                .setTitle("Post7")
-                .build();
+        DhtProto.Post p = Util.createPost("Post7", "This is a nice and short message in the post body", author, null);
+
 
         // check that the post works (it is a prereq
         String postHash = hashTableStore.insertPost(p);
@@ -262,9 +251,8 @@ public class HashTableStoreTest
 
 
 
-        p = DhtProto.Post.newBuilder()
-                .setTitle("Post8")
-                .build();
+        p = Util.createPost("Post8", "This is a nice and short message in the post body", author, null);
+
 
         // check that the post works (it is a prereq
         String postHash2 = hashTableStore.insertPost(p);
@@ -287,9 +275,8 @@ public class HashTableStoreTest
     public void findCommentByHash()
     {
         HashTableStore hashTableStore = HashTableStore.getInstance(null);
-        DhtProto.Post p = DhtProto.Post.newBuilder()
-                .setTitle("Post9")
-                .build();
+        DhtProto.Post p = Util.createPost("Post9", "This is a nice and short message in the post body", author, null);
+
 
         // check that the post works (it is a prereq)
         String postHash = hashTableStore.insertPost(p);
