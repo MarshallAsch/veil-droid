@@ -18,7 +18,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.UUID;
 
-import ca.marshallasch.veil.database.Database;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.utilities.Util;
 
@@ -33,8 +32,6 @@ public class FragmentCreatePost extends Fragment
     private EditText titleInput;
     private EditText messageInput;
     private EditText tagsInput;
-
-    ForumStorage dataStore = null;
 
     DhtProto.User currentUser;
 
@@ -57,9 +54,6 @@ public class FragmentCreatePost extends Fragment
 
         // get the current logged in user
         currentUser = ((MainActivity) getActivity()).getCurrentUser();
-
-
-        dataStore = HashTableStore.getInstance(getActivity());
 
         cancel.setOnClickListener(view1 -> {
             Util.hideKeyboard(view1, getActivity());
@@ -116,17 +110,10 @@ public class FragmentCreatePost extends Fragment
                 .setTimestamp(timestamp)
                 .build();
 
-        if (dataStore != null) {
-            // insert it into the data store
-            hash = dataStore.insertPost(post);
 
-            // add it know the known hash list
-            Database db = Database.getInstance(getActivity());
+        DataStore dataStore = DataStore.getInstance(getContext());
 
-            //Hash = hash of the post object mirrored in the data store
-            // & comment will be set to null since there are no comments yet.
-            db.insertKnownPost(hash, null);
-            db.close();
+        if (dataStore.savePost(post)) {
             return true;
         } else {
             Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.failed_to_save_data, Snackbar.LENGTH_SHORT).show();
