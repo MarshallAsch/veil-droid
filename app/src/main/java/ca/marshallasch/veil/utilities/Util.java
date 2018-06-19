@@ -26,6 +26,9 @@ import ca.marshallasch.veil.proto.DhtProto;
  */
 public class Util
 {
+    // this class can not be instantiated
+    private Util() {}
+
     /**
      * This utility function will convert the number of milliseconds since the epoch,
      * (January 1, 1970, 00:00:00 GMT) to a Protobuf Timestamp object.

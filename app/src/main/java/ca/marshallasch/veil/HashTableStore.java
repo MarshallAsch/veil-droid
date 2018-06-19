@@ -4,12 +4,11 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.Pair;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,6 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import ca.marshallasch.veil.comparators.CommentPairComparator;
 import ca.marshallasch.veil.exceptions.TooManyResultsException;
 import ca.marshallasch.veil.proto.DhtProto;
+import ca.marshallasch.veil.serializer.MapSerializer;
 import ca.marshallasch.veil.utilities.Util;
 
 import static ca.marshallasch.veil.proto.DhtProto.KeywordType.COMMENT_FOR;
@@ -68,11 +68,9 @@ public class HashTableStore implements ForumStorage
         if (mapFile.exists()) {
             try {
                 FileInputStream fileInputStream = new FileInputStream(mapFile);
-                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
 
-                tempMap = (HashMap<String, List<DhtProto.DhtWrapper>>) objectInputStream.readObject();
+                tempMap = MapSerializer.readMap(fileInputStream);
 
-                objectInputStream.close();
                 fileInputStream.close();
 
             }
@@ -112,11 +110,10 @@ public class HashTableStore implements ForumStorage
 
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(mapFile, false);
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
 
-            objectOutputStream.writeObject(hashMap);
+            MapSerializer.write(fileOutputStream, hashMap);
 
-            objectOutputStream.close();
+            Log.d("SAVE", "saved map");
             fileOutputStream.close();
         }
         catch (Exception e) {
