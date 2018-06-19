@@ -205,8 +205,11 @@ public class DataStore
 
         List<Sync.CommentMapping> mapping = message.getMappingsList();
 
+        Log.d("MAPPING", "LEN: " + mapping.size());
+
         // insert all of the mappings
         for (Sync.CommentMapping entry: mapping) {
+            Log.d("MAPPING", "post: " + entry.getPostHash());
             db.insertKnownPost(entry.getPostHash(), entry.getCommentHash());
         }
     }

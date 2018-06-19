@@ -124,30 +124,26 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
-        Fragment frag;
+        //Fragment frag;
 
         // Handle item selection
         switch (item.getItemId()) {
-            case R.id.sign_up:
-                frag = new FragmentSignUp();
-                break;
-            case R.id.login:
-                frag = new Fragment();
-                break;
-            case R.id.landing:
-                frag = new FragmentLanding();
-                break;
+            case R.id.setup:
+                try {
+                    meshManager.showSettingsActivity();
+                }
+                catch (RightMeshException e) {
+                    e.printStackTrace();
+                }
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
 
         //replace the fragment
-        getSupportFragmentManager().beginTransaction()
-                .addToBackStack(null)
-                .replace(R.id.fragment_container, frag)
-                .commit();
+        //navigateTo(frag, true);
 
-        return true;
+       // return true;
     }
 
     /**
@@ -222,8 +218,11 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         Sync.SyncMessageType type = message.getType();
 
         if (type == Sync.SyncMessageType.HASH_DATA) {
+
+            Log.d("DATA_RECEIVE",  message.getData().toString());
             dataStore.syncData(message.getData());
         } else if (type == Sync.SyncMessageType.MAPPING_MESSAGE) {
+            Log.d("DATA_RECEIVE_MAP",  message.getMapping().toString());
             dataStore.syncDatabase(message.getMapping());
         }
     }
@@ -253,11 +252,16 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
                         .build();
                 meshManager.sendDataReliable(event.peerUuid, DATA_PORT, message.toByteArray());
 
+                Log.d("DATA_SEND",  message.getData().toString());
+
                 message = Sync.Message.newBuilder()
                         .setType(Sync.SyncMessageType.MAPPING_MESSAGE)
                         .setMapping(mappingMessage)
                         .build();
                 meshManager.sendDataReliable(event.peerUuid, DATA_PORT, message.toByteArray());
+
+                Log.d("DATA_SEND_MAP",  message.getMapping().toString());
+
             }
             catch (RightMeshException e1) {
                 e1.printStackTrace();
