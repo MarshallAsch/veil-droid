@@ -112,13 +112,13 @@ public class FragmentViewPost extends Fragment {
                 .setTimestamp(Util.millisToTimestamp(System.currentTimeMillis()))
                 .build();
         comments.add(comment);
-
         //TODO END: replace this with real data when commenting adding is added in
 
 
+        //Setting the recycler view to hold comments for the post
         LinearLayoutManager linearLayoutManager  = new LinearLayoutManager(activity);
         recyclerView.setLayoutManager(linearLayoutManager);
-        RecyclerView.Adapter recyclerAdapter = new CommentListAdapter(comments, activity);
+        RecyclerView.Adapter recyclerAdapter = new CommentListAdapter(comments);
         recyclerView.setAdapter(recyclerAdapter);
 
 
