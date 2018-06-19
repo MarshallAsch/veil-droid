@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ca.marshallasch.veil.comparators.CommentPairComparator;
+import ca.marshallasch.veil.comparators.EntryComparator;
 import ca.marshallasch.veil.exceptions.TooManyResultsException;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.serializer.MapSerializer;
@@ -560,9 +561,22 @@ public class HashTableStore implements ForumStorage
             entries = new ArrayList<>();
         }
 
-        if (!entries.contains(data)) {
+   //     if (!entries.contains(data)) {
+     ///       entries.add(data);
+     //   }
+
+        boolean match = false;
+        for (DhtProto.DhtWrapper entry: entries) {
+            if (EntryComparator.entryEquals(entry, data)){
+                match = true;
+                break;
+            }
+        }
+
+        if (!match) {
             entries.add(data);
         }
+
 
         hashMap.put(key, entries);
     }

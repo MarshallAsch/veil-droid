@@ -52,7 +52,7 @@ public class MapSerializer
             dataOutputStream.writeInt(values.size());
 
             for(DhtProto.DhtWrapper wrapper: values) {
-                wrapper.writeTo(dataOutputStream);
+                wrapper.writeDelimitedTo(dataOutputStream);
             }
         }
 
@@ -85,7 +85,7 @@ public class MapSerializer
 
             for(int j = 0; j < numEntries; j++) {
 
-                wrapper = DhtProto.DhtWrapper.parseFrom(dataInputStream);
+                wrapper = DhtProto.DhtWrapper.parseDelimitedFrom(dataInputStream);
                 entries.add(wrapper);
             }
 

@@ -208,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
      */
     private void handleDataReceived(RightMeshEvent e) {
         // TODO: 2018-05-28 Add in logic to handle the incoming data
-        DataReceivedEvent event = (DataReceivedEvent) e;
+        final DataReceivedEvent event = (DataReceivedEvent) e;
 
         Sync.Message message;
         try {
@@ -226,8 +226,6 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         } else if (type == Sync.SyncMessageType.MAPPING_MESSAGE) {
             dataStore.syncDatabase(message.getMapping());
         }
-
-        dataStore.save(this);
     }
 
     /**
