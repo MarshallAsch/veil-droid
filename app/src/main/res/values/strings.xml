@@ -63,8 +63,11 @@
     <!-- Shared preferences keys -->
     <string name="pref_notifications">pref_notifications</string>
 
-
+    <string name="placeholder_date">July 25, 2018</string>
+    <string name="ipsum_lorem_paragraph">Lorem ipsum dolor sit amet, harum quando mel ad. No usu graece perfecto interesset, eam vide consul pertinacia eu, suas labores percipit ius ne. No usu libris mucius, quo sonet iudicabit assueverit ei, ea dolore maiestatis quaerendum mea. Mel at congue elaboraret, nam viris voluptatibus eu. Ius dissentiet comprehensam te. Te ancillae petentium salutandi per, est no congue iriure.</string>
+    <string name="placeholder_hash">68e656b251e67e8358bef8483ab0d51c6619f3e7a1a9f0e75838d41ff368f728</string>
     <string name="title_place_holder">Title</string>
+    <string name="author_name_place_holder">John Doe</string>
     <string name="preview_place_holder">Message Content</string>
     <string name="dash_color_description">background colour styling</string>
     <string name="profile_picture_description">Profile Picture</string>
