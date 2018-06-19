@@ -15,6 +15,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import ca.marshallasch.veil.proto.DhtProto;
+import ca.marshallasch.veil.utilities.Util;
 
 
 /**
@@ -33,16 +34,19 @@ public class CommentListAdapter extends RecyclerView.Adapter<CommentListAdapter.
     static class ViewHolder extends RecyclerView.ViewHolder {
         private TextView content;
         private TextView authorName;
-        private TextView commentHash;
         private TextView date;
 
         ViewHolder(View itemsView){
             super(itemsView);
             authorName = itemsView.findViewById(R.id.author_name);
-            commentHash = itemsView.findViewById(R.id.comment_hash);
             date = itemsView.findViewById(R.id.date);
             content = itemsView.findViewById(R.id.comment_content);
         }
+    }
+
+    public CommentListAdapter(List<DhtProto.Comment> comments, Activity activity){
+        this.activity = activity;
+        this.commentList = comments;
     }
 
     @NonNull
@@ -54,6 +58,9 @@ public class CommentListAdapter extends RecyclerView.Adapter<CommentListAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
+        holder.authorName.setText(commentList.get(position).getAuthorName());
+        holder.content.setText(commentList.get(position).getMessage());
+        holder.date.setText(Util.timestampToDate(commentList.get(position).getTimestamp()).toString());
 
     }
 

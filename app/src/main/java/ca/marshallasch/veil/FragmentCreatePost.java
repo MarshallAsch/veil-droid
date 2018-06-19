@@ -2,6 +2,7 @@ package ca.marshallasch.veil;
 
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.button.MaterialButton;
 import android.support.design.widget.Snackbar;
@@ -37,7 +38,7 @@ public class FragmentCreatePost extends Fragment
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState)
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState)
     {
         View view =  inflater.inflate(R.layout.fragment_create_post, container,false);
 
