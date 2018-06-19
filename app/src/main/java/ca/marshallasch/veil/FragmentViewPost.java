@@ -106,6 +106,13 @@ public class FragmentViewPost extends Fragment {
         //TODO: replace this with DataStore functions
         List<DhtProto.Comment> comments = new ArrayList<>();
 
+        DhtProto.Comment comment  = DhtProto.Comment.newBuilder()
+                .setMessage("WOW IM A COMMENT PLS WORK!")
+                .setAuthorName("marshall asch")
+                .setTimestamp(Util.millisToTimestamp(System.currentTimeMillis()))
+                .build();
+        comments.add(comment);
+
 
         LinearLayoutManager linearLayoutManager  = new LinearLayoutManager(activity);
         recyclerView.setLayoutManager(linearLayoutManager);
