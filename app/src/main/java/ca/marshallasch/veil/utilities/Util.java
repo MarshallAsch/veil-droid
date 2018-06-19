@@ -12,6 +12,9 @@ import com.google.protobuf.Timestamp;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
+import java.util.List;
+
+import ca.marshallasch.veil.proto.DhtProto;
 
 /**
  * This class is for application wide static utility functions to help reduce the amount of repeated
@@ -103,5 +106,37 @@ public class Util
         }
 
         return  hashStr.toString();
+    }
+
+
+    /**
+     * This will create a new post object with the <code>UUID</code> field set to the hash of the
+     * object. To verify the the hash of the object, remove the uuid field then hash the post.
+     *
+     * @param title string title of the post
+     * @param message the message body of the post
+     * @param author the {@link ca.marshallasch.veil.proto.DhtProto.User} object
+     * @param tags a list of tag strings
+     * @return a post object
+     */
+    public static DhtProto.Post createPost(String title, String message, @NonNull DhtProto.User author, @NonNull List<String> tags) {
+
+        DhtProto.Post post = DhtProto.Post.newBuilder()
+                .setTitle(title)
+                .setMessage(message)
+                .setAuthorName(author.getFirstName() + " " + author.getLastName())
+                .setAuthorId(author.getUuid())
+                .setTimestamp(millisToTimestamp(System.currentTimeMillis()))
+                .addAllTags(tags)
+                .build();
+
+        String hash = generateHash(post.toByteArray());
+
+        post = DhtProto.Post.newBuilder(post)
+                .setUuid(hash)
+                .build();
+
+        return post;
+
     }
 }

@@ -11,14 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
-import com.google.protobuf.Timestamp;
-
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.UUID;
 
-import ca.marshallasch.veil.database.Database;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.utilities.Util;
 
@@ -33,8 +28,6 @@ public class FragmentCreatePost extends Fragment
     private EditText titleInput;
     private EditText messageInput;
     private EditText tagsInput;
-
-    ForumStorage dataStore = null;
 
     DhtProto.User currentUser;
 
@@ -57,9 +50,6 @@ public class FragmentCreatePost extends Fragment
 
         // get the current logged in user
         currentUser = ((MainActivity) getActivity()).getCurrentUser();
-
-
-        dataStore = MemoryStore.getInstance(getActivity());
 
         cancel.setOnClickListener(view1 -> {
             Util.hideKeyboard(view1, getActivity());
@@ -89,44 +79,21 @@ public class FragmentCreatePost extends Fragment
         String tags = tagsInput.getText().toString();
         String title = titleInput.getText().toString();
         String message = messageInput.getText().toString();
-        String uuid = UUID.randomUUID().toString();
-        String hash = null;
-        Date now = new Date();
-        Timestamp timestamp = Util.millisToTimestamp(now.getTime());
 
         // check input
         if (title.length() == 0 || message.length() == 0 || currentUser == null) {
             return false;
         }
 
-        String authorName = currentUser.getFirstName() + " " + currentUser.getLastName();
-        String authorID = currentUser.getUuid();
-
-
         ArrayList<String> tagList = new ArrayList<>(Arrays.asList(tags.split(",")));
 
-        // make the actual post object
-        DhtProto.Post post = DhtProto.Post.newBuilder()
-                .setUuid(uuid)
-                .setAuthorId(authorID)
-                .setAuthorName(authorName)
-                .setTitle(title)
-                .setMessage(message)
-                .addAllTags(tagList)
-                .setTimestamp(timestamp)
-                .build();
+        DhtProto.Post post = Util.createPost(title, message, currentUser, tagList);
 
-        if (dataStore != null) {
-            // insert it into the data store
-            hash = dataStore.insertPost(post);
 
-            // add it know the known hash list
-            Database db = Database.getInstance(getActivity());
 
-            //Hash = hash of the post object mirrored in the data store
-            // & comment will be set to null since there are no comments yet.
-            db.insertKnownPost(hash, null);
-            db.close();
+        DataStore dataStore = DataStore.getInstance(getContext());
+
+        if (dataStore.savePost(post)) {
             return true;
         } else {
             Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.failed_to_save_data, Snackbar.LENGTH_SHORT).show();

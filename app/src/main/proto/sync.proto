@@ -1,0 +1,27 @@
+/// Protocol for the messages between devices
+
+syntax = "proto3";
+package ca.marshallasch.veil.proto;
+option java_outer_classname = "Sync";
+
+import "dht.proto";
+
+
+message CommentMapping {
+    string postHash = 1;
+    string commentHash = 2;
+}
+
+
+message MappingMessage {
+    repeated CommentMapping mappings = 1;
+}
+
+message HashPair {
+    string hash = 1;
+    DhtWrapper entry = 2;
+}
+
+message HashData {
+    repeated HashPair entries = 1;
+}
