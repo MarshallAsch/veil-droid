@@ -22,7 +22,8 @@ import ca.marshallasch.veil.proto.DhtProto;
  */
 public class FragmentViewPost extends Fragment {
     private DhtProto.Post postObject;
-    private String postHash;
+    //TODO: Add in postHash, date, and authorName support.
+    private String postHash, date, authorName;
 
     public FragmentViewPost() {
         // Required empty public constructor
@@ -67,7 +68,7 @@ public class FragmentViewPost extends Fragment {
 
 
         TextView viewTitle = view.findViewById(R.id.title);
-        TextView viewContent = view.findViewById(R.id.content);
+        TextView viewContent = view.findViewById(R.id.post_content);
 
         viewTitle.setText(postTitle);
         viewContent.setText(postContent);
