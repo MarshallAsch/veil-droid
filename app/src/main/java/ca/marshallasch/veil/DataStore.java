@@ -56,6 +56,10 @@ public class DataStore
         hashTableStore.save(context);
     }
 
+    public void close() {
+        db.close();
+    }
+
     /**
      * Save a post to the hash table and add its key to the database.
      * @param post the post to insert

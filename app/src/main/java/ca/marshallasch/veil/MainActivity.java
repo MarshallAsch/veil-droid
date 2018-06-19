@@ -82,7 +82,9 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
     protected void onDestroy()
     {
         super.onDestroy();
-        HashTableStore.getInstance(this).save(this);  // make sure the data gets saved
+
+        dataStore.save(this);
+        dataStore.close();
 
         try {
             meshManager.stop();
