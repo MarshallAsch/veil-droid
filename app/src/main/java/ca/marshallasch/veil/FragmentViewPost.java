@@ -103,7 +103,7 @@ public class FragmentViewPost extends Fragment {
         RecyclerView recyclerView = view.findViewById(R.id.comment_list);
         recyclerView.setHasFixedSize(true);
 
-        //TODO: replace this with DataStore functions
+        //TODO START: replace this with real data when commenting adding is added in
         List<DhtProto.Comment> comments = new ArrayList<>();
 
         DhtProto.Comment comment  = DhtProto.Comment.newBuilder()
@@ -112,6 +112,8 @@ public class FragmentViewPost extends Fragment {
                 .setTimestamp(Util.millisToTimestamp(System.currentTimeMillis()))
                 .build();
         comments.add(comment);
+
+        //TODO END: replace this with real data when commenting adding is added in
 
 
         LinearLayoutManager linearLayoutManager  = new LinearLayoutManager(activity);
