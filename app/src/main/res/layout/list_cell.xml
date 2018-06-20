@@ -2,7 +2,6 @@
 <android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -36,7 +35,7 @@
         android:ellipsize="end"
         android:maxLength="40"
         android:maxLines="1"
-        android:text=""
+        android:text="@string/preview_place_holder"
         android:textColor="@android:color/darker_gray"
         app:layout_constraintBottom_toTopOf="@+id/divider"
         app:layout_constraintStart_toStartOf="@+id/title"
