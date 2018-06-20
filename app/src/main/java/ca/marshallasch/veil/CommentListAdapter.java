@@ -1,10 +1,5 @@
 package ca.marshallasch.veil;
 
-import android.app.Activity;
-import android.content.Context;
-import android.net.Uri;
-import android.os.Bundle;
-import android.app.Fragment;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -12,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.text.DateFormat;
 import java.util.List;
 
 import ca.marshallasch.veil.proto.DhtProto;
@@ -82,7 +78,7 @@ public class CommentListAdapter extends RecyclerView.Adapter<CommentListAdapter.
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
         holder.authorName.setText(commentList.get(position).getAuthorName());
         holder.content.setText(commentList.get(position).getMessage());
-        holder.date.setText(Util.timestampToDate(commentList.get(position).getTimestamp()).toString());
+        holder.date.setText(DateFormat.getDateInstance().format(Util.timestampToDate(commentList.get(position).getTimestamp())));
 
     }
 

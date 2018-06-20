@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +33,7 @@ public class FragmentViewPost extends Fragment {
     private DhtProto.Post postObject;
     private String postHash, authorName,postDate;
 
-    DhtProto.User currentUser;
+    private DhtProto.User currentUser;
 
 
     public FragmentViewPost() {
@@ -72,11 +73,8 @@ public class FragmentViewPost extends Fragment {
             postTitle = postObject.getTitle();
             postContent = postObject.getMessage();
             postHash = postObject.getUuid();
-            postDate = Util.timestampToDate(postObject.getTimestamp()).toString();
+            postDate = DateFormat.getDateInstance().format(Util.timestampToDate(postObject.getTimestamp()));
             authorName = postObject.getAuthorName();
-
-
-
         }
         else{
             postTitle = getString(R.string.failed_to_load_title);
