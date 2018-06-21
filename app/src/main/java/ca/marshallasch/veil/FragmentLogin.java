@@ -67,7 +67,9 @@ public class FragmentLogin extends Fragment {
             // NOTE that this will find the fist matching email + password combination on the
             // device
             Database db = Database.getInstance(getActivity());
-            DhtProto.User user = db.login(emailAddressInput.getText().toString(), passwordInput.getText().toString());
+            //TODO: [DEBUGGING CODE] Auto Login -> uncomment second line below when done and remove line first line below when done
+            DhtProto.User user = db.login("weihan@gmail.com", "Symfony65!");
+            //DhtProto.User user = db.login(emailAddressInput.getText().toString(), passwordInput.getText().toString());
             db.close();
 
             // check that a user was found
