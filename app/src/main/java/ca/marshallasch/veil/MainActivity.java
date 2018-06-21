@@ -14,8 +14,10 @@ import android.widget.Toast;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
+import ca.marshallasch.veil.database.Database;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.proto.Sync;
+import ca.marshallasch.veil.utilities.Util;
 import io.left.rightmesh.android.AndroidMeshManager;
 import io.left.rightmesh.android.MeshService;
 import io.left.rightmesh.id.MeshId;
@@ -52,10 +54,24 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //set the starting page to the landing fragment
-        navigateTo( new FragmentLanding(), false);
-
         dataStore = DataStore.getInstance(this);
+
+        //set the starting page to the landing fragment
+        // check if the user+pass has been remembered
+        String userName = Util.getKnownUsername(this);
+        String password = Util.getKnownPassword(this);
+
+        Database db = Database.getInstance(this);
+        DhtProto.User loggedInUser = db.login(userName, password);
+        db.close();
+
+        if (loggedInUser == null) {
+            navigateTo(new FragmentLanding(), false);
+        } else {
+            setCurrentUser(loggedInUser);
+            navigateTo(new FragmentDashBoard(), false);
+        }
+
 
         // Gets an instance of the Android-specific MeshManager singleton.
         meshManager = AndroidMeshManager.getInstance(this, this);

@@ -2,6 +2,8 @@ package ca.marshallasch.veil.utilities;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.View;
@@ -14,6 +16,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.List;
 
+import ca.marshallasch.veil.R;
 import ca.marshallasch.veil.proto.DhtProto;
 
 /**
@@ -142,4 +145,65 @@ public class Util
         return post;
 
     }
+
+
+    /**
+     * Ths function will save the user so they don't need to login everyt ime.
+     * @param activity the activity for the shared preferences to use
+     * @param username the username of the user
+     * @param password the password of the user.
+     */
+    public static void rememberUserName(@NonNull Activity activity, @NonNull String username, @NonNull String password) {
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(activity);
+        SharedPreferences.Editor editor = sharedPref.edit();
+
+        editor.putString(activity.getString(R.string.pref_username), username);
+        editor.putString(activity.getString(R.string.pref_passwords), password);
+        editor.apply();
+    }
+
+    /**
+     * This will clear the known user so that if the user logs out they wont be remembered.
+     * @param activity the activity for the shared preferences to use
+     */
+    public static void clearKnownUser(Activity activity){
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(activity);
+        SharedPreferences.Editor editor = sharedPref.edit();
+
+        editor.remove(activity.getString(R.string.pref_username));
+        editor.remove(activity.getString(R.string.pref_passwords));
+        editor.apply();
+    }
+
+    /**
+     * This will get the username of the remembered user.
+     *
+     * @param activity the activity for the shared preferences to use
+     * @return the username if there is a known one otherwise null
+     */
+    @Nullable
+    public static String getKnownUsername(Activity activity) {
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(activity);
+
+        return sharedPref.getString(activity.getString(R.string.pref_username), null);
+    }
+
+    /**
+     * This will get the password of the remembered user.
+     *
+     * @param activity the activity for the shared preferences to use
+     * @return the password if there is a known one otherwise null
+     */
+    @Nullable
+    public static String getKnownPassword(Activity activity) {
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(activity);
+
+        return sharedPref.getString(activity.getString(R.string.pref_passwords), null);
+    }
+
+
 }

@@ -38,13 +38,13 @@ public class FragmentLanding extends Fragment {
 
         loginBtn.setOnClickListener(view1 -> {
             Log.i("Fragment Landing", "login button pressed");
-            ((MainActivity) getActivity()).navigateTo(new FragmentLogin(), true);
+            ((MainActivity) getActivity()).navigateTo(new FragmentLogin(), false);
 
         });
 
         signupBtn.setOnClickListener(view1 -> {
             Log.i("Fragment Landing", "sign up button pressed");
-            ((MainActivity) getActivity()).navigateTo(new FragmentSignUp(), true);
+            ((MainActivity) getActivity()).navigateTo(new FragmentSignUp(), false);
         });
 
         return view;
