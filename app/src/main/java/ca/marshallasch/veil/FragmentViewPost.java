@@ -1,9 +1,9 @@
 package ca.marshallasch.veil;
 
 import android.app.Activity;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -13,7 +13,6 @@ import android.widget.TextView;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,7 +72,7 @@ public class FragmentViewPost extends Fragment {
             postTitle = postObject.getTitle();
             postContent = postObject.getMessage();
             postHash = postObject.getUuid();
-            postDate = DateFormat.getDateInstance().format(Util.timestampToDate(postObject.getTimestamp()));
+            postDate = Util.timestampToDate(postObject.getTimestamp()).toString();
             authorName = postObject.getAuthorName();
         }
         else{

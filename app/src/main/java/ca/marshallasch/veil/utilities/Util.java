@@ -122,16 +122,23 @@ public class Util
      * @param tags a list of tag strings
      * @return a post object
      */
-    public static DhtProto.Post createPost(String title, String message, @NonNull DhtProto.User author, @NonNull List<String> tags) {
+    public static DhtProto.Post createPost(String title, String message, @NonNull DhtProto.User author, @Nullable List<String> tags) {
 
-        DhtProto.Post post = DhtProto.Post.newBuilder()
-                .setTitle(title)
-                .setMessage(message)
-                .setAuthorName(author.getFirstName() + " " + author.getLastName())
-                .setAuthorId(author.getUuid())
-                .setTimestamp(millisToTimestamp(System.currentTimeMillis()))
-                .addAllTags(tags)
-                .build();
+        DhtProto.Post.Builder postBuilder = DhtProto.Post.newBuilder();
+
+        // set attributes
+        postBuilder.setTitle(title);
+        postBuilder.setMessage(message);
+        postBuilder.setAuthorName(author.getFirstName() + " " + author.getLastName());
+        postBuilder.setAuthorId(author.getUuid());
+        postBuilder.setTimestamp(millisToTimestamp(System.currentTimeMillis()));
+
+        // add the tags if there are any
+        if (tags != null) {
+            postBuilder.addAllTags(tags);
+        }
+
+        DhtProto.Post post = postBuilder.build();
 
         String hash = generateHash(post.toByteArray());
 
