@@ -81,5 +81,6 @@
     <string name="your_forums">Your Forums</string>
     <string name="view">View</string>
     <string name="full_name_placeholder">%s %s</string>
+    <string name="remember_me_label">Remember username and password</string>
 
 </resources>
