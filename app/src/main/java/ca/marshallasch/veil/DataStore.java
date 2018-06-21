@@ -3,6 +3,7 @@ package ca.marshallasch.veil;
 import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.v4.util.Pair;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,6 +54,10 @@ public class DataStore
      */
     public void save(Context context) {
         hashTableStore.save(context);
+    }
+
+    public void close() {
+        db.close();
     }
 
     /**
@@ -150,12 +155,22 @@ public class DataStore
 
         Sync.MappingMessage.Builder builder = Sync.MappingMessage.newBuilder();
 
+        Sync.CommentMapping.Builder commentBuilder;
         // add it to the list
         for (Pair<String, String> pair: knownPosts) {
-            builder.addMappings(Sync.CommentMapping.newBuilder()
-                    .setPostHash(pair.first)
-                    .setCommentHash(pair.second)
-                    .build());
+
+            commentBuilder = Sync.CommentMapping.newBuilder();
+
+            // handle nulls
+            if (pair.first != null) {
+                commentBuilder.setPostHash(pair.first);
+            }
+
+            if (pair.second != null) {
+                commentBuilder.setCommentHash(pair.second);
+            }
+
+            builder.addMappings(commentBuilder.build());
         }
 
         // build the message to send to other devices
@@ -194,8 +209,11 @@ public class DataStore
 
         List<Sync.CommentMapping> mapping = message.getMappingsList();
 
+        Log.d("MAPPING", "LEN: " + mapping.size());
+
         // insert all of the mappings
         for (Sync.CommentMapping entry: mapping) {
+            Log.d("MAPPING", "post: " + entry.getPostHash());
             db.insertKnownPost(entry.getPostHash(), entry.getCommentHash());
         }
     }
@@ -210,6 +228,7 @@ public class DataStore
 
         // insert all of the mappings
         for (Sync.HashPair entry: mapping) {
+            Log.d("PAIRS", "e: " + entry.getEntry().getType().getNumber() + " :: " + entry.getHash());
             hashTableStore.insert (entry.getEntry(), entry.getHash());
         }
     }

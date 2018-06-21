@@ -3,12 +3,7 @@
       xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/landing"
-        android:title="@string/landing_menu_title"/>
-    <item
-        android:id="@+id/login"
-        android:title="@string/login_menu_title"/>
-    <item
-        android:id="@+id/sign_up"
-        android:title="@string/signup_menu_title"/>
+        android:id="@+id/setup"
+        android:title="@string/setup_right_mesh"/>
+
 </menu>

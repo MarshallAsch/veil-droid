@@ -12,6 +12,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.Size;
 import android.support.annotation.WorkerThread;
 import android.support.v4.util.Pair;
+import android.util.Log;
 
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -319,6 +320,7 @@ public class Database extends SQLiteOpenHelper
         // note this is a potentially long running operation.
         long id = getWritableDatabase().insertWithOnConflict(KnownPostsEntry.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 
+        Log.d("INSERT", "ID: " + id + " POST: " + posthash);
         return id != -1;
     }
 

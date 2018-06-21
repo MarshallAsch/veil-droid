@@ -12,12 +12,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import java.util.HashSet;
+import com.google.protobuf.InvalidProtocolBufferException;
 
 import ca.marshallasch.veil.proto.DhtProto;
+import ca.marshallasch.veil.proto.Sync;
 import io.left.rightmesh.android.AndroidMeshManager;
 import io.left.rightmesh.android.MeshService;
 import io.left.rightmesh.id.MeshId;
+import io.left.rightmesh.mesh.MeshManager.DataReceivedEvent;
 import io.left.rightmesh.mesh.MeshManager.PeerChangedEvent;
 import io.left.rightmesh.mesh.MeshManager.RightMeshEvent;
 import io.left.rightmesh.mesh.MeshStateListener;
@@ -34,11 +36,11 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
     // private static final int DISCOVERY_PORT = 9183;       // This port will be used for the DHT
                                                             // to keep all of that traffic separate
 
-    // Set to keep track of peers connected to the mesh.
-    HashSet<MeshId> users = new HashSet<>();
-
     // MeshManager instance - interface to the mesh network.
     AndroidMeshManager meshManager = null;
+
+    //MemoryStore instance - for storing data in local hashtable
+    DataStore dataStore = null;
 
     private DhtProto.User currentUser = null;
 
@@ -47,11 +49,13 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.AppTheme);
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //set the starting page to the landing fragment
         navigateTo( new FragmentLanding(), false);
+
+        dataStore = DataStore.getInstance(this);
 
         // Gets an instance of the Android-specific MeshManager singleton.
         meshManager = AndroidMeshManager.getInstance(this, this);
@@ -78,7 +82,9 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
     protected void onDestroy()
     {
         super.onDestroy();
-        HashTableStore.getInstance(this).save(this);  // make sure the data gets saved
+
+        dataStore.save(this);
+        dataStore.close();
 
         try {
             meshManager.stop();
@@ -86,6 +92,14 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         catch (MeshService.ServiceDisconnectedException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    protected void onStop()
+    {
+        super.onStop();
+
+        dataStore.save(this);
     }
 
     /**
@@ -112,30 +126,26 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
-        Fragment frag;
+        //Fragment frag;
 
         // Handle item selection
         switch (item.getItemId()) {
-            case R.id.sign_up:
-                frag = new FragmentSignUp();
-                break;
-            case R.id.login:
-                frag = new Fragment();
-                break;
-            case R.id.landing:
-                frag = new FragmentLanding();
-                break;
+            case R.id.setup:
+                try {
+                    meshManager.showSettingsActivity();
+                }
+                catch (RightMeshException e) {
+                    e.printStackTrace();
+                }
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
 
         //replace the fragment
-        getSupportFragmentManager().beginTransaction()
-                .addToBackStack(null)
-                .replace(R.id.fragment_container, frag)
-                .commit();
+        //navigateTo(frag, true);
 
-        return true;
+       // return true;
     }
 
     /**
@@ -196,6 +206,27 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
      */
     private void handleDataReceived(RightMeshEvent e) {
         // TODO: 2018-05-28 Add in logic to handle the incoming data
+        final DataReceivedEvent event = (DataReceivedEvent) e;
+
+        Sync.Message message;
+        try {
+            message = Sync.Message.parseFrom(event.data);
+        }
+        catch (InvalidProtocolBufferException e1) {
+            e1.printStackTrace();
+            return;
+        }
+
+        Sync.SyncMessageType type = message.getType();
+
+        if (type == Sync.SyncMessageType.HASH_DATA) {
+
+            Log.d("DATA_RECEIVE",  message.getData().toString());
+            dataStore.syncData(message.getData());
+        } else if (type == Sync.SyncMessageType.MAPPING_MESSAGE) {
+            Log.d("DATA_RECEIVE_MAP",  message.getMapping().toString());
+            dataStore.syncDatabase(message.getMapping());
+        }
     }
 
     /**
@@ -207,11 +238,36 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
 
         // Update peer list.
         PeerChangedEvent event = (PeerChangedEvent) e;
-        if (event.state != REMOVED && !users.contains(event.peerUuid)) {
+        if (event.state != REMOVED) {
             Log.d("FOUND", "found user: " + event.peerUuid);
-            users.add(event.peerUuid);
-        } else if (event.state == REMOVED){
-            users.remove(event.peerUuid);
+
+
+            Sync.HashData hashData = dataStore.getDataStore();
+            Sync.MappingMessage mappingMessage =  dataStore.getDatabase();
+
+            // send messages to the peer.
+            try {
+
+                Sync.Message message = Sync.Message.newBuilder()
+                        .setType(Sync.SyncMessageType.HASH_DATA)
+                        .setData(hashData)
+                        .build();
+                meshManager.sendDataReliable(event.peerUuid, DATA_PORT, message.toByteArray());
+
+                Log.d("DATA_SEND",  message.getData().toString());
+
+                message = Sync.Message.newBuilder()
+                        .setType(Sync.SyncMessageType.MAPPING_MESSAGE)
+                        .setMapping(mappingMessage)
+                        .build();
+                meshManager.sendDataReliable(event.peerUuid, DATA_PORT, message.toByteArray());
+
+                Log.d("DATA_SEND_MAP",  message.getMapping().toString());
+
+            }
+            catch (RightMeshException e1) {
+                e1.printStackTrace();
+            }
         }
     }
 

@@ -5,6 +5,7 @@
     <string name="login_menu_title">Login</string>
     <string name="signup_menu_title">Signup</string>
     <string name="landing_menu_title">Landing Page</string>
+    <string name="setup_right_mesh">RightMesh Settings</string>
 
     <!-- Sign up page titles-->
     <string name="email_title">Email Address</string>
