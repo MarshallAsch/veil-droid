@@ -1,6 +1,12 @@
 package ca.marshallasch.veil.database;
 
+import android.content.ContentValues;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.v4.util.Pair;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class is used to contain all of the database migration functions.
@@ -25,6 +31,61 @@ final class Migrations
      */
     static void upgradeV4(SQLiteDatabase db){
         db.execSQL(KnownPostsContract.SQL_CREATE_KNOWN_POSTS);
-        db.execSQL("DROP TABLE IF EXISTS KnownHashes");
+        db.execSQL("DROP TABLE IF EXISTS " + KnownPostsContract.KnownPostsEntry.TABLE_NAME);
+    }
+
+
+    static void upgradeV6(SQLiteDatabase db){
+
+        // need to get the old values from the table
+
+        List<Pair<String, String>> knownPosts = new ArrayList<>();
+
+
+        String[] projection = {
+                KnownPostsContract.KnownPostsEntry.COLUMN_POST_HASH,
+                KnownPostsContract.KnownPostsEntry.COLUMN_COMMENT_HASH
+        };
+
+
+        Cursor cursor = db.query(
+                KnownPostsContract.KnownPostsEntry.TABLE_NAME,   // The table to query
+                projection,             // The array of columns to return (pass null to get all)
+                null,              // The columns for the WHERE clause
+                null,          // The values for the WHERE clause
+                null,          // don't group the rows
+                null,           // don't filter by row groups
+                null          // don't sort
+        );
+
+        String postHash;
+        String commentHash;
+
+        // get each post hash that is in the list
+        while(cursor.moveToNext()) {
+            postHash = cursor.getString(cursor.getColumnIndexOrThrow(KnownPostsContract.KnownPostsEntry.COLUMN_POST_HASH));
+            commentHash = cursor.getString(cursor.getColumnIndexOrThrow(KnownPostsContract.KnownPostsEntry.COLUMN_COMMENT_HASH));
+
+            // add the hash to the list
+            knownPosts.add(new Pair<>(postHash, commentHash));
+        }
+        cursor.close();
+
+        db.execSQL("DROP TABLE IF EXISTS " + KnownPostsContract.KnownPostsEntry.TABLE_NAME);
+        db.execSQL(KnownPostsContract.SQL_CREATE_KNOWN_POSTS);
+
+
+        // insert everything back into the table
+        for (Pair<String, String> hash: knownPosts) {
+
+            ContentValues values = new ContentValues();
+
+            values.put(KnownPostsContract.KnownPostsEntry.COLUMN_POST_HASH, hash.first);
+            values.put(KnownPostsContract.KnownPostsEntry.COLUMN_COMMENT_HASH, hash.second);
+
+            // note this is a potentially long running operation.
+             db.insert(KnownPostsContract.KnownPostsEntry.TABLE_NAME, null, values);
+
+        }
     }
 }
