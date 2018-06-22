@@ -71,13 +71,24 @@ public class FragmentLogin extends Fragment {
         MaterialButton cancel = view.findViewById(R.id.back_btn);
         CheckBox rememberMe = view.findViewById(R.id.remember_me);
 
-
         emailAddressInput = view.findViewById(R.id.username);
         passwordInput = view.findViewById(R.id.password);
 
+        // fill in the username if known
         String knownUserName = Util.getKnownUsername(getActivity());
         if (knownUserName != null) {
             emailAddressInput.setText(knownUserName);
+        }
+
+        // fill in the password if known
+        String knownPassword = Util.getKnownPassword(getActivity());
+        if (knownPassword != null) {
+            passwordInput.setText(knownPassword);
+        }
+
+        // check the remember me box
+        if (knownUserName != null && knownPassword != null) {
+            rememberMe.setChecked(true);
         }
 
         login.setOnClickListener(view1 -> {
