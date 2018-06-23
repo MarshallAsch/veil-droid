@@ -25,7 +25,6 @@
     <string name="tags_hint">A comma separated list of tag words</string>
     <string name="message_hint">Some more details about the question you wish to ask.</string>
 
-    
 
     <!-- SnackBar messages -->
     <string name="password_required">Password is missing</string>
@@ -79,5 +78,9 @@
     <string name="your_forums">Your Forums</string>
     <string name="view">View</string>
     <string name="full_name_placeholder">%s %s</string>
+    <string name="add_a_comment">Add a comment</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>
