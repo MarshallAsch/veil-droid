@@ -123,7 +123,7 @@ public class FragmentViewPost extends Fragment {
         //click listener for comment bar
         ImageView commentBar = view.findViewById(R.id.comment_bar);
         commentBar.setOnClickListener(view1 -> {
-            ((MainActivity) getActivity()).navigateTo(new FragmentAddComment(), true);
+            ((MainActivity) getActivity()).navigateToWithSlideUp(new FragmentAddComment(), true);
         });
 
 

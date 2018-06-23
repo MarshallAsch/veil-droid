@@ -199,6 +199,17 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         transaction.commit();
     }
 
+    public void navigateToWithSlideUp(Fragment fragment, boolean addToBackStack){
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        if(addToBackStack){
+            transaction.addToBackStack(null);
+        }
+        transaction.setCustomAnimations(R.anim.slide_in_up, R.anim.slide_out_up, R.anim.slide_in_up, R.anim.slide_in_down);
+
+        transaction.replace(R.id.fragment_container, fragment);
+        transaction.commit();
+    }
+
 
     /**
      * Handles incoming data events from the mesh
