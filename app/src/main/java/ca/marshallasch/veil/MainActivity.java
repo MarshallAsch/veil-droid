@@ -199,6 +199,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         transaction.commit();
     }
 
+
     /**
      * Handles incoming data events from the mesh
      *

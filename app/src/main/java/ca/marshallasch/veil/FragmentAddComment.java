@@ -2,21 +2,21 @@ package ca.marshallasch.veil;
 
 
 import android.os.Bundle;
-import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.support.v4.app.Fragment;
 
 
 /**
- * A simple {@link Fragment} subclass.
+ * TODO add in description
  *
  *
  * @author Weihan Li
  * @version 1.0
  * @since 2018-06-22
  */
-public class FragmentAddComment extends Fragment {
+public class FragmentAddComment extends android.support.v4.app.Fragment {
 
 
     public FragmentAddComment() {

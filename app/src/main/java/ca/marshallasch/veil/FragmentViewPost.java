@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -118,6 +119,12 @@ public class FragmentViewPost extends Fragment {
         recyclerView.setLayoutManager(linearLayoutManager);
         RecyclerView.Adapter recyclerAdapter = new CommentListAdapter(comments);
         recyclerView.setAdapter(recyclerAdapter);
+
+        //click listener for comment bar
+        ImageView commentBar = view.findViewById(R.id.comment_bar);
+        commentBar.setOnClickListener(view1 -> {
+            ((MainActivity) getActivity()).navigateTo(new FragmentAddComment(), true);
+        });
 
 
         return view;

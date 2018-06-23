@@ -134,7 +134,7 @@
         app:layout_constraintVertical_bias="0.285" />
 
     <ImageView
-        android:id="@+id/imageView2"
+        android:id="@+id/comment_bar"
         android:layout_width="match_parent"
         android:layout_height="25dp"
         android:scaleType="centerCrop"
@@ -147,18 +147,18 @@
         app:srcCompat="@drawable/commentbar" />
 
     <View
-        android:id="@+id/divider2"
+        android:id="@+id/comment_bar_divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginBottom="6dp"
         android:background="?android:attr/listDivider"
 
-        app:layout_constraintBottom_toTopOf="@+id/imageView2"
+        app:layout_constraintBottom_toTopOf="@+id/comment_bar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/textView13"
+        android:id="@+id/add_comment_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
@@ -168,11 +168,11 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:text="@string/add_a_comment"
-        app:layout_constraintBottom_toBottomOf="@+id/imageView2"
-        app:layout_constraintEnd_toEndOf="@+id/imageView2"
+        app:layout_constraintBottom_toBottomOf="@+id/comment_bar"
+        app:layout_constraintEnd_toEndOf="@+id/comment_bar"
         app:layout_constraintHorizontal_bias="0.02"
-        app:layout_constraintStart_toStartOf="@+id/imageView2"
-        app:layout_constraintTop_toTopOf="@+id/imageView2" />
+        app:layout_constraintStart_toStartOf="@+id/comment_bar"
+        app:layout_constraintTop_toTopOf="@+id/comment_bar" />
 
     <!-- Comment UI END -->
 
