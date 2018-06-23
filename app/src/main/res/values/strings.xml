@@ -59,6 +59,7 @@
 
     <!-- Bundle keys -->
     <string name="post_object_key">post_object_key</string>
+    <string name="post_title_key">post_title_key</string>
 
     <!-- Shared preferences keys -->
     <string name="pref_notifications">pref_notifications</string>
@@ -79,6 +80,8 @@
     <string name="view">View</string>
     <string name="full_name_placeholder">%s %s</string>
     <string name="add_a_comment">Add a comment</string>
+    <string name="comment_hint">Add a comment about the post.</string>
+    <string name="post">Post</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

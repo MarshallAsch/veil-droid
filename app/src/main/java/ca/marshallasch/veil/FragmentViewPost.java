@@ -123,7 +123,12 @@ public class FragmentViewPost extends Fragment {
         //click listener for comment bar
         ImageView commentBar = view.findViewById(R.id.comment_bar);
         commentBar.setOnClickListener(view1 -> {
-            ((MainActivity) getActivity()).navigateToWithSlideUp(new FragmentAddComment(), true);
+            FragmentAddComment addCommentFragment = new FragmentAddComment();
+            //send post title over to add comment view
+            Bundle addCommentBundle = new Bundle();
+            addCommentBundle.putString(activity.getString(R.string.post_title_key), postTitle);
+            addCommentFragment.setArguments(addCommentBundle);
+            ((MainActivity) getActivity()).navigateToWithSlideUp(addCommentFragment, true);
         });
 
 

@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    >
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -17,52 +14,75 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <EditText
-                android:id="@+id/post_message"
-                android:layout_width="0dp"
-                android:layout_height="258dp"
-                android:layout_marginBottom="8dp"
+            <TextView
+                android:id="@+id/post_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
-                android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:ems="10"
-                android:hint="@string/message_hint"
-                android:inputType="textMultiLine"
-                app:layout_constraintBottom_toBottomOf="parent"
+                android:text="@string/title_place_holder"
+                android:textColor="@color/colorAccent"
+                android:textSize="20sp"
+                app:layout_constraintBottom_toTopOf="@+id/post_message"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/post_message"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.421" />
 
             <android.support.design.button.MaterialButton
                 android:id="@+id/cancel_button"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="16dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginRight="20dp"
                 android:layout_marginTop="8dp"
                 android:text="@android:string/cancel"
                 android:textColor="@color/colorPrimary"
                 android:textColorLink="@color/colorPrimary"
-                app:layout_constraintBottom_toBottomOf="@+id/save"
-                app:layout_constraintEnd_toStartOf="@+id/save"
-                app:layout_constraintTop_toTopOf="@+id/save"
-                app:layout_constraintVertical_bias="1.0"/>
+                app:layout_constraintBottom_toBottomOf="@+id/post_comment_btn"
+                app:layout_constraintEnd_toStartOf="@+id/post_comment_btn"
+                app:layout_constraintTop_toTopOf="@+id/post_comment_btn"
+                app:layout_constraintVertical_bias="1.0" />
+
+            <EditText
+                android:id="@+id/post_message"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="48dp"
+                android:ems="10"
+                android:gravity="center|top|start"
+                android:hint="@string/comment_hint"
+                android:inputType="textMultiLine"
+                android:textAlignment="textStart"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
 
             <android.support.design.button.MaterialButton
-                android:id="@+id/save"
+                android:id="@+id/post_comment_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
                 android:layout_marginEnd="8dp"
-                android:layout_marginRight="32dp"
-                android:text="@string/save"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="20dp"
+                android:text="@string/post"
                 app:backgroundTint="@color/colorPrimary"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/post_message" />
 
         </android.support.constraint.ConstraintLayout>
     </ScrollView>
