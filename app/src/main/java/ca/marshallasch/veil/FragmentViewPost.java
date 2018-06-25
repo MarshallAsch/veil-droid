@@ -128,7 +128,7 @@ public class FragmentViewPost extends Fragment {
             Bundle addCommentBundle = new Bundle();
             addCommentBundle.putString(activity.getString(R.string.post_title_key), postTitle);
             addCommentFragment.setArguments(addCommentBundle);
-            ((MainActivity) getActivity()).navigateToWithSlideUp(addCommentFragment, true);
+            ((MainActivity) getActivity()).animateFragmentSlide(addCommentFragment, true);
         });
 
 
