@@ -1,5 +1,6 @@
 language: android
 jdk: oraclejdk8
+sudo: false
 env:
   global:
     - ANDROID_TARGET=android-16
@@ -27,6 +28,9 @@ android:
     # Specify at least one system image,
     # if you need to run emulator(s) during your tests
     - sys-img-${ANDROID_ABI}-${ANDROID_TARGET}
+
+  licenses:
+    - android-sdk-license-.+
 
 script:
     - ./gradlew clean
