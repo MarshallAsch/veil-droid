@@ -2,8 +2,11 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.google.protobuf'
 buildscript {
     ext {
-        artifactory_app_username = "$RightMeshUsername"
-        artifactory_app_password = "$RightMeshPassword"
+       // artifactory_app_username = "$RightMeshUsername"
+       // artifactory_app_password = "$RightMeshPassword"
+
+        artifactory_app_username = hasProperty('$RightMeshUsername') ? "$RightMeshUsername" : System.getenv('RightMeshUsername')
+        artifactory_app_password = hasProperty('$RightMeshPassword') ? "$RightMeshPassword" : System.getenv('RightMeshPassword')
         artifactory_app_key = "0xa67d48cef4faaba71ce55435e389f5fdf4bb6419"
     }
     repositories {
