@@ -67,11 +67,7 @@ public class FragmentLogin extends Fragment {
             // NOTE that this will find the fist matching email + password combination on the
             // device
             Database db = Database.getInstance(getActivity());
-            //DhtProto.User user = db.login(emailAddressInput.getText().toString(), passwordInput.getText().toString());
-
-            // STOPSHIP: 2018-06-27 remove this line before it gets put into master
-            DhtProto.User user = db.login("a@b.c", "Abcd1234!");
-
+            DhtProto.User user = db.login(emailAddressInput.getText().toString(), passwordInput.getText().toString());
             db.close();
 
             // check that a user was found
