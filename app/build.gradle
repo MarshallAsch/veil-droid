@@ -11,7 +11,7 @@ buildscript {
     }
     repositories {
         maven {
-            url "http://research.rightmesh.io/artifactory/libs-local"
+            url "https://research.rightmesh.io/artifactory/libs-local"
             credentials {
                 username artifactory_app_username
                 password artifactory_app_password
@@ -34,7 +34,7 @@ repositories {
     jcenter()
     google()
     maven {
-        url "http://research.rightmesh.io/artifactory/libs-local"
+        url "https://research.rightmesh.io/artifactory/libs-local"
         credentials {
             username artifactory_app_username
             password artifactory_app_password
