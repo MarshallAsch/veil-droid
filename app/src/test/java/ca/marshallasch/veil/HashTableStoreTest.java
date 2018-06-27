@@ -186,9 +186,7 @@ public class HashTableStoreTest
         assertNotNull(postHash);
 
 
-        DhtProto.Comment comment = DhtProto.Comment.newBuilder()
-                .setMessage("Comment on the odd post")
-                .build();
+        DhtProto.Comment comment = Util.createComment("Comment on the odd post", author);
 
         // check that the comment works
         String hash = hashTableStore.insertComment(comment, postHash);
@@ -200,11 +198,8 @@ public class HashTableStoreTest
         assertEquals(DhtProto.KeywordType.COMMENT_FOR, hashTableStore.hashMap.get(postHash).get(1).getKeyword().getType());
         assertEquals(hash, hash2);
 
-
         // check that a second comment for the post can be added
-        comment = DhtProto.Comment.newBuilder()
-                .setMessage("Another comment for the post")
-                .build();
+        comment =  Util.createComment("Another comment for the post", author);
 
         // check that the comment works
         hash = hashTableStore.insertComment(comment, postHash);
@@ -225,34 +220,27 @@ public class HashTableStoreTest
         assertNotNull(postHash);
 
 
-        DhtProto.Comment comment = DhtProto.Comment.newBuilder()
-                .setMessage("This is the first comment on post 7")
-                .setTimestamp(Util.millisToTimestamp(System.currentTimeMillis()))
-                .build();
+        DhtProto.Comment comment2 = Util.createComment("This is the second comment on post 7", author);
+        DhtProto.Comment comment = Util.createComment("This is the first comment on post 7", author);
 
         // check that the comment works
         String hash1 = hashTableStore.insertComment(comment, postHash);
         assertNotNull(hash1);
 
-        comment = DhtProto.Comment.newBuilder()
-                .setMessage("This is the second comment on post 7")
-                .setTimestamp(Util.millisToTimestamp(System.currentTimeMillis() - 500))
-                .build();
 
         // check that the comment works
-        String hash2 = hashTableStore.insertComment(comment, postHash);
+        String hash2 = hashTableStore.insertComment(comment2, postHash);
         assertNotNull(hash2);
 
         // done prereqs
 
-        List<Pair<String, DhtProto.Comment>> list = hashTableStore.findCommentsByPost(postHash);
+        List<DhtProto.Comment> list = hashTableStore.findCommentsByPost(postHash);
 
         assertNotNull(list);
         assertEquals(2, list.size());
-        assertEquals(hash2, list.get(0).first);      // the second inserted post should be first
+        assertEquals(hash2, list.get(0).getUuid());      // the second inserted post should be first
                                                         // since it has an earler timestamp
-        assertEquals(hash1, list.get(1).first);
-
+        assertEquals(hash1, list.get(1).getUuid());
 
 
         p = Util.createPost("Post8", "This is a nice and short message in the post body", author, null);
@@ -296,42 +284,42 @@ public class HashTableStoreTest
         String hash1 = hashTableStore.insertComment(comment, postHash);
         assertNotNull(hash1);
 
-        Pair<String, DhtProto.Comment> pair = null;
+        DhtProto.Comment commentResponce = null;
         try {
-            pair = hashTableStore.findCommentByHash(hash1);
+            commentResponce = hashTableStore.findCommentByHash(hash1);
         }
         catch (TooManyResultsException e) {
             e.printStackTrace();
             assert false;
         }
 
-        assertNotNull(pair);
-        assertEquals(hash1, pair.first);
+        assertNotNull(commentResponce);
+        assertEquals(hash1, commentResponce.getUuid());
 
 
         // null search
-        pair = null;
+        commentResponce = null;
         try {
-            pair = hashTableStore.findCommentByHash(null);
+            commentResponce = hashTableStore.findCommentByHash(null);
         }
         catch (TooManyResultsException e) {
             e.printStackTrace();
             assert false;
         }
 
-        assertNull(pair);
+        assertNull(commentResponce);
 
         // no matches
-        pair = null;
+        commentResponce = null;
         try {
-            pair = hashTableStore.findCommentByHash(postHash);
+            commentResponce = hashTableStore.findCommentByHash(postHash);
         }
         catch (TooManyResultsException e) {
             e.printStackTrace();
             assert false;
         }
 
-        assertNull(pair);
+        assertNull(commentResponce);
     }
 
     @Test
