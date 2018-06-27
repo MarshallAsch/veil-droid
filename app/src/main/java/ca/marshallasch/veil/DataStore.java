@@ -118,26 +118,27 @@ public class DataStore
 
         List<String> hashes = db.getCommentHashes(postHash);
 
-        Pair<String, DhtProto.Comment> commentPair;
+        DhtProto.Comment comment;
         List<DhtProto.Comment> comments = new ArrayList<>();
 
         // get each post that is in the list
         for (String hash: hashes) {
 
-            commentPair = null;
+            comment = null;
             try {
-                commentPair = hashTableStore.findCommentByHash(hash);
+                comment = hashTableStore.findCommentByHash(hash);
             }
             catch (TooManyResultsException e) {
                 e.printStackTrace();
             }
 
             // add the post to the list
-            if (commentPair != null) {
-                comments.add(commentPair.second);
+            if (comment != null) {
+                comments.add(comment);
             }
         }
 
+        // make sure the list of comments are in chronological order
         Collections.sort(comments, new CommentComparator());
 
         return comments;

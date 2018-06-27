@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import ca.marshallasch.veil.comparators.CommentPairComparator;
+import ca.marshallasch.veil.comparators.CommentComparator;
 import ca.marshallasch.veil.comparators.EntryComparator;
 import ca.marshallasch.veil.exceptions.TooManyResultsException;
 import ca.marshallasch.veil.proto.DhtProto;
@@ -294,10 +294,12 @@ public class HashTableStore implements ForumStorage
      *
      * @param postHash he unique SHA256 hash of the post
      * @return the list of results
+     * @deprecated
      */
+    @Deprecated
     @Override
     @NonNull
-    public List<Pair<String, DhtProto.Comment>> findCommentsByPost(String postHash)
+    public List<DhtProto.Comment> findCommentsByPost(String postHash)
     {
         ArrayList<DhtProto.DhtWrapper> entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(postHash);
 
@@ -319,20 +321,25 @@ public class HashTableStore implements ForumStorage
             }
         }
 
-        ArrayList<Pair<String, DhtProto.Comment>> comments = new ArrayList<>();
+        ArrayList<DhtProto.Comment> comments = new ArrayList<>();
 
+        DhtProto.Comment comment;
         // find all the user objects
         for(String hash: commentHashes) {
 
             try {
-                comments.add(findCommentByHash(hash));
+                comment = findCommentByHash(hash);
+
+                if (comment != null) {
+                    comments.add(comment);
+                }
             }
             catch (TooManyResultsException e) {
                 e.printStackTrace();
             }
         }
 
-        Collections.sort(comments, new CommentPairComparator());
+        Collections.sort(comments, new CommentComparator());
 
         return comments;
     }
@@ -348,7 +355,7 @@ public class HashTableStore implements ForumStorage
      */
     @Override
     @Nullable
-    public Pair<String, DhtProto.Comment> findCommentByHash(String hash) throws TooManyResultsException
+    public DhtProto.Comment findCommentByHash(String hash) throws TooManyResultsException
     {
         ArrayList<DhtProto.DhtWrapper> entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(hash);
 
@@ -369,7 +376,7 @@ public class HashTableStore implements ForumStorage
         if (comments.size() > 1) {
             throw new TooManyResultsException("Too many results for: " + hash);
         } else if (comments.size() == 1) {
-            return new Pair<>(hash, comments.get(0));
+            return comments.get(0);
         }
 
         // otherwise there were no results found.
