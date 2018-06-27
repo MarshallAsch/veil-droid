@@ -14,7 +14,6 @@ import android.widget.TextView;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import ca.marshallasch.veil.proto.DhtProto;
@@ -95,21 +94,14 @@ public class FragmentViewPost extends Fragment {
         viewAuthorName.setText(authorName);
         viewDate.setText(postDate);
 
-
         //recycler view logic for displaying comments
         Activity activity = getActivity();
         RecyclerView recyclerView = view.findViewById(R.id.comment_list);
         recyclerView.setHasFixedSize(true);
 
         //TODO START: replace this with real data when commenting adding is added in
-        List<DhtProto.Comment> comments = new ArrayList<>();
+        List<DhtProto.Comment> comments = DataStore.getInstance(getActivity()).getCommentsForPost(postObject.getUuid());
 
-        DhtProto.Comment comment  = DhtProto.Comment.newBuilder()
-                .setMessage("WOW IM A COMMENT PLS WORK!")
-                .setAuthorName("marshall asch")
-                .setTimestamp(Util.millisToTimestamp(System.currentTimeMillis()))
-                .build();
-        comments.add(comment);
         //TODO END: replace this with real data when commenting adding is added in
 
 
@@ -123,10 +115,11 @@ public class FragmentViewPost extends Fragment {
         ImageView commentBar = view.findViewById(R.id.comment_bar);
         commentBar.setOnClickListener(view1 -> {
             FragmentAddComment addCommentFragment = new FragmentAddComment();
-            //send post title over to add comment view
+
             Bundle addCommentBundle = new Bundle();
-            addCommentBundle.putString(activity.getString(R.string.post_title_key), postTitle);
+            addCommentBundle.putByteArray(getString(R.string.post_object_key), postObject.toByteArray());
             addCommentFragment.setArguments(addCommentBundle);
+
             ((MainActivity) getActivity()).animateFragmentSlide(addCommentFragment, true);
         });
 

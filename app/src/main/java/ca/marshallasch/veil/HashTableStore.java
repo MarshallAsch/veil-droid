@@ -271,7 +271,7 @@ public class HashTableStore implements ForumStorage
     @Override
     public String insertComment(@NonNull DhtProto.Comment comment, @NonNull String postHash)
     {
-        String hash = Util.generateHash(comment.toByteArray());
+        String hash = comment.getUuid();
 
         DhtProto.DhtWrapper wrapper = DhtProto.DhtWrapper.newBuilder()
                 .setComment(comment)
@@ -561,10 +561,6 @@ public class HashTableStore implements ForumStorage
             entries = new ArrayList<>();
         }
 
-   //     if (!entries.contains(data)) {
-     ///       entries.add(data);
-     //   }
-
         boolean match = false;
         for (DhtProto.DhtWrapper entry: entries) {
             if (EntryComparator.entryEquals(entry, data)){
@@ -576,7 +572,6 @@ public class HashTableStore implements ForumStorage
         if (!match) {
             entries.add(data);
         }
-
 
         hashMap.put(key, entries);
     }

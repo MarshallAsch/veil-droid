@@ -139,7 +139,6 @@ public class Util
         }
 
         DhtProto.Post post = postBuilder.build();
-
         String hash = generateHash(post.toByteArray());
 
         post = DhtProto.Post.newBuilder(post)
@@ -149,4 +148,35 @@ public class Util
         return post;
 
     }
+
+    /**
+     * Create a new comment object, that is not assigned to a specific post.
+     * Note that this does not set the postID field, and the hash is made with the field unset.
+     *
+     * @param message the body of the comment
+     * @param author the author who wrote the comment
+     * @return a comment object with the postID field unset
+     */
+    public static DhtProto.Comment createComment(@NonNull String message, @NonNull DhtProto.User author) {
+
+        // set attributed
+        DhtProto.Comment.Builder builder = DhtProto.Comment.newBuilder();
+        builder.setMessage(message);
+        builder.setAuthorName(author.getFirstName() + " " + author.getLastName());
+        builder.setAuthorId(author.getUuid());
+        builder.setTimestamp(millisToTimestamp(System.currentTimeMillis()));
+
+
+        DhtProto.Comment comment = builder.build();
+        String hash = generateHash(comment.toByteArray());
+
+        // set the hash
+        comment = DhtProto.Comment.newBuilder(comment)
+                .setUuid(hash)
+                .build();
+
+        return comment;
+
+    }
+
 }
