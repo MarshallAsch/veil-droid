@@ -30,11 +30,7 @@ android:
     # if you need to run emulator(s) during your tests
     - sys-img-${ANDROID_ABI}-${ANDROID_TARGET}
 
-  licenses:
-    - android-sdk-license-.+
-
 script:
-    - curl icanhazip.com
     - ./gradlew clean
     - ./gradlew assembleDebug
     - ./gradlew testDebugUnitTest
