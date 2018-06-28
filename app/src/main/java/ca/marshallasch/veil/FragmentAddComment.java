@@ -5,9 +5,11 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.button.MaterialButton;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -32,6 +34,7 @@ public class FragmentAddComment extends android.support.v4.app.Fragment {
     }
 
     DhtProto.Post postObject;
+    DhtProto.User currentUser;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -53,14 +56,22 @@ public class FragmentAddComment extends android.support.v4.app.Fragment {
             e.printStackTrace();
         }
 
+        currentUser = ((MainActivity) getActivity()).getCurrentUser();
 
         TextView postTitle = view.findViewById(R.id.post_title);
 
         MaterialButton cancelBtn = view.findViewById(R.id.cancel_button);
         MaterialButton postBtn = view.findViewById(R.id.post_comment_btn);
         EditText commentInput = view.findViewById(R.id.post_message);
+        CheckBox anonymousInput = view.findViewById(R.id.anonymous);
 
         postTitle.setText(postObject.getTitle());
+
+        // if I am the author of an anonymous post then default make my comments anonymous.
+        if (postObject.getAnonymous() && currentUser.getUuid().equals(postObject.getAuthorId())) {
+            anonymousInput.setChecked(true);
+            Log.d("ANON", "check box");
+        }
 
 
         //Handle cancel button
@@ -73,6 +84,7 @@ public class FragmentAddComment extends android.support.v4.app.Fragment {
         //Handle post button
         postBtn.setOnClickListener(view1 -> {
             String message = commentInput.getText().toString();
+            boolean anonymous = anonymousInput.isChecked();
 
             // the message can not be empty
             if (message.length() == 0) {
@@ -80,7 +92,7 @@ public class FragmentAddComment extends android.support.v4.app.Fragment {
                 return;
             }
 
-            DhtProto.Comment comment = Util.createComment(message, ((MainActivity) getActivity()).getCurrentUser());
+            DhtProto.Comment comment = Util.createComment(message, currentUser, anonymous);
 
             // save to the data store
             DataStore.getInstance(getActivity()).saveComment(comment, postObject);

@@ -85,4 +85,7 @@
     <string name="comment_hint">Add a comment about the post.</string>
     <string name="post">Post</string>
 
+    <string name="anonymous">Anonymous</string>
+
+
 </resources>

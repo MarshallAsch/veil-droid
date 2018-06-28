@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.EditText;
 
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ public class FragmentCreatePost extends Fragment
     private EditText titleInput;
     private EditText messageInput;
     private EditText tagsInput;
+    private CheckBox anonymousInput;
 
     DhtProto.User currentUser;
 
@@ -45,6 +47,7 @@ public class FragmentCreatePost extends Fragment
         titleInput = view.findViewById(R.id.title_text_edit);
         messageInput = view.findViewById(R.id.post_message);
         tagsInput = view.findViewById(R.id.tags_text_edit);
+        anonymousInput = view.findViewById(R.id.anonymous);
 
         MaterialButton submit = view.findViewById(R.id.save);
         MaterialButton cancel = view.findViewById(R.id.cancel_button);
@@ -80,6 +83,7 @@ public class FragmentCreatePost extends Fragment
         String tags = tagsInput.getText().toString();
         String title = titleInput.getText().toString();
         String message = messageInput.getText().toString();
+        boolean anonymous = anonymousInput.isChecked();
 
         // check input
         if (title.length() == 0 || message.length() == 0 || currentUser == null) {
@@ -88,9 +92,7 @@ public class FragmentCreatePost extends Fragment
 
         ArrayList<String> tagList = new ArrayList<>(Arrays.asList(tags.split(",")));
 
-        DhtProto.Post post = Util.createPost(title, message, currentUser, tagList);
-
-
+        DhtProto.Post post = Util.createPost(title, message, currentUser, tagList, anonymous);
 
         DataStore dataStore = DataStore.getInstance(getContext());
 
