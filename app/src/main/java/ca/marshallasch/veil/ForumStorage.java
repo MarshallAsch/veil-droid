@@ -85,7 +85,7 @@ public interface ForumStorage
     /**
      * Look up a list comment entries using its associated post hash.
      * @param postHash the unique SHA256 hash of the post
-     * @return a list of comment objectsm where the uuid of the comment is the hash
+     * @return a list of comment objects where the uuid of the comment is the hash
      */
     List<DhtProto.Comment> findCommentsByPost(String postHash);
 
