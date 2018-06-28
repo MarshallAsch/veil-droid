@@ -54,6 +54,9 @@ public class CommentListAdapter extends RecyclerView.Adapter<CommentListAdapter.
         this.commentList = comments;
     }
 
+    public void update(List<DhtProto.Comment> comments) {
+        this.commentList = comments;
+    }
 
     /**
      * Creates the cell view if there is no exiting cells available for the recycler view to use
