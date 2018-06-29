@@ -259,6 +259,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
             LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
         } else if (type == Sync.SyncMessageType.REQUEST_DATA) {
 
+            Log.d("DATA_REQUEST", "recived request for data");
             // if someone sent a message asking for data send a responce with everything
 
             Sync.HashData hashData = dataStore.getDataStore();
@@ -297,7 +298,15 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         // Update peer list.
         PeerChangedEvent event = (PeerChangedEvent) e;
         if (event.state != REMOVED) {
+
+            if (event.peerUuid.equals(meshManager.getUuid())) {
+                Log.d("FOUND", "found loopback: " + event.peerUuid);
+                return;
+            }
+
             Log.d("FOUND", "found user: " + event.peerUuid);
+
+
 
             Sync.HashData hashData = dataStore.getDataStore();
             Sync.MappingMessage mappingMessage =  dataStore.getDatabase();

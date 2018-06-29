@@ -70,6 +70,8 @@ public class FragmentDiscoverForums extends Fragment implements  SwipeRefreshLay
 
         refreshLayout = view.findViewById(R.id.swiperefresh);
 
+        refreshLayout.setOnRefreshListener(this);
+
         // register receiver to be notified when the data changes
         localBroadcastManager = LocalBroadcastManager.getInstance(activity);
         localBroadcastManager.registerReceiver(localReceiver, new IntentFilter(MainActivity.NEW_DATA_BROADCAST));
@@ -100,6 +102,11 @@ public class FragmentDiscoverForums extends Fragment implements  SwipeRefreshLay
 
             // request an update from everyone
             for (MeshId peer: peers) {
+
+                // do not ask myself for info
+                if (peer.equals(manager.getUuid())) {
+                    continue;
+                }
                 manager.sendDataReliable(peer, MainActivity.DATA_PORT, dataRequest.toByteArray());
             }
 
@@ -123,6 +130,7 @@ public class FragmentDiscoverForums extends Fragment implements  SwipeRefreshLay
                 List<DhtProto.Post> posts = DataStore.getInstance(context).getKnownPosts();
                 postListAdapter.update(posts);
                 postListAdapter.notifyDataSetChanged();
+                refreshLayout.setRefreshing(false);
 
             }
         }
