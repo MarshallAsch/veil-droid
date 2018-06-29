@@ -44,7 +44,7 @@ import ca.marshallasch.veil.utilities.Util;
 public class Database extends SQLiteOpenHelper
 {
     private static String DATABASE_NAME = "contentDiscoveryTables";
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 6;
 
     // this is for the singleton
     private static Database instance = null;
@@ -103,6 +103,16 @@ public class Database extends SQLiteOpenHelper
     }
 
     /**
+     * This will clear all the data from the database.
+     */
+    public void clear(){
+        getWritableDatabase().delete(BlockEntry.TABLE_NAME, null, null);
+        getWritableDatabase().delete(NotificationEntry.TABLE_NAME, null, null);
+        getWritableDatabase().delete(UserEntry.TABLE_NAME, null, null);
+        getWritableDatabase().delete(KnownPostsEntry.TABLE_NAME, null, null);
+    }
+
+    /**
      * Create all of the tables in the database
      *
      * @param db the underlying database object
@@ -124,6 +134,10 @@ public class Database extends SQLiteOpenHelper
         }
         if (oldVersion < 4) {
             Migrations.upgradeV4(db);
+        }
+
+        if (oldVersion < 6) {
+            Migrations.upgradeV6(db);
         }
     }
 
@@ -312,13 +326,15 @@ public class Database extends SQLiteOpenHelper
             return false;
         }
 
+        commentHash = commentHash == null? "" : commentHash;
+
         ContentValues values = new ContentValues();
 
         values.put(KnownPostsEntry.COLUMN_POST_HASH, posthash);
         values.put(KnownPostsEntry.COLUMN_COMMENT_HASH, commentHash);
 
         // note this is a potentially long running operation.
-        long id = getWritableDatabase().insertWithOnConflict(KnownPostsEntry.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+        long id = getWritableDatabase().insert(KnownPostsEntry.TABLE_NAME, null, values);
 
         Log.d("INSERT", "ID: " + id + " POST: " + posthash);
         return id != -1;
@@ -370,7 +386,7 @@ public class Database extends SQLiteOpenHelper
         values.put(UserEntry.COLUMN_TIMESTAMP, createdAt.getTime());
 
         // note this is a potentially long running operation.
-        long id = getWritableDatabase().insertWithOnConflict(UserEntry.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+        long id = getWritableDatabase().insert(UserEntry.TABLE_NAME, null, values);
 
         // check if the creation was successful, return the user if it was
         return id != -1 ? user : null;
@@ -573,7 +589,7 @@ public class Database extends SQLiteOpenHelper
         String[] selection = {"COUNT(*)"};
 
         Cursor c = getReadableDatabase().query(
-                BlockEntry.TABLE_NAME,   // The table to query
+                tableName,   // The table to query
                 selection,               // The array of columns to return (pass null to get all)
                 where,                   // The columns for the WHERE clause
                 whereArgs,               // The values for the WHERE clause

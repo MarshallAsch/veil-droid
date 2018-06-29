@@ -25,13 +25,15 @@
     <string name="tags_hint">A comma separated list of tag words</string>
     <string name="message_hint">Some more details about the question you wish to ask.</string>
 
-    
 
     <!-- SnackBar messages -->
     <string name="password_required">Password is missing</string>
     <string name="password_mismatch">Passwords do not match</string>
     <string name="password_complexity">Passwords too simple</string>
     <string name="password_accepted">Password good</string>
+
+    <string name="comment_too_short">The comment message too short.</string>
+
 
     <string name="missing_name">Name is missing</string>
 
@@ -69,7 +71,7 @@
     <string name="placeholder_date">July 25, 2018</string>
     <string name="comments">Comments</string>
     <string name="ipsum_lorem_paragraph">Lorem ipsum dolor sit amet, harum quando mel ad. No usu graece perfecto interesset, eam vide consul pertinacia eu, suas labores percipit ius ne. No usu libris mucius, quo sonet iudicabit assueverit ei, ea dolore maiestatis quaerendum mea. Mel at congue elaboraret, nam viris voluptatibus eu. Ius dissentiet comprehensam te. Te ancillae petentium salutandi per, est no congue iriure.</string>
-    <string name="placeholder_hash">68e656b251e67e8358bef8483ab0d51c6619f3e7a1a9f0e75838d41ff368f728</string>
+    <string name="placeholder_hash">hash Placeholder</string>
     <string name="title_place_holder">Title</string>
     <string name="author_name_place_holder">John Doe</string>
     <string name="preview_place_holder">Message Content</string>
@@ -82,5 +84,9 @@
     <string name="view">View</string>
     <string name="full_name_placeholder">%s %s</string>
     <string name="remember_me_label">Remember username and password</string>
+  
+    <string name="add_a_comment">Add a comment</string>
+    <string name="comment_hint">Add a comment about the post.</string>
+    <string name="post">Post</string>
 
 </resources>

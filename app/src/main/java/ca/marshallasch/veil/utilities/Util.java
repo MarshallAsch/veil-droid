@@ -125,17 +125,23 @@ public class Util
      * @param tags a list of tag strings
      * @return a post object
      */
-    public static DhtProto.Post createPost(String title, String message, @NonNull DhtProto.User author, @NonNull List<String> tags) {
+    public static DhtProto.Post createPost(String title, String message, @NonNull DhtProto.User author, @Nullable List<String> tags) {
 
-        DhtProto.Post post = DhtProto.Post.newBuilder()
-                .setTitle(title)
-                .setMessage(message)
-                .setAuthorName(author.getFirstName() + " " + author.getLastName())
-                .setAuthorId(author.getUuid())
-                .setTimestamp(millisToTimestamp(System.currentTimeMillis()))
-                .addAllTags(tags)
-                .build();
+        DhtProto.Post.Builder postBuilder = DhtProto.Post.newBuilder();
 
+        // set attributes
+        postBuilder.setTitle(title);
+        postBuilder.setMessage(message);
+        postBuilder.setAuthorName(author.getFirstName() + " " + author.getLastName());
+        postBuilder.setAuthorId(author.getUuid());
+        postBuilder.setTimestamp(millisToTimestamp(System.currentTimeMillis()));
+
+        // add the tags if there are any
+        if (tags != null) {
+            postBuilder.addAllTags(tags);
+        }
+
+        DhtProto.Post post = postBuilder.build();
         String hash = generateHash(post.toByteArray());
 
         post = DhtProto.Post.newBuilder(post)
@@ -143,9 +149,7 @@ public class Util
                 .build();
 
         return post;
-
     }
-
 
     /**
      * Ths function will save the user so they don't need to login everyt ime.
@@ -203,7 +207,51 @@ public class Util
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(activity);
 
         return sharedPref.getString(activity.getString(R.string.pref_passwords), null);
+
+    /**
+     * Create a new comment object, that is not assigned to a specific post.
+     * Note that this does not set the postID field, and the hash is made with the field unset.
+     *
+     * @param message the body of the comment
+     * @param author the author who wrote the comment
+     * @return a comment object with the postID field unset
+     */
+    public static DhtProto.Comment createComment(@NonNull String message, @NonNull DhtProto.User author) {
+
+        return createComment(message, author, null);
     }
 
+    /**
+     * Create a new comment object, that is not assigned to a specific post.
+     * Note that this does not set the postID field, and the hash is made with the field unset.
+     *
+     * @param message the body of the comment
+     * @param author the author who wrote the comment
+     * @param postHash the postID that it belongs to
+     * @return a comment object with the postID field set
+     */
+    public static DhtProto.Comment createComment(@NonNull String message, @NonNull DhtProto.User author, @Nullable String postHash) {
 
+        // set attributed
+        DhtProto.Comment.Builder builder = DhtProto.Comment.newBuilder();
+        builder.setMessage(message);
+        builder.setAuthorName(author.getFirstName() + " " + author.getLastName());
+        builder.setAuthorId(author.getUuid());
+        builder.setTimestamp(millisToTimestamp(System.currentTimeMillis()));
+
+        if (postHash != null) {
+            builder.setPostId(postHash);
+        }
+
+
+        DhtProto.Comment comment = builder.build();
+        String hash = generateHash(comment.toByteArray());
+
+        // set the hash
+        comment = DhtProto.Comment.newBuilder(comment)
+                .setUuid(hash)
+                .build();
+
+        return comment;
+    }
 }

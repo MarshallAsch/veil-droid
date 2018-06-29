@@ -1,20 +1,20 @@
 package ca.marshallasch.veil;
 
 import android.app.Activity;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
-import java.text.DateFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 import ca.marshallasch.veil.proto.DhtProto;
@@ -31,10 +31,8 @@ import ca.marshallasch.veil.utilities.Util;
  */
 public class FragmentViewPost extends Fragment {
     private DhtProto.Post postObject;
-    private String postHash, authorName,postDate;
 
-    private DhtProto.User currentUser;
-
+    private CommentListAdapter listAdapter;
 
     public FragmentViewPost() {
         // Required empty public constructor
@@ -43,6 +41,9 @@ public class FragmentViewPost extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_view_post, container, false);
+
+
+        getActivity().getSupportFragmentManager().addOnBackStackChangedListener(listener);
 
         //retrieve passed bundle from the PostListAdapter Class
         Bundle bundle = this.getArguments();
@@ -62,26 +63,6 @@ public class FragmentViewPost extends Fragment {
             }
         }
 
-
-        //Grab current user
-        currentUser = ((MainActivity) getActivity()).getCurrentUser();
-
-        //if the post object is not null set values of post else set filler values
-        String postTitle;
-        String postContent;
-        if(postObject != null){
-            postTitle = postObject.getTitle();
-            postContent = postObject.getMessage();
-            postHash = postObject.getUuid();
-            postDate = DateFormat.getDateInstance().format(Util.timestampToDate(postObject.getTimestamp()));
-            authorName = postObject.getAuthorName();
-        }
-        else{
-            postTitle = getString(R.string.failed_to_load_title);
-            postContent = getString(R.string.failed_to_load_content);
-        }
-
-
         //setting post information
         TextView viewTitle = view.findViewById(R.id.title);
         TextView viewContent = view.findViewById(R.id.post_content);
@@ -89,39 +70,63 @@ public class FragmentViewPost extends Fragment {
         TextView viewAuthorName = view.findViewById(R.id.author_name);
         TextView viewDate = view.findViewById(R.id.date);
 
-        viewTitle.setText(postTitle);
-        viewContent.setText(postContent);
-        viewPostHash.setText(postHash);
-        viewAuthorName.setText(authorName);
-        viewDate.setText(postDate);
 
+        if(postObject != null){
+            viewTitle.setText(postObject.getTitle());
+            viewContent.setText(postObject.getMessage());
+            viewPostHash.setText(postObject.getUuid());
+            viewAuthorName.setText(postObject.getAuthorName());
+            viewDate.setText(Util.timestampToDate(postObject.getTimestamp()).toString());
+        }
 
         //recycler view logic for displaying comments
         Activity activity = getActivity();
         RecyclerView recyclerView = view.findViewById(R.id.comment_list);
         recyclerView.setHasFixedSize(true);
 
-        //TODO START: replace this with real data when commenting adding is added in
-        List<DhtProto.Comment> comments = new ArrayList<>();
-
-        DhtProto.Comment comment  = DhtProto.Comment.newBuilder()
-                .setMessage("WOW IM A COMMENT PLS WORK!")
-                .setAuthorName("marshall asch")
-                .setTimestamp(Util.millisToTimestamp(System.currentTimeMillis()))
-                .build();
-        comments.add(comment);
-        //TODO END: replace this with real data when commenting adding is added in
-
+        // load the actual comments for the post
+        List<DhtProto.Comment> comments = DataStore.getInstance(getActivity()).getCommentsForPost(postObject.getUuid());
 
         //Setting the recycler view to hold comments for the post
         LinearLayoutManager linearLayoutManager  = new LinearLayoutManager(activity);
         recyclerView.setLayoutManager(linearLayoutManager);
-        RecyclerView.Adapter recyclerAdapter = new CommentListAdapter(comments);
-        recyclerView.setAdapter(recyclerAdapter);
+        listAdapter = new CommentListAdapter(comments);
+        recyclerView.setAdapter(listAdapter);
 
+        //click listener for comment bar
+        ImageView commentBar = view.findViewById(R.id.comment_bar);
+        commentBar.setOnClickListener(view1 -> {
+            FragmentAddComment addCommentFragment = new FragmentAddComment();
+
+            Bundle addCommentBundle = new Bundle();
+            addCommentBundle.putByteArray(getString(R.string.post_object_key), postObject.toByteArray());
+            addCommentFragment.setArguments(addCommentBundle);
+
+            ((MainActivity) getActivity()).animateFragmentSlide(addCommentFragment, true);
+        });
 
         return view;
-
     }
 
+    @Override
+    public void onDestroyView()
+    {
+        super.onDestroyView();
+
+        getActivity().getSupportFragmentManager().removeOnBackStackChangedListener(listener);
+    }
+
+    /**
+     * This listener will refresh the list of comments for the post when the user navigates
+     * back to the post view fragment after creating a new comment.
+     */
+    private FragmentManager.OnBackStackChangedListener listener = new FragmentManager.OnBackStackChangedListener() {
+        @Override
+        public void onBackStackChanged()
+        {
+            // update the comment list
+            listAdapter.update(DataStore.getInstance(getActivity()).getCommentsForPost(postObject.getUuid()));
+            listAdapter.notifyDataSetChanged();
+        }
+    };
 }

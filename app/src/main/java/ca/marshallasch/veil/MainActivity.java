@@ -199,6 +199,25 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
     }
 
     /**
+     * Animates the given fragment up from the bottom and on pop animates it back down.
+     * NOTE: this function does not replace the current fragment but overlays it.
+     *
+     * @param fragment the fragment to overlay with
+     * @param addToBackStack Whether or not the current fragment should be added to the back stack.
+     */
+    public void animateFragmentSlide(Fragment fragment, boolean addToBackStack){
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        if(addToBackStack){
+            transaction.addToBackStack(null);
+        }
+        transaction.setCustomAnimations(R.anim.slide_in_up, R.anim.do_nothing, R.anim.do_nothing, R.anim.slide_in_down);
+        //note fragment is layered due to this
+        transaction.add(R.id.fragment_container, fragment);
+        transaction.commit();
+    }
+
+
+    /**
      * Handles incoming data events from the mesh
      *
      * @param e event object from mesh

@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import ca.marshallasch.veil.comparators.CommentPairComparator;
+import ca.marshallasch.veil.comparators.CommentComparator;
 import ca.marshallasch.veil.database.Database;
 import ca.marshallasch.veil.exceptions.TooManyResultsException;
 import ca.marshallasch.veil.proto.DhtProto;
@@ -112,38 +112,70 @@ public class DataStore
     /**
      * Gets the list of comments for a post sorted in by time posted for a given post.
      * @param postHash the hash of the post that the comments will be found for.
-     * @return a list of comment pairs
+     * @return a list of comments
      */
-    public List<Pair<String, DhtProto.Comment>> getCommentsForPost(String postHash) {
+    public List<DhtProto.Comment> getCommentsForPost(String postHash) {
 
         List<String> hashes = db.getCommentHashes(postHash);
 
-        Pair<String, DhtProto.Comment> commentPair;
-        List<Pair<String, DhtProto.Comment>> comments = new ArrayList<>();
+        DhtProto.Comment comment;
+        List<DhtProto.Comment> comments = new ArrayList<>();
 
         // get each post that is in the list
         for (String hash: hashes) {
 
-            commentPair = null;
+            comment = null;
             try {
-                commentPair = hashTableStore.findCommentByHash(hash);
+                comment = hashTableStore.findCommentByHash(hash);
             }
             catch (TooManyResultsException e) {
                 e.printStackTrace();
             }
 
             // add the post to the list
-            if (commentPair != null) {
-                comments.add(commentPair);
+            if (comment != null) {
+                comments.add(comment);
             }
         }
 
-        Collections.sort(comments, new CommentPairComparator());
+        // make sure the list of comments are in chronological order
+        Collections.sort(comments, new CommentComparator());
 
         return comments;
 
     }
 
+    /**
+     * This function will take a comment and associate it with the post in the data store.
+     * The comment's UUID field must be set to the has for the comment.
+     * The this will set the comments PostId field in the one that gets stored, but not in the one
+     * that was passed in.
+     *
+     * @param comment the comment object to insert
+     * @param forPost the post the the comment is associated with
+     * @return the updated comment object
+     */
+    @Nullable
+    public DhtProto.Comment saveComment(@Nullable DhtProto.Comment comment, DhtProto.Post forPost){
+
+        // make sure args are given
+        if (comment == null || forPost == null) {
+            return comment;
+        }
+
+        // put the post ID into the comment
+        comment = DhtProto.Comment.newBuilder(comment)
+                .setPostId(forPost.getUuid())
+                .build();
+
+        // insert into the data store
+        hashTableStore.insertComment(comment, forPost.getUuid());
+
+        // insert the comment for mapping
+        db.insertKnownPost(forPost.getUuid(), comment.getUuid());
+
+        return comment;
+    }
 
     /**
      * Generate the object for syncing the database between devices.
@@ -208,11 +240,18 @@ public class DataStore
     public void syncDatabase(Sync.MappingMessage message) {
 
         List<Sync.CommentMapping> mapping = message.getMappingsList();
+        List<Sync.CommentMapping> oldMappings = getDatabase().getMappingsList();
 
         Log.d("MAPPING", "LEN: " + mapping.size());
 
         // insert all of the mappings
         for (Sync.CommentMapping entry: mapping) {
+
+            // skip if we alrey have the entry
+            if (oldMappings.contains(entry)) {
+                continue;
+            }
+
             Log.d("MAPPING", "post: " + entry.getPostHash());
             db.insertKnownPost(entry.getPostHash(), entry.getCommentHash());
         }
