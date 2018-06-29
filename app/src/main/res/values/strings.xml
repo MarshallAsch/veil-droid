@@ -65,6 +65,8 @@
 
     <!-- Shared preferences keys -->
     <string name="pref_notifications">pref_notifications</string>
+    <string name="pref_username">pref_username</string>
+    <string name="pref_passwords">pref_passwords</string>
 
     <string name="placeholder_date">July 25, 2018</string>
     <string name="comments">Comments</string>
@@ -81,6 +83,8 @@
     <string name="your_forums">Your Forums</string>
     <string name="view">View</string>
     <string name="full_name_placeholder">%s %s</string>
+    <string name="remember_me_label">Remember username and password</string>
+  
     <string name="add_a_comment">Add a comment</string>
     <string name="comment_hint">Add a comment about the post.</string>
     <string name="post">Post</string>
