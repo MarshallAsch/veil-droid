@@ -4,10 +4,12 @@ import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -40,6 +42,7 @@ public class FragmentDiscoverForums extends Fragment implements  SwipeRefreshLay
 
     private PostListAdapter postListAdapter;
     private SwipeRefreshLayout refreshLayout;
+    private LocalBroadcastManager localBroadcastManager;
 
     public FragmentDiscoverForums() {
         // Required empty public constructor
@@ -67,10 +70,23 @@ public class FragmentDiscoverForums extends Fragment implements  SwipeRefreshLay
 
         refreshLayout = view.findViewById(R.id.swiperefresh);
 
+        // register receiver to be notified when the data changes
+        localBroadcastManager = LocalBroadcastManager.getInstance(activity);
+        localBroadcastManager.registerReceiver(localReceiver, new IntentFilter(MainActivity.NEW_DATA_BROADCAST));
+
+
 
         return view;
     }
 
+    @Override
+    public void onDestroyView()
+    {
+        super.onDestroyView();
+
+        // unregister receiver
+        localBroadcastManager.unregisterReceiver(localReceiver);
+    }
 
     @Override
     public void onRefresh()
