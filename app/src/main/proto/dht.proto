@@ -72,6 +72,7 @@ message Post {
     string message = 5;
     google.protobuf.Timestamp timestamp = 6;   // when the post was created
     repeated string tags = 7;
+    bool anonymous = 8;         // if this is set then do not show the username
 }
 
 /**
@@ -86,6 +87,7 @@ message Comment {
     string author_id = 4;      // this is unique to each user
     string message = 5;
     google.protobuf.Timestamp timestamp = 6;   // when the comment was created
+    bool anonymous = 8;         // if this is set then do not show the username
 }
 
 /**

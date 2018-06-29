@@ -52,10 +52,9 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //set the starting page to the landing fragment
-        navigateTo( new FragmentLanding(), false);
-
         dataStore = DataStore.getInstance(this);
+
+        navigateTo(new FragmentLanding(), false);
 
         // Gets an instance of the Android-specific MeshManager singleton.
         meshManager = AndroidMeshManager.getInstance(this, this);
@@ -126,10 +125,13 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
-        //Fragment frag;
+        Fragment frag;
 
         // Handle item selection
         switch (item.getItemId()) {
+            case R.id.connected_peers:
+                frag = new FragmentPeerList();
+                break;
             case R.id.setup:
                 try {
                     meshManager.showSettingsActivity();
@@ -143,9 +145,9 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         }
 
         //replace the fragment
-        //navigateTo(frag, true);
+        navigateTo(frag, true);
 
-       // return true;
+        return true;
     }
 
     /**
@@ -198,6 +200,25 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         transaction.replace(R.id.fragment_container, fragment);
         transaction.commit();
     }
+
+    /**
+     * Animates the given fragment up from the bottom and on pop animates it back down.
+     * NOTE: this function does not replace the current fragment but overlays it.
+     *
+     * @param fragment the fragment to overlay with
+     * @param addToBackStack Whether or not the current fragment should be added to the back stack.
+     */
+    public void animateFragmentSlide(Fragment fragment, boolean addToBackStack){
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        if(addToBackStack){
+            transaction.addToBackStack(null);
+        }
+        transaction.setCustomAnimations(R.anim.slide_in_up, R.anim.do_nothing, R.anim.do_nothing, R.anim.slide_in_down);
+        //note fragment is layered due to this
+        transaction.add(R.id.fragment_container, fragment);
+        transaction.commit();
+    }
+
 
     /**
      * Handles incoming data events from the mesh

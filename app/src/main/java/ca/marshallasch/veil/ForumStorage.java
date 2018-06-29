@@ -85,17 +85,17 @@ public interface ForumStorage
     /**
      * Look up a list comment entries using its associated post hash.
      * @param postHash the unique SHA256 hash of the post
-     * @return a list of key value pairs containing the hash and the comment object
+     * @return a list of comment objects where the uuid of the comment is the hash
      */
-    List<Pair<String, DhtProto.Comment>> findCommentsByPost(String postHash);
+    List<DhtProto.Comment> findCommentsByPost(String postHash);
 
     /**
      * Look up a single comment entry using its hashed key. This could ether make use of a cache
      * or some sort of distributed store.
      * @param hash the unique SHA256 hash of the comment
-     * @return a key value pair containing the hash and the comment object
+     * @return  the comment object
      */
-    Pair<String, DhtProto.Comment> findCommentByHash(String hash) throws TooManyResultsException;
+    DhtProto.Comment findCommentByHash(String hash) throws TooManyResultsException;
 
 
     /*******************************************************

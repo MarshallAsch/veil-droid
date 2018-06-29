@@ -1,7 +1,5 @@
 package ca.marshallasch.veil.comparators;
 
-import android.support.v4.util.Pair;
-
 import java.util.Comparator;
 
 import ca.marshallasch.veil.proto.DhtProto;
@@ -14,13 +12,13 @@ import ca.marshallasch.veil.utilities.Util;
  * @version 1.0
  * @since 2018-06-13
  */
-public class CommentPairComparator implements Comparator<Pair<String, DhtProto.Comment>>
+public class CommentComparator implements Comparator<DhtProto.Comment>
 {
     @Override
-    public int compare(Pair<String, DhtProto.Comment> a, Pair<String, DhtProto.Comment> b)
+    public int compare(DhtProto.Comment a, DhtProto.Comment b)
     {
-        long aMillis = Util.timestampToMillis(a.second.getTimestamp());
-        long bMillis = Util.timestampToMillis(b.second.getTimestamp());
+        long aMillis = Util.timestampToMillis(a.getTimestamp());
+        long bMillis = Util.timestampToMillis(b.getTimestamp());
         return (int) (aMillis - bMillis);
     }
 }
