@@ -220,11 +220,13 @@ public class Util
      * @return the password if there is a known one otherwise null
      */
     @Nullable
-    public static String getKnownPassword(Activity activity) {
+    public static String getKnownPassword(Activity activity)
+    {
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(activity);
 
         return sharedPref.getString(activity.getString(R.string.pref_passwords), null);
+    }
 
     /**
      * Create a new comment object, that is not assigned to a specific post.
