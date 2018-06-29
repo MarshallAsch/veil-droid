@@ -125,10 +125,13 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
-        //Fragment frag;
+        Fragment frag;
 
         // Handle item selection
         switch (item.getItemId()) {
+            case R.id.connected_peers:
+                frag = new FragmentPeerList();
+                break;
             case R.id.setup:
                 try {
                     meshManager.showSettingsActivity();
@@ -142,9 +145,9 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         }
 
         //replace the fragment
-        //navigateTo(frag, true);
+        navigateTo(frag, true);
 
-       // return true;
+        return true;
     }
 
     /**
