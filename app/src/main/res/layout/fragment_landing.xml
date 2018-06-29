@@ -65,6 +65,16 @@
                 app:backgroundTint="@color/colorPrimaryDark"/>
 
 
+            <Button
+                android:id="@+id/go_to_peers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="21dp"
+                android:text="PeerList"/>
+
+
         </RelativeLayout>
 
 

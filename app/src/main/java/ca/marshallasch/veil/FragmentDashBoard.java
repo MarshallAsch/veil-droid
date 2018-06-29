@@ -8,13 +8,13 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import ca.marshallasch.veil.proto.DhtProto;
+import ca.marshallasch.veil.utilities.Util;
 
 /**
  *
@@ -38,17 +38,6 @@ public class FragmentDashBoard extends Fragment {
         // hides the menu bar at the top so you have a full screen landing page
         View view = inflater.inflate(R.layout.fragment_dash_board, container,false);
 
-        //disabling back press logic for this fragment so it doesn't route to the wrong page
-        view.setFocusableInTouchMode(true);
-        view.requestFocus();
-
-        view.setOnKeyListener((v, keyCode, event) -> {
-            if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                return keyCode == KeyEvent.KEYCODE_BACK;
-            }
-            return false;
-        });
-
         // buttons and event listeners
         MaterialButton logoutBtn = view.findViewById(R.id.logout_btn);
         MaterialButton discoverForumsBtn = view.findViewById(R.id.discover_forums_btn);
@@ -70,6 +59,9 @@ public class FragmentDashBoard extends Fragment {
             Log.i(TAG, "logout button pressed");
             //clears entire back stack without calling the onCreate of each fragment
             getFragmentManager().popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+            Util.clearKnownUser(getActivity());
+            ((MainActivity) getActivity()).navigateTo(new FragmentLanding(), false);
         });
 
         discoverForumsBtn.setOnClickListener(view1 -> {

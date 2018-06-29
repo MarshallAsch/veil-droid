@@ -2,6 +2,8 @@ package ca.marshallasch.veil.utilities;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.View;
@@ -14,6 +16,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.List;
 
+import ca.marshallasch.veil.R;
 import ca.marshallasch.veil.proto.DhtProto;
 
 /**
@@ -115,6 +118,7 @@ public class Util
     /**
      * This will create a new post object with the <code>UUID</code> field set to the hash of the
      * object. To verify the the hash of the object, remove the uuid field then hash the post.
+     * This will set the anonymous field to false
      *
      * @param title string title of the post
      * @param message the message body of the post
@@ -124,6 +128,22 @@ public class Util
      */
     public static DhtProto.Post createPost(String title, String message, @NonNull DhtProto.User author, @Nullable List<String> tags) {
 
+        return createPost(title, message, author, tags, false);
+    }
+
+    /**
+     * This will create a new post object with the <code>UUID</code> field set to the hash of the
+     * object. To verify the the hash of the object, remove the uuid field then hash the post.
+     *
+     * @param title string title of the post
+     * @param message the message body of the post
+     * @param author the {@link ca.marshallasch.veil.proto.DhtProto.User} object
+     * @param tags a list of tag strings
+     * @param anonymous whether or not the authors name will be displayed when it is shown.
+     * @return a post object
+     */
+    public static DhtProto.Post createPost(String title, String message, @NonNull DhtProto.User author, @Nullable List<String> tags, boolean anonymous) {
+
         DhtProto.Post.Builder postBuilder = DhtProto.Post.newBuilder();
 
         // set attributes
@@ -132,6 +152,7 @@ public class Util
         postBuilder.setAuthorName(author.getFirstName() + " " + author.getLastName());
         postBuilder.setAuthorId(author.getUuid());
         postBuilder.setTimestamp(millisToTimestamp(System.currentTimeMillis()));
+        postBuilder.setAnonymous(anonymous);
 
         // add the tags if there are any
         if (tags != null) {
@@ -146,7 +167,77 @@ public class Util
                 .build();
 
         return post;
+    }
 
+    /**
+     * Ths function will save the user so they don't need to login everyt ime.
+     * @param activity the activity for the shared preferences to use
+     * @param username the username of the user
+     * @param password the password of the user.
+     */
+    public static void rememberUserName(@NonNull Activity activity, @NonNull String username, @NonNull String password) {
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(activity);
+        SharedPreferences.Editor editor = sharedPref.edit();
+
+        editor.putString(activity.getString(R.string.pref_username), username);
+        editor.putString(activity.getString(R.string.pref_passwords), password);
+        editor.apply();
+    }
+
+    /**
+     * This will clear the known user so that if the user logs out they wont be remembered.
+     * @param activity the activity for the shared preferences to use
+     */
+    public static void clearKnownUser(Activity activity){
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(activity);
+        SharedPreferences.Editor editor = sharedPref.edit();
+
+        editor.remove(activity.getString(R.string.pref_username));
+        editor.remove(activity.getString(R.string.pref_passwords));
+        editor.apply();
+    }
+
+    /**
+     * This will get the username of the remembered user.
+     *
+     * @param activity the activity for the shared preferences to use
+     * @return the username if there is a known one otherwise null
+     */
+    @Nullable
+    public static String getKnownUsername(Activity activity) {
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(activity);
+
+        return sharedPref.getString(activity.getString(R.string.pref_username), null);
+    }
+
+    /**
+     * This will get the password of the remembered user.
+     *
+     * @param activity the activity for the shared preferences to use
+     * @return the password if there is a known one otherwise null
+     */
+    @Nullable
+    public static String getKnownPassword(Activity activity) {
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(activity);
+
+        return sharedPref.getString(activity.getString(R.string.pref_passwords), null);
+
+    /**
+     * Create a new comment object, that is not assigned to a specific post.
+     * Note that this does not set the postID field, and the hash is made with the field unset.
+     * This will set anonymous to false.
+     *
+     * @param message the body of the comment
+     * @param author the author who wrote the comment
+     * @return a comment object with the postID field unset
+     */
+    public static DhtProto.Comment createComment(@NonNull String message, @NonNull DhtProto.User author) {
+
+        return createComment(message, author, null, false);
     }
 
     /**
@@ -155,11 +246,27 @@ public class Util
      *
      * @param message the body of the comment
      * @param author the author who wrote the comment
+     * @param anonymous if the post is anonymous or not
      * @return a comment object with the postID field unset
      */
-    public static DhtProto.Comment createComment(@NonNull String message, @NonNull DhtProto.User author) {
+    public static DhtProto.Comment createComment(@NonNull String message, @NonNull DhtProto.User author, boolean anonymous) {
 
-        return createComment(message, author, null);
+        return createComment(message, author, null, anonymous);
+    }
+
+    /**
+     * Create a new comment object, that is not assigned to a specific post.
+     * Note that this does not set the postID field, and the hash is made with the field unset.
+     * This will set anonymous to false.
+     *
+     * @param message the body of the comment
+     * @param author the author who wrote the comment
+     * @param postHash the postID that it belongs to
+     * @return a comment object with the postID field set
+     */
+    public static DhtProto.Comment createComment(@NonNull String message, @NonNull DhtProto.User author, @Nullable String postHash) {
+
+        return createComment(message, author, postHash, false);
     }
 
     /**
@@ -169,9 +276,10 @@ public class Util
      * @param message the body of the comment
      * @param author the author who wrote the comment
      * @param postHash the postID that it belongs to
+     * @param anonymous if the post is anonymous or not
      * @return a comment object with the postID field set
      */
-    public static DhtProto.Comment createComment(@NonNull String message, @NonNull DhtProto.User author, @Nullable String postHash) {
+    public static DhtProto.Comment createComment(@NonNull String message, @NonNull DhtProto.User author, @Nullable String postHash, boolean anonymous) {
 
         // set attributed
         DhtProto.Comment.Builder builder = DhtProto.Comment.newBuilder();
@@ -179,6 +287,7 @@ public class Util
         builder.setAuthorName(author.getFirstName() + " " + author.getLastName());
         builder.setAuthorId(author.getUuid());
         builder.setTimestamp(millisToTimestamp(System.currentTimeMillis()));
+        builder.setAnonymous(anonymous);
 
         if (postHash != null) {
             builder.setPostId(postHash);
@@ -195,6 +304,4 @@ public class Util
 
         return comment;
     }
-
-
 }

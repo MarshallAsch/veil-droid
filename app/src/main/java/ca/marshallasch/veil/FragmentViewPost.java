@@ -42,7 +42,6 @@ public class FragmentViewPost extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_view_post, container, false);
 
-
         getActivity().getSupportFragmentManager().addOnBackStackChangedListener(listener);
 
         //retrieve passed bundle from the PostListAdapter Class
@@ -75,8 +74,11 @@ public class FragmentViewPost extends Fragment {
             viewTitle.setText(postObject.getTitle());
             viewContent.setText(postObject.getMessage());
             viewPostHash.setText(postObject.getUuid());
-            viewAuthorName.setText(postObject.getAuthorName());
             viewDate.setText(Util.timestampToDate(postObject.getTimestamp()).toString());
+
+            // check if the post is anonymous before displaying it.
+            String authorName = postObject.getAnonymous() ? getString(R.string.anonymous) : postObject.getAuthorName();
+            viewAuthorName.setText(authorName);
         }
 
         //recycler view logic for displaying comments
@@ -90,7 +92,7 @@ public class FragmentViewPost extends Fragment {
         //Setting the recycler view to hold comments for the post
         LinearLayoutManager linearLayoutManager  = new LinearLayoutManager(activity);
         recyclerView.setLayoutManager(linearLayoutManager);
-        listAdapter = new CommentListAdapter(comments);
+        listAdapter = new CommentListAdapter(activity, comments);
         recyclerView.setAdapter(listAdapter);
 
         //click listener for comment bar

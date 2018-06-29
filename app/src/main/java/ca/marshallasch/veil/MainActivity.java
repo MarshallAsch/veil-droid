@@ -56,10 +56,9 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //set the starting page to the landing fragment
-        navigateTo( new FragmentLanding(), false);
-
         dataStore = DataStore.getInstance(this);
+
+        navigateTo(new FragmentLanding(), false);
 
         // Gets an instance of the Android-specific MeshManager singleton.
         meshManager = AndroidMeshManager.getInstance(this, this);
@@ -130,10 +129,13 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
-        //Fragment frag;
+        Fragment frag;
 
         // Handle item selection
         switch (item.getItemId()) {
+            case R.id.connected_peers:
+                frag = new FragmentPeerList();
+                break;
             case R.id.setup:
                 try {
                     meshManager.showSettingsActivity();
@@ -147,9 +149,9 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         }
 
         //replace the fragment
-        //navigateTo(frag, true);
+        navigateTo(frag, true);
 
-       // return true;
+        return true;
     }
 
     /**

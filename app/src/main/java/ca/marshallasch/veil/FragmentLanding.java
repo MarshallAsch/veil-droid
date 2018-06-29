@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 /**
  * This class holds the landing page for the application. Where you choose if you are going to
@@ -36,15 +37,21 @@ public class FragmentLanding extends Fragment {
         MaterialButton loginBtn = view.findViewById(R.id.login_btn);
         MaterialButton signupBtn = view.findViewById(R.id.sign_up_btn);
 
+        Button peer = view.findViewById(R.id.go_to_peers);
+        peer.setOnClickListener(v -> {
+            ((MainActivity) getActivity()).navigateTo(new FragmentPeerList(), true);
+
+        });
+
         loginBtn.setOnClickListener(view1 -> {
             Log.i("Fragment Landing", "login button pressed");
-            ((MainActivity) getActivity()).navigateTo(new FragmentLogin(), true);
+            ((MainActivity) getActivity()).navigateTo(new FragmentLogin(), false);
 
         });
 
         signupBtn.setOnClickListener(view1 -> {
             Log.i("Fragment Landing", "sign up button pressed");
-            ((MainActivity) getActivity()).navigateTo(new FragmentSignUp(), true);
+            ((MainActivity) getActivity()).navigateTo(new FragmentSignUp(), false);
         });
 
         return view;
