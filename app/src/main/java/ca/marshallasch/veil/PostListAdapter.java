@@ -56,6 +56,15 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
         this.posts = posts;
     }
 
+
+    /**
+     * This will refresh the posts that are in the list.
+     * @param posts the new list of posts to display.
+     */
+    public void update(List<DhtProto.Post> posts) {
+        this.posts = posts;
+    }
+
     /**
      * Creates the cell view if there is no existing cells available for recycler view can reuse.
      * @param parent the list that it belongs to

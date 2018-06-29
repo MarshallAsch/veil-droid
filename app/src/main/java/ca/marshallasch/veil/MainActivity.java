@@ -1,10 +1,12 @@
 package ca.marshallasch.veil;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -32,7 +34,9 @@ import static io.left.rightmesh.mesh.MeshManager.REMOVED;
 public class MainActivity extends AppCompatActivity implements MeshStateListener
 {
 
-    private static final int DATA_PORT = 9182;
+    public static final String NEW_DATA_BROADCAST = "ca.marshallasch.veil.NEW_DATA_BROADCAST";
+
+    public static final int DATA_PORT = 9182;
     // private static final int DISCOVERY_PORT = 9183;       // This port will be used for the DHT
                                                             // to keep all of that traffic separate
 
@@ -223,7 +227,8 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
      *
      * @param e event object from mesh
      */
-    private void handleDataReceived(RightMeshEvent e) {
+    private void handleDataReceived(RightMeshEvent e)
+    {
         // TODO: 2018-05-28 Add in logic to handle the incoming data
         final DataReceivedEvent event = (DataReceivedEvent) e;
 
@@ -240,11 +245,43 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
 
         if (type == Sync.SyncMessageType.HASH_DATA) {
 
-            Log.d("DATA_RECEIVE",  message.getData().toString());
+            Log.d("DATA_RECEIVE", message.getData().toString());
             dataStore.syncData(message.getData());
         } else if (type == Sync.SyncMessageType.MAPPING_MESSAGE) {
-            Log.d("DATA_RECEIVE_MAP",  message.getMapping().toString());
+            Log.d("DATA_RECEIVE_MAP", message.getMapping().toString());
+
             dataStore.syncDatabase(message.getMapping());
+
+            // notify anyone interested that the data store has been updated.
+            Intent intent = new Intent(NEW_DATA_BROADCAST);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        } else if (type == Sync.SyncMessageType.REQUEST_DATA) {
+
+            // if someone sent a message asking for data send a responce with everything
+
+            Sync.HashData hashData = dataStore.getDataStore();
+            Sync.MappingMessage mappingMessage = dataStore.getDatabase();
+
+            // send messages to the peer.
+            Sync.Message toSend = Sync.Message.newBuilder()
+                    .setType(Sync.SyncMessageType.HASH_DATA)
+                    .setData(hashData)
+                    .build();
+
+            try {
+                meshManager.sendDataReliable(event.peerUuid, DATA_PORT, toSend.toByteArray());
+
+                toSend = Sync.Message.newBuilder()
+                        .setType(Sync.SyncMessageType.MAPPING_MESSAGE)
+                        .setMapping(mappingMessage)
+                        .build();
+
+                meshManager.sendDataReliable(event.peerUuid, DATA_PORT, toSend.toByteArray());
+
+            }
+            catch (RightMeshException e1) {
+                e1.printStackTrace();
+            }
         }
     }
 
@@ -260,7 +297,6 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         if (event.state != REMOVED) {
             Log.d("FOUND", "found user: " + event.peerUuid);
 
-
             Sync.HashData hashData = dataStore.getDataStore();
             Sync.MappingMessage mappingMessage =  dataStore.getDatabase();
 
@@ -273,16 +309,11 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
                         .build();
                 meshManager.sendDataReliable(event.peerUuid, DATA_PORT, message.toByteArray());
 
-                Log.d("DATA_SEND",  message.getData().toString());
-
                 message = Sync.Message.newBuilder()
                         .setType(Sync.SyncMessageType.MAPPING_MESSAGE)
                         .setMapping(mappingMessage)
                         .build();
                 meshManager.sendDataReliable(event.peerUuid, DATA_PORT, message.toByteArray());
-
-                Log.d("DATA_SEND_MAP",  message.getMapping().toString());
-
             }
             catch (RightMeshException e1) {
                 e1.printStackTrace();
