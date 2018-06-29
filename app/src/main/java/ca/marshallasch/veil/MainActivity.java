@@ -52,10 +52,9 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //set the starting page to the landing fragment
-        navigateTo( new FragmentLanding(), false);
-
         dataStore = DataStore.getInstance(this);
+
+        navigateTo(new FragmentLanding(), false);
 
         // Gets an instance of the Android-specific MeshManager singleton.
         meshManager = AndroidMeshManager.getInstance(this, this);

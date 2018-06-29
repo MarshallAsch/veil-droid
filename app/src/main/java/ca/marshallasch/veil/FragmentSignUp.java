@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.design.button.MaterialButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,6 +55,20 @@ public class FragmentSignUp extends Fragment
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
         View view = inflater.inflate(R.layout.fragment_signup, container, false);
+        ((MainActivity) getActivity()).getSupportActionBar().hide();
+
+        // navigate back to the landing screen
+        view.setFocusableInTouchMode(true);
+        view.requestFocus();
+        view.setOnKeyListener((v, keyCode, event) -> {
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                if(keyCode == KeyEvent.KEYCODE_BACK) {
+                    ((MainActivity) getActivity()).navigateTo(new FragmentLanding(), false);
+                    return true;
+                }
+            }
+            return false;
+        });
 
         firstNameInput = view.findViewById(R.id.first_name_text_edit);
         lastNameInput = view.findViewById(R.id.last_name_text_edit);
@@ -66,7 +81,7 @@ public class FragmentSignUp extends Fragment
         MaterialButton done = view.findViewById(R.id.done_button);
 
         cancel.setOnClickListener(v -> {
-            getFragmentManager().popBackStack();
+            ((MainActivity) getActivity()).navigateTo(new FragmentLanding(), false);
             Util.hideKeyboard(v, getActivity());
         });
 
@@ -77,6 +92,14 @@ public class FragmentSignUp extends Fragment
         });
 
         return view;
+    }
+
+    @Override
+    public void onDestroyView(){
+        super.onDestroyView();
+
+        // return the action bar.
+        ((MainActivity) getActivity()).getSupportActionBar().show();
     }
 
     /**
@@ -129,7 +152,7 @@ public class FragmentSignUp extends Fragment
             Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.unknown_err, Snackbar.LENGTH_SHORT).show();
         } else {
             ((MainActivity) getActivity()).setCurrentUser(user);
-            ((MainActivity) getActivity()).navigateTo(new FragmentDashBoard(), true);
+            ((MainActivity) getActivity()).navigateTo(new FragmentDashBoard(), false);
         }
     }
 
