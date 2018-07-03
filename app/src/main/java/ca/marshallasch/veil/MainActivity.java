@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         try {
             super.onResume();
             meshManager.resume();
-        } catch (MeshService.ServiceDisconnectedException e) {
+        } catch (RightMeshException e) {
             e.printStackTrace();
         }
     }
@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         try {
             meshManager.stop();
         }
-        catch (MeshService.ServiceDisconnectedException e) {
+        catch (RightMeshException e) {
             e.printStackTrace();
         }
     }
@@ -133,6 +133,10 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
 
         // Handle item selection
         switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                getFragmentManager().popBackStack();
+                return true;
             case R.id.connected_peers:
                 frag = new FragmentPeerList();
                 break;

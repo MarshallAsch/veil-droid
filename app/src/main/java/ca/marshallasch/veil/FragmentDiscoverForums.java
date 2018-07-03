@@ -11,6 +11,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -58,6 +59,10 @@ public class FragmentDiscoverForums extends Fragment implements  SwipeRefreshLay
         Activity activity = getActivity();
         RecyclerView recyclerView = view.findViewById(R.id.list_view);
         recyclerView.setHasFixedSize(true);
+
+
+        ActionBar actionBar = ((MainActivity) activity).getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
 
         List<DhtProto.Post> posts = DataStore.getInstance(activity).getKnownPosts();
