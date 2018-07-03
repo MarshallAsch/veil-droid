@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         try {
             super.onResume();
             meshManager.resume();
-        } catch (MeshService.ServiceDisconnectedException e) {
+        } catch (RightMeshException e) {
             e.printStackTrace();
         }
     }
@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         try {
             meshManager.stop();
         }
-        catch (MeshService.ServiceDisconnectedException e) {
+        catch (RightMeshException e) {
             e.printStackTrace();
         }
     }
