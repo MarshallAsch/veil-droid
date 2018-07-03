@@ -105,7 +105,7 @@ dependencies {
 
 
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
-    implementation ('io.left.rightmesh:rightmesh-library-dev:0.7.0')
+    implementation 'io.left.rightmesh:rightmesh-library-dev:0.7.0'
     implementation 'com.android.support:multidex:1.0.3'
 
     implementation 'org.mindrot:jbcrypt:0.4'
