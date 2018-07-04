@@ -358,7 +358,10 @@ public class Util
      * compliment, it just needs to be something@something.something.else.
      * @return true if the email is valid otherwise false.
      */
-    public static boolean checkEmail(String email) {
-        return email.length() != 0 && email.matches("^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$");
+    public static boolean checkEmail(@Nullable String email) {
+
+        return email != null &&
+                email.length() != 0 &&
+                email.matches("^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$");
     }
 }
