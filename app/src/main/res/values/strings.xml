@@ -9,12 +9,17 @@
 
     <!-- Sign up page titles-->
     <string name="email_title">Email Address</string>
-    <string name="phone_title">Phone Number</string>
     <string name="password_title">Password</string>
     <string name="password_conf_title">Confirm Password</string>
     <string name="first_name_title">First Name</string>
     <string name="last_name_title">Last Name</string>
     <string name="sign_up_button_label">Sign Up</string>
+
+
+    <string name="password_old_title">Current Password</string>
+    <string name="password_new_title">New Password</string>
+    <string name="password_conf_new_title">Confirm New Password</string>
+
 
     <string name="password_requirements_label">At least 8 characters long, 1 uppercase, 1 lowercase, 1 number, and 1 special character</string>
 
@@ -38,7 +43,6 @@
     <string name="missing_name">Name is missing</string>
 
     <string name="invalid_email">Invalid Email Address</string>
-    <string name="invalid_phone_number">Invalid Phone Number</string>
 
     <string name="username_pass_not_match">Invalid username or password</string>
 
@@ -62,6 +66,7 @@
 
     <!-- Bundle keys -->
     <string name="post_object_key">post_object_key</string>
+    <string name="user_object_key">user_object_key</string>
 
     <!-- Shared preferences keys -->
     <string name="pref_notifications">pref_notifications</string>

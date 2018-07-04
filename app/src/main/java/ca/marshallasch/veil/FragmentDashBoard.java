@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import ca.marshallasch.veil.proto.DhtProto;
@@ -43,6 +44,7 @@ public class FragmentDashBoard extends Fragment {
         MaterialButton discoverForumsBtn = view.findViewById(R.id.discover_forums_btn);
         MaterialButton personalForumsBtn = view.findViewById(R.id.personal_forums_btn);
         FloatingActionButton newPostButton = view.findViewById(R.id.new_post);
+        Button manageAccount = view.findViewById(R.id.edit_profile_button);
 
         TextView name = view.findViewById(R.id.name);
         TextView emailAddress = view.findViewById(R.id.user_email);
@@ -54,6 +56,10 @@ public class FragmentDashBoard extends Fragment {
             name.setText(getString(R.string.full_name_placeholder, currentUser.getFirstName(), currentUser.getLastName()));
 
         }
+
+        manageAccount.setOnClickListener(view1 -> {
+            ((MainActivity) getActivity()).navigateTo(new FragmentAccountManagement(), true);
+        });
 
         logoutBtn.setOnClickListener(view1 -> {
             Log.i(TAG, "logout button pressed");

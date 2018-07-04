@@ -158,4 +158,12 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_add_black_24dp" />
 
+    <Button
+        android:id="@+id/edit_profile_button"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:background="@android:drawable/ic_menu_edit"
+        app:layout_constraintEnd_toEndOf="@+id/profile_img"
+        app:layout_constraintTop_toTopOf="@+id/profile_img"/>
+
 </android.support.constraint.ConstraintLayout>
