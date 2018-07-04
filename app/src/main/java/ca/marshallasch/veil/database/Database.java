@@ -535,6 +535,77 @@ public class Database extends SQLiteOpenHelper
         return numUpdated == 1;
     }
 
+    /**
+     * This function will update the email address associated with an account.
+     *
+     * Since this calls {@link #getWritableDatabase()}, do not call this from the main thread
+     * @param uuid the unique ID for the user
+     * @param newEmail the new email address for the user
+     * @return true if it was updated successfully
+     */
+    @WorkerThread
+    public boolean updateEmail(@Nullable String uuid, @Nullable  String newEmail) {
+
+        if (uuid == null || newEmail == null) {
+            return false;
+        }
+
+        // Filter results WHERE "userID" = 'My uuid'
+        String selection = UserEntry.COLUMN_ID + " = ?";
+        String[] selectionArgs = { uuid };
+
+        ContentValues values = new ContentValues();
+        values.put(UserEntry.COLUMN_EMAIL_ADDRESS, newEmail);
+
+        int numUpdated = getWritableDatabase().update(
+                UserEntry.TABLE_NAME,
+                values,
+                selection,
+                selectionArgs
+        );
+
+        // check if only 1 row got updated
+        return numUpdated == 1;
+    }
+
+
+    /**
+     * This function will update the name of the user in the database for the account.
+     *
+     * Since this calls {@link #getWritableDatabase()}, do not call this from the main thread
+     * @param uuid the unique ID for the user
+     * @param firstName the new first name
+     * @param lastName the new last name
+     * @return true if it is successful otherwise false
+     */
+    @WorkerThread
+    public boolean updateName(@Nullable String uuid, @Nullable  String firstName, @Nullable String lastName) {
+
+        if (uuid == null || firstName == null || lastName == null) {
+            return false;
+        }
+
+        // Filter results WHERE "userID" = 'My uuid'
+        String selection = UserEntry.COLUMN_ID + " = ?";
+        String[] selectionArgs = { uuid };
+
+        ContentValues values = new ContentValues();
+        values.put(UserEntry.COLUMN_FIRST_NAME, firstName);
+        values.put(UserEntry.COLUMN_LAST_NAME, lastName);
+
+        int numUpdated = getWritableDatabase().update(
+                UserEntry.TABLE_NAME,
+                values,
+                selection,
+                selectionArgs
+        );
+
+        // check if only 1 row got updated
+        return numUpdated == 1;
+    }
+
+
+
     // TODO: 2018-06-05 Add functions to export the user profile
     // TODO: 2018-06-05 Add function to import a user profile
     // TODO: 2018-06-05 Add A function to update the account information

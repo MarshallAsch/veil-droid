@@ -107,7 +107,7 @@ public class FragmentSignUp extends Fragment
             return;
         }
 
-        if (!checkEmail()) {
+        if (!Util.checkEmail(email)) {
             Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.invalid_email, Snackbar.LENGTH_SHORT).show();
             return;
         }
@@ -138,16 +138,5 @@ public class FragmentSignUp extends Fragment
             ((MainActivity) getActivity()).setCurrentUser(user);
             ((MainActivity) getActivity()).navigateTo(new FragmentDashBoard(), false);
         }
-    }
-
-    /**
-     * Simple check of the email format, Note that the email does not need to be  RFC 5322
-     * compliment, it just needs to be something@something.something.else.
-     * @return true if the email is valid otherwise false.
-     */
-    private boolean checkEmail() {
-        String email = emailAddressInput.getText().toString();
-
-        return email.length() != 0 && email.matches("^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$");
     }
 }

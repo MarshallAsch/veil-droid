@@ -353,4 +353,12 @@ public class Util
         return PasswordState.GOOD;
     }
 
+    /**
+     * Simple check of the email format, Note that the email does not need to be  RFC 5322
+     * compliment, it just needs to be something@something.something.else.
+     * @return true if the email is valid otherwise false.
+     */
+    public static boolean checkEmail(String email) {
+        return email.length() != 0 && email.matches("^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$");
+    }
 }
