@@ -45,7 +45,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "ca.marshallasch.veil"
-        minSdkVersion 16
+        minSdkVersion 18
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
@@ -103,6 +103,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     androidTestImplementation 'com.android.support.test:rules:1.0.2'
+    androidTestImplementation 'com.android.support.test.uiautomator:uiautomator-v18:2.1.3'
 
 
 }
