@@ -84,7 +84,7 @@
         app:layout_constraintStart_toStartOf="@+id/account_email_text"
         app:layout_constraintTop_toTopOf="@+id/account_password_label"/>
 
-    <Button
+    <ImageButton
         android:id="@+id/account_name_edit"
         android:layout_width="24dp"
         android:layout_height="24dp"
@@ -95,7 +95,7 @@
         app:layout_constraintStart_toEndOf="@+id/account_name_text"
         app:layout_constraintTop_toTopOf="@+id/account_name_text"/>
 
-    <Button
+    <ImageButton
         android:id="@+id/account_email_edit"
         android:layout_width="24dp"
         android:layout_height="24dp"
@@ -106,7 +106,7 @@
         app:layout_constraintStart_toEndOf="@+id/account_email_text"
         app:layout_constraintTop_toTopOf="@+id/account_email_text"/>
 
-    <Button
+    <ImageButton
         android:id="@+id/account_password_edit"
         android:layout_width="24dp"
         android:layout_height="24dp"
