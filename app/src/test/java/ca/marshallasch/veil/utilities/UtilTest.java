@@ -17,6 +17,12 @@ import ca.marshallasch.veil.MainActivity;
 import ca.marshallasch.veil.R;
 import ca.marshallasch.veil.proto.DhtProto;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import ca.marshallasch.veil.proto.DhtProto;
+
 /**
  * @author Marshall Asch
  * @version 1.0
@@ -182,4 +188,59 @@ public class UtilTest
         Assert.assertNull(userName);
         Assert.assertNull(password);
     }
+
+    @Test
+    public void generateHash(){
+        String strTestData = "Test Data";
+        String strTestData2 = "Test Data 2";
+        byte[] testData = strTestData.getBytes();
+        byte[] testData2 = strTestData2.getBytes();
+
+        //Assert that hashing is consistent for same data
+        Assert.assertEquals(Util.generateHash(testData), Util.generateHash(testData));
+        //Assert that hashing is different for different data
+        Assert.assertNotEquals(Util.generateHash(testData), Util.generateHash(testData2));
+        //Assert null for null input
+        Assert.assertNull(Util.generateHash(null));
+        //Assert null for empty byte array inpu
+        Assert.assertNull(Util.generateHash("".getBytes()));
+    }
+
+    @Test
+    public void createPost(){
+        String title = "Test Title";
+        String message = "Test message";
+        DhtProto.User testUser = DhtProto.User.newBuilder()
+                .setEmail("test@gmail.com")
+                .setFirstName("John")
+                .setLastName("Doe")
+                .setUuid(UUID.randomUUID().toString())
+                .build();
+
+        List<String> testTags = new ArrayList<>();
+        testTags.add("sample tag 1");
+        testTags.add("sample tag 2");
+
+        //create post w/ tags for testing
+        DhtProto.Post post = Util.createPost(title, message, testUser, testTags);
+
+        //Assert that post exists
+        Assert.assertNotNull(post);
+        //Assert that title equals
+        Assert.assertEquals(post.getTitle(), title);
+        //Assert that author names equal
+        Assert.assertEquals(post.getAuthorName(), testUser.getFirstName() + " " + testUser.getLastName());
+        //Assert that Author UUID equals
+        Assert.assertEquals(post.getAuthorId(), testUser.getUuid());
+        //Assert that tags counts are equal
+        Assert.assertEquals(post.getTagsCount(), testTags.size());
+        //Assert that each tag is equal
+        for(int i = 0; i < testTags.size(); i++){
+            Assert.assertEquals(post.getTags(i), testTags.get(i));
+        }
+
+
+
+    }
+
 }
