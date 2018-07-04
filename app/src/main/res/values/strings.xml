@@ -96,5 +96,16 @@
 
     <string name="anonymous">Anonymous</string>
 
+    <string name="account_settings">Account Settings</string>
+    <string name="full_name">Full Name</string>
+    <string name="edit_button_content_description">Edit Button</string>
+    <string name="new_email_label">New Email</string>
+    <string name="change_email">Change Email</string>
+    <string name="change_email_message">Please enter your new email</string>
+    <string name="change_name">Change Name</string>
+    <string name="change_name_message">Please enter your new name</string>
+
+
+
 
 </resources>

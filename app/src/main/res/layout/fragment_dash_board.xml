@@ -164,6 +164,7 @@
         android:layout_height="24dp"
         android:background="@android:drawable/ic_menu_edit"
         app:layout_constraintEnd_toEndOf="@+id/profile_img"
-        app:layout_constraintTop_toTopOf="@+id/profile_img"/>
+        app:layout_constraintTop_toTopOf="@+id/profile_img"
+        android:contentDescription="@string/edit_button_content_description"/>
 
 </android.support.constraint.ConstraintLayout>

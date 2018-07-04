@@ -6,7 +6,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -73,18 +72,15 @@ public class FragmentAccountManagement extends Fragment
 
             EditText editText = new EditText(activity);
 
-            editText.setHint("New email");
+            editText.setHint(R.string.new_email_label);
             builder.setView(editText);
-            builder.setTitle("Change Email");
-            builder.setMessage("Please enter your new email");
+            builder.setTitle(R.string.change_email);
+            builder.setMessage(R.string.change_email_message);
             builder.setCancelable(false);
-            builder.setNegativeButton("Cancel", (dialog, which) -> {
+            builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> {
                 // cancel do nothing
             });
-            builder.setPositiveButton("Save", (dialog, which) -> {
-                Log.d("BUTTON", "SAVE");
-
-
+            builder.setPositiveButton(R.string.save, (dialog, which) -> {
                 String newEmail = editText.getText().toString();
 
                 Database db = Database.getInstance(activity);
@@ -114,22 +110,22 @@ public class FragmentAccountManagement extends Fragment
             layout.setOrientation(LinearLayout.VERTICAL);
 
             EditText firstNameText = new EditText(activity);
-            firstNameText.setHint("FirstName");
+            firstNameText.setHint(R.string.first_name_title);
 
             EditText lastNameText = new EditText(activity);
-            lastNameText.setHint("LastName");
+            lastNameText.setHint(R.string.last_name_title);
 
             layout.addView(firstNameText);
             layout.addView(lastNameText);
             builder.setView(layout);
 
-            builder.setTitle("Change Email");
-            builder.setMessage("Please enter your new email");
+            builder.setTitle(R.string.change_name);
+            builder.setMessage(R.string.change_name_message);
             builder.setCancelable(false);
-            builder.setNegativeButton("Cancel", (dialog, which) -> {
+            builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> {
                 // cancel do nothing
             });
-            builder.setPositiveButton("Save", (dialog, which) -> {
+            builder.setPositiveButton(R.string.save, (dialog, which) -> {
 
                 String firstName = firstNameText.getText().toString();
                 String lastName = lastNameText.getText().toString();

@@ -15,7 +15,7 @@
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="33dp"
-        android:text="Account Settings"
+        android:text="@string/account_settings"
         android:textAppearance="@style/TextAppearance.AppCompat.Title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -29,7 +29,7 @@
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
-        android:text="Name"
+        android:text="@string/full_name"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/account_title"
@@ -93,7 +93,8 @@
         android:background="@android:drawable/ic_menu_edit"
         app:layout_constraintBottom_toBottomOf="@+id/account_name_text"
         app:layout_constraintStart_toEndOf="@+id/account_name_text"
-        app:layout_constraintTop_toTopOf="@+id/account_name_text"/>
+        app:layout_constraintTop_toTopOf="@+id/account_name_text"
+        android:contentDescription="@string/edit_button_content_description"/>
 
     <ImageButton
         android:id="@+id/account_email_edit"
@@ -104,7 +105,8 @@
         android:background="@android:drawable/ic_menu_edit"
         app:layout_constraintBottom_toBottomOf="@+id/account_email_text"
         app:layout_constraintStart_toEndOf="@+id/account_email_text"
-        app:layout_constraintTop_toTopOf="@+id/account_email_text"/>
+        app:layout_constraintTop_toTopOf="@+id/account_email_text"
+        android:contentDescription="@string/edit_button_content_description"/>
 
     <ImageButton
         android:id="@+id/account_password_edit"
@@ -115,6 +117,7 @@
         android:background="@android:drawable/ic_menu_edit"
         app:layout_constraintBottom_toBottomOf="@+id/account_password_text"
         app:layout_constraintStart_toEndOf="@+id/account_password_text"
-        app:layout_constraintTop_toTopOf="@+id/account_password_text"/>
+        app:layout_constraintTop_toTopOf="@+id/account_password_text"
+        android:contentDescription="@string/edit_button_content_description"/>
 
 </android.support.constraint.ConstraintLayout>
