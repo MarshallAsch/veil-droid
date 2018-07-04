@@ -202,8 +202,8 @@ public class UtilTest
         Assert.assertNotEquals(Util.generateHash(testData), Util.generateHash(testData2));
         //Assert null for null input
         Assert.assertNull(Util.generateHash(null));
-        //Assert null for empty byte array inpu
-        Assert.assertNull(Util.generateHash("".getBytes()));
+        //Assert non-null for empty byte array input
+        Assert.assertNotNull(Util.generateHash("".getBytes()));
     }
 
     @Test
@@ -238,9 +238,6 @@ public class UtilTest
         for(int i = 0; i < testTags.size(); i++){
             Assert.assertEquals(post.getTags(i), testTags.get(i));
         }
-
-
-
     }
 
 }
