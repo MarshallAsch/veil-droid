@@ -35,8 +35,8 @@ public class CommentComparatorTest
         CommentComparator comparator = new CommentComparator();
 
         Assert.assertEquals(0, comparator.compare(a, b));
-        Assert.assertEquals(-10, comparator.compare(a, c));
-        Assert.assertEquals(10, comparator.compare(c, a));
+        Assert.assertEquals(10, comparator.compare(a, c));
+        Assert.assertEquals(-10, comparator.compare(c, a));
 
     }
 }
