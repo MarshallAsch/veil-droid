@@ -160,11 +160,12 @@
 
     <ImageButton
         android:id="@+id/edit_profile_button"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:background="@android:drawable/ic_menu_edit"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:background="@drawable/edit_icon"
+        android:contentDescription="@string/edit_button_content_description"
+        android:tint="@color/white"
         app:layout_constraintEnd_toEndOf="@+id/profile_img"
-        app:layout_constraintTop_toTopOf="@+id/profile_img"
-        android:contentDescription="@string/edit_button_content_description"/>
+        app:layout_constraintTop_toTopOf="@+id/profile_img"/>
 
 </android.support.constraint.ConstraintLayout>
