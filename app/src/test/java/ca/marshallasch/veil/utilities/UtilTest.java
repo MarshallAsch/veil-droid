@@ -227,16 +227,16 @@ public class UtilTest
         //Assert that post exists
         Assert.assertNotNull(post);
         //Assert that title equals
-        Assert.assertEquals(post.getTitle(), title);
+        Assert.assertEquals(title, post.getTitle());
         //Assert that author names equal
-        Assert.assertEquals(post.getAuthorName(), testUser.getFirstName() + " " + testUser.getLastName());
+        Assert.assertEquals(testUser.getFirstName() + " " + testUser.getLastName(),post.getAuthorName());
         //Assert that Author UUID equals
-        Assert.assertEquals(post.getAuthorId(), testUser.getUuid());
+        Assert.assertEquals(testUser.getUuid(), post.getAuthorId());
         //Assert that tags counts are equal
-        Assert.assertEquals(post.getTagsCount(), testTags.size());
+        Assert.assertEquals(testTags.size(), post.getTagsCount());
         //Assert that each tag is equal
         for(int i = 0; i < testTags.size(); i++){
-            Assert.assertEquals(post.getTags(i), testTags.get(i));
+            Assert.assertEquals(testTags.get(i),post.getTags(i));
         }
     }
 
