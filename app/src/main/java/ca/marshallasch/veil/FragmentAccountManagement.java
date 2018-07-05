@@ -4,13 +4,13 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.button.MaterialButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -49,9 +49,9 @@ public class FragmentAccountManagement extends Fragment
         TextView email = view.findViewById(R.id.account_email_text);
 
         // edit buttons
-        ImageButton editName = view.findViewById(R.id.account_name_edit);
-        ImageButton editEmail = view.findViewById(R.id.account_email_edit);
-        ImageButton editPassword = view.findViewById(R.id.account_password_edit);
+        MaterialButton editName = view.findViewById(R.id.account_name_edit);
+        MaterialButton editEmail = view.findViewById(R.id.account_email_edit);
+        MaterialButton editPassword = view.findViewById(R.id.account_password_edit);
 
         fullName.setText(getString(R.string.full_name_placeholder, currentUser.getFirstName(), currentUser.getLastName()));
         email.setText(currentUser.getEmail());
