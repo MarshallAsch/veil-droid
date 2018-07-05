@@ -70,10 +70,10 @@ public class FragmentAccountManagement extends Fragment
         editEmail.setOnClickListener((View view1) -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 
-            EditText editText = new EditText(activity);
+            EditText emailTextInput = new EditText(activity);
 
-            editText.setHint(R.string.new_email_label);
-            builder.setView(editText);
+            emailTextInput.setHint(R.string.new_email_label);
+            builder.setView(emailTextInput);
             builder.setTitle(R.string.change_email);
             builder.setMessage(R.string.change_email_message);
             builder.setCancelable(false);
@@ -81,7 +81,7 @@ public class FragmentAccountManagement extends Fragment
                 // cancel do nothing
             });
             builder.setPositiveButton(R.string.save, (dialog, which) -> {
-                String newEmail = editText.getText().toString();
+                String newEmail = emailTextInput.getText().toString();
 
                 Database db = Database.getInstance(activity);
                 boolean status = db.updateEmail(currentUser.getUuid(), newEmail);
