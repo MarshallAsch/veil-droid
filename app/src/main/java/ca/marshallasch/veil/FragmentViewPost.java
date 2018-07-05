@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -34,6 +35,8 @@ public class FragmentViewPost extends Fragment {
 
     private CommentListAdapter listAdapter;
 
+    private Activity activity;
+
     public FragmentViewPost() {
         // Required empty public constructor
     }
@@ -42,7 +45,12 @@ public class FragmentViewPost extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_view_post, container, false);
 
-        getActivity().getSupportFragmentManager().addOnBackStackChangedListener(listener);
+        activity = getActivity();
+        ((MainActivity) activity).getSupportFragmentManager().addOnBackStackChangedListener(listener);
+
+        ActionBar actionBar = ((MainActivity) activity).getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+
 
         //retrieve passed bundle from the PostListAdapter Class
         Bundle bundle = this.getArguments();
@@ -82,12 +90,11 @@ public class FragmentViewPost extends Fragment {
         }
 
         //recycler view logic for displaying comments
-        Activity activity = getActivity();
         RecyclerView recyclerView = view.findViewById(R.id.comment_list);
         recyclerView.setHasFixedSize(true);
 
         // load the actual comments for the post
-        List<DhtProto.Comment> comments = DataStore.getInstance(getActivity()).getCommentsForPost(postObject.getUuid());
+        List<DhtProto.Comment> comments = DataStore.getInstance(activity).getCommentsForPost(postObject.getUuid());
 
         //Setting the recycler view to hold comments for the post
         LinearLayoutManager linearLayoutManager  = new LinearLayoutManager(activity);
@@ -104,7 +111,7 @@ public class FragmentViewPost extends Fragment {
             addCommentBundle.putByteArray(getString(R.string.post_object_key), postObject.toByteArray());
             addCommentFragment.setArguments(addCommentBundle);
 
-            ((MainActivity) getActivity()).animateFragmentSlide(addCommentFragment, true);
+            ((MainActivity) activity).animateFragmentSlide(addCommentFragment, true);
         });
 
         return view;
@@ -115,7 +122,7 @@ public class FragmentViewPost extends Fragment {
     {
         super.onDestroyView();
 
-        getActivity().getSupportFragmentManager().removeOnBackStackChangedListener(listener);
+        ((MainActivity) activity).getSupportFragmentManager().removeOnBackStackChangedListener(listener);
     }
 
     /**
@@ -127,7 +134,7 @@ public class FragmentViewPost extends Fragment {
         public void onBackStackChanged()
         {
             // update the comment list
-            listAdapter.update(DataStore.getInstance(getActivity()).getCommentsForPost(postObject.getUuid()));
+            listAdapter.update(DataStore.getInstance(activity).getCommentsForPost(postObject.getUuid()));
             listAdapter.notifyDataSetChanged();
         }
     };

@@ -133,6 +133,10 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
 
         // Handle item selection
         switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                getSupportFragmentManager().popBackStack();
+                return true;
             case R.id.connected_peers:
                 frag = new FragmentPeerList();
                 break;

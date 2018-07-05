@@ -95,6 +95,11 @@ public class Util
     @Nullable
     public static String generateHash(byte[] data) {
 
+        //handle null data
+        if (data == null){
+            return null;
+        }
+
         byte[] hash;
         StringBuilder hashStr = new StringBuilder();
         try {
