@@ -1,5 +1,6 @@
 package ca.marshallasch.veil;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -24,6 +25,8 @@ import ca.marshallasch.veil.utilities.Util;
  */
 public class CommentListAdapter extends RecyclerView.Adapter<CommentListAdapter.ViewHolder> {
     private List<DhtProto.Comment> commentList;
+
+    private Context context;
 
     /**
      *  This is the cell for each comment in the comment list
@@ -50,10 +53,14 @@ public class CommentListAdapter extends RecyclerView.Adapter<CommentListAdapter.
      *
      * @param comments the list of comments to display
      */
-    public CommentListAdapter(List<DhtProto.Comment> comments){
+    public CommentListAdapter(Context context, List<DhtProto.Comment> comments){
         this.commentList = comments;
+        this.context = context;
     }
 
+    public void update(List<DhtProto.Comment> comments) {
+        this.commentList = comments;
+    }
 
     /**
      * Creates the cell view if there is no exiting cells available for the recycler view to use
@@ -75,9 +82,13 @@ public class CommentListAdapter extends RecyclerView.Adapter<CommentListAdapter.
      */
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
-        holder.authorName.setText(commentList.get(position).getAuthorName());
-        holder.content.setText(commentList.get(position).getMessage());
-        holder.date.setText(Util.timestampToDate(commentList.get(position).getTimestamp()).toString());
+
+        DhtProto.Comment comment = commentList.get(position);
+        String aythorName = comment.getAnonymous() ? context.getString(R.string.anonymous) : comment.getAuthorName();
+
+        holder.authorName.setText(aythorName);
+        holder.content.setText(comment.getMessage());
+        holder.date.setText(Util.timestampToDate(comment.getTimestamp()).toString());
 
     }
 

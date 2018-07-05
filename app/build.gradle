@@ -91,11 +91,22 @@ protobuf {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:appcompat-v7:28.0.0-alpha1'
+
+
+    implementation 'com.android.support:appcompat-v7:28.0.0-alpha3'
+    implementation 'com.android.support:customtabs:28.0.0-alpha3'
+    implementation 'com.android.support:support-vector-drawable:28.0.0-alpha3'
+    implementation 'com.android.support:support-media-compat:28.0.0-alpha3'
+    implementation 'com.android.support:support-v4:28.0.0-alpha3'
+
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
-    implementation ('io.left.rightmesh:rightmesh-library-dev:0.6.0')
     implementation 'com.android.support:multidex:1.0.3'
-    implementation 'com.android.support:design:28.0.0-alpha1'
+    implementation 'com.android.support:design:28.0.0-alpha3'
+
+
+    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
+    implementation ('io.left.rightmesh:rightmesh-library-dev:0.7.0')
+    implementation 'com.android.support:multidex:1.0.3'
 
     implementation 'org.mindrot:jbcrypt:0.4'
 

@@ -402,9 +402,13 @@ public class Database extends SQLiteOpenHelper
      * @param password the users plain text password for the account
      * @return {@link DhtProto.User} object that contains all the account information for the user.
      */
+    @Nullable
     @WorkerThread
-    public DhtProto.User login(String email, String password) {
+    public DhtProto.User login(@Nullable String email,@Nullable  String password) {
 
+        if (email == null || password == null) {
+            return null;
+        }
         String[] projection = {
                 UserEntry.COLUMN_ID,
                 UserEntry.COLUMN_EMAIL_ADDRESS,
