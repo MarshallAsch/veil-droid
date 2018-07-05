@@ -10,6 +10,7 @@ import "dht.proto";
 enum SyncMessageType {
     MAPPING_MESSAGE = 0;
     HASH_DATA = 1;
+    REQUEST_DATA = 2;
 }
 
 // message wrapper for all messages so that the correct one can be recreated
