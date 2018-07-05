@@ -1,12 +1,14 @@
 package ca.marshallasch.veil;
 
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.button.MaterialButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +34,9 @@ public class FragmentCreatePost extends Fragment
     private EditText tagsInput;
     private CheckBox anonymousInput;
 
-    DhtProto.User currentUser;
+    private DhtProto.User currentUser;
+
+    private Activity activity;
 
     public FragmentCreatePost() {
         // Required empty public constructor
@@ -44,6 +48,10 @@ public class FragmentCreatePost extends Fragment
     {
         View view =  inflater.inflate(R.layout.fragment_create_post, container,false);
 
+        activity = getActivity();
+        ActionBar actionBar = ((MainActivity) activity).getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+
         titleInput = view.findViewById(R.id.title_text_edit);
         messageInput = view.findViewById(R.id.post_message);
         tagsInput = view.findViewById(R.id.tags_text_edit);
@@ -53,15 +61,15 @@ public class FragmentCreatePost extends Fragment
         MaterialButton cancel = view.findViewById(R.id.cancel_button);
 
         // get the current logged in user
-        currentUser = ((MainActivity) getActivity()).getCurrentUser();
+        currentUser = ((MainActivity) activity).getCurrentUser();
 
         cancel.setOnClickListener(view1 -> {
-            Util.hideKeyboard(view1, getActivity());
+            Util.hideKeyboard(view1, activity);
             getFragmentManager().popBackStack();
         });
 
         submit.setOnClickListener(view1 -> {
-            Util.hideKeyboard(view1, getActivity());
+            Util.hideKeyboard(view1, activity);
             boolean status = submitPost();
 
             // if it was successful then go to the dashboard
@@ -99,7 +107,7 @@ public class FragmentCreatePost extends Fragment
         if (dataStore.savePost(post)) {
             return true;
         } else {
-            Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.failed_to_save_data, Snackbar.LENGTH_SHORT).show();
+            Snackbar.make(activity.findViewById(R.id.top_view), R.string.failed_to_save_data, Snackbar.LENGTH_SHORT).show();
             return false;
         }
     }

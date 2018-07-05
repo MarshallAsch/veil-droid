@@ -31,6 +31,7 @@ public class FragmentLanding extends Fragment {
         // hides the menu bar at the top so you have a full screen landing page
         ((MainActivity) getActivity()).getSupportActionBar().hide();
 
+
         View view = inflater.inflate(R.layout.fragment_landing, container,false);
 
         // buttons and event listeners
