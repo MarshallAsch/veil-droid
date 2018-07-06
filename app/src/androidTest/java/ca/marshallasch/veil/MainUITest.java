@@ -29,15 +29,24 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
 
+/**
+ * This class automates the tests for the UI components on the application.
+ * @author Weihan Li
+ * @version 1.0
+ * @since 2018-07-05
+ */
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public class MainUITest {
 
+    //start activity before testing
     @Rule
     public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class);
 
+    //actual tests
     @Test
     public void mainUITest() {
+        //on the start page click the sign up button
         ViewInteraction materialButton = onView(
                 allOf(withId(R.id.sign_up_btn), withText("Sign Up"),
                         childAtPosition(
@@ -47,6 +56,7 @@ public class MainUITest {
                                 1)));
         materialButton.perform(scrollTo(), click());
 
+        //on the SignUp page click and add the string "John" to the first name text edit
         ViewInteraction textInputEditText = onView(
                 allOf(withId(R.id.first_name_text_edit),
                         childAtPosition(
@@ -57,6 +67,7 @@ public class MainUITest {
                         isDisplayed()));
         textInputEditText.perform(replaceText("John"), closeSoftKeyboard());
 
+        //on the SignUp page click and add the string "Doe" to the last name text edit
         ViewInteraction textInputEditText2 = onView(
                 allOf(withId(R.id.last_name_text_edit),
                         childAtPosition(
@@ -67,6 +78,7 @@ public class MainUITest {
                         isDisplayed()));
         textInputEditText2.perform(replaceText("Doe"), closeSoftKeyboard());
 
+        //on the SignUp page click and add the string "john@gmail.com" to the email text edit
         ViewInteraction textInputEditText3 = onView(
                 allOf(withId(R.id.email_text_edit),
                         childAtPosition(
@@ -76,6 +88,7 @@ public class MainUITest {
                                 0)));
         textInputEditText3.perform(scrollTo(), replaceText("john@gmail.com"), closeSoftKeyboard());
 
+        //on the SignUp page click and add the string "5192263535" to the phone text edit
         ViewInteraction textInputEditText4 = onView(
                 allOf(withId(R.id.phone_text_edit),
                         childAtPosition(
@@ -85,6 +98,7 @@ public class MainUITest {
                                 0)));
         textInputEditText4.perform(scrollTo(), replaceText("5192263535"), closeSoftKeyboard());
 
+        //on the SignUp page click and add the string "Symfony65!" to the password text edit
         ViewInteraction textInputEditText5 = onView(
                 allOf(withId(R.id.password_text_edit),
                         childAtPosition(
@@ -94,6 +108,7 @@ public class MainUITest {
                                 0)));
         textInputEditText5.perform(scrollTo(), replaceText("Symfony65!"), closeSoftKeyboard());
 
+        //on the SignUp page click and add the string "Symfony65!" to the confirm password text edit
         ViewInteraction textInputEditText6 = onView(
                 allOf(withId(R.id.password_conf_text_edit),
                         childAtPosition(
@@ -103,6 +118,7 @@ public class MainUITest {
                                 0)));
         textInputEditText6.perform(scrollTo(), replaceText("Symfony65!"), closeSoftKeyboard());
 
+        //on the SignUp page click the sign up button
         ViewInteraction materialButton2 = onView(
                 allOf(withId(R.id.done_button), withText("Sign Up"),
                         childAtPosition(
@@ -112,6 +128,7 @@ public class MainUITest {
                                 1)));
         materialButton2.perform(scrollTo(), click());
 
+        //On the Dashboard page click the add new post button
         ViewInteraction floatingActionButton = onView(
                 allOf(withId(R.id.new_post),
                         childAtPosition(
@@ -122,6 +139,7 @@ public class MainUITest {
                         isDisplayed()));
         floatingActionButton.perform(click());
 
+        //On the create a post page add the string "Post" to the title parameter
         ViewInteraction textInputEditText7 = onView(
                 allOf(withId(R.id.title_text_edit),
                         childAtPosition(
@@ -131,6 +149,7 @@ public class MainUITest {
                                 0)));
         textInputEditText7.perform(scrollTo(), replaceText("Post"), closeSoftKeyboard());
 
+        //On the create a post page add the string "test,john" to the tags parameter
         ViewInteraction textInputEditText8 = onView(
                 allOf(withId(R.id.tags_text_edit),
                         childAtPosition(
@@ -140,6 +159,7 @@ public class MainUITest {
                                 0)));
         textInputEditText8.perform(scrollTo(), replaceText("test,john"), closeSoftKeyboard());
 
+        //on the create post page check the Anonymous option
         ViewInteraction appCompatCheckBox = onView(
                 allOf(withId(R.id.anonymous), withText("Anonymous"),
                         childAtPosition(
@@ -149,6 +169,7 @@ public class MainUITest {
                                 7)));
         appCompatCheckBox.perform(scrollTo(), click());
 
+        //on the create post page uncheck the Anonymous option
         ViewInteraction appCompatCheckBox2 = onView(
                 allOf(withId(R.id.anonymous), withText("Anonymous"),
                         childAtPosition(
@@ -158,6 +179,7 @@ public class MainUITest {
                                 7)));
         appCompatCheckBox2.perform(scrollTo(), click());
 
+        //on the create re-check the Anonymous option
         ViewInteraction appCompatCheckBox3 = onView(
                 allOf(withId(R.id.anonymous), withText("Anonymous"),
                         childAtPosition(
@@ -167,6 +189,7 @@ public class MainUITest {
                                 7)));
         appCompatCheckBox3.perform(scrollTo(), click());
 
+        //on the create post page add the string "This is a test" to the content parameter
         ViewInteraction appCompatEditText = onView(
                 allOf(withId(R.id.post_message),
                         childAtPosition(
@@ -176,6 +199,7 @@ public class MainUITest {
                                 2)));
         appCompatEditText.perform(scrollTo(), replaceText("This is a test."), closeSoftKeyboard());
 
+        //on the create post page press the post button
         ViewInteraction materialButton3 = onView(
                 allOf(withId(R.id.save), withText("Save"),
                         childAtPosition(
@@ -185,6 +209,7 @@ public class MainUITest {
                                 6)));
         materialButton3.perform(scrollTo(), click());
 
+        //on the dashboard page click the Discover Forums button
         ViewInteraction materialButton4 = onView(
                 allOf(withId(R.id.discover_forums_btn), withText("Discover Forums"),
                         childAtPosition(
@@ -195,6 +220,7 @@ public class MainUITest {
                         isDisplayed()));
         materialButton4.perform(click());
 
+        //on the Discover Forums page click view on the newly created post
         ViewInteraction materialButton5 = onView(
                 allOf(withId(R.id.view_btn), withText("View"),
                         childAtPosition(
@@ -205,6 +231,7 @@ public class MainUITest {
                         isDisplayed()));
         materialButton5.perform(click());
 
+        //on the view post page click the comment bar to add a comment
         ViewInteraction appCompatImageView = onView(
                 allOf(withId(R.id.comment_bar),
                         childAtPosition(
@@ -215,6 +242,7 @@ public class MainUITest {
                         isDisplayed()));
         appCompatImageView.perform(click());
 
+        //in the create a comment page add the string "test comment" to the comment content param
         ViewInteraction appCompatEditText2 = onView(
                 allOf(withId(R.id.post_message),
                         childAtPosition(
@@ -224,6 +252,7 @@ public class MainUITest {
                                 2)));
         appCompatEditText2.perform(scrollTo(), replaceText("test comment"), closeSoftKeyboard());
 
+        //in the create a comment page uncheck the Anonymous option
         ViewInteraction appCompatCheckBox4 = onView(
                 allOf(withId(R.id.anonymous), withText("Anonymous"),
                         childAtPosition(
@@ -233,6 +262,7 @@ public class MainUITest {
                                 4)));
         appCompatCheckBox4.perform(scrollTo(), click());
 
+        //in the create a comment page click the post button
         ViewInteraction materialButton6 = onView(
                 allOf(withId(R.id.post_comment_btn), withText("Post"),
                         childAtPosition(
@@ -242,10 +272,17 @@ public class MainUITest {
                                 3)));
         materialButton6.perform(scrollTo(), click());
 
+        //press back to return to dashboard page
         pressBack();
 
     }
 
+    /**
+     * This is a helper functions for accessing child views.
+     * @param parentMatcher the matcher that holds thes child views
+     * @param position the index at which child view is to be used
+     * @return
+     */
     private static Matcher<View> childAtPosition(
             final Matcher<View> parentMatcher, final int position) {
 
