@@ -462,6 +462,150 @@ public class Database extends SQLiteOpenHelper
         return user;
     }
 
+
+    /**
+     * This function will find the user with the username and password then update the password.
+     *
+     * Since this calls {@link #getWritableDatabase()}, do not call this from the main thread
+     * @param email the email address for the account to update
+     * @param oldPassword the current password for the account to update
+     * @param newPassword the new password
+     * @return true if it updates successfully, false if something unexpected happens
+     */
+    @WorkerThread
+    public boolean updatePassword(@Nullable  String email, @Nullable String oldPassword, @Nullable String newPassword) {
+
+        if (email == null || oldPassword == null || newPassword == null) {
+            return false;
+        }
+
+
+        // hash the new password
+        String passHash =  BCrypt.hashpw(newPassword, BCrypt.gensalt(10));
+
+        int numUpdated = 0;
+
+        // going to check if the old password finds a match
+        String[] projection = {
+                UserEntry._ID,
+                UserEntry.COLUMN_PASSWORD
+        };
+
+        // Filter results WHERE "email address" = 'My email'
+        String selection = UserEntry.COLUMN_EMAIL_ADDRESS + " = ?";
+        String[] selectionArgs = { email };
+
+        Cursor cursor = getReadableDatabase().query(
+                UserEntry.TABLE_NAME,   // The table to query
+                projection,             // The array of columns to return (pass null to get all)
+                selection,              // The columns for the WHERE clause
+                selectionArgs,          // The values for the WHERE clause
+                null,          // don't group the rows
+                null,           // don't filter by row groups
+                null           // don't sort the rows
+        );
+
+        // check each of the accounts that have the same email address.
+        while(cursor.moveToNext()) {
+            String passwordHash = cursor.getString(cursor.getColumnIndexOrThrow(UserEntry.COLUMN_PASSWORD));
+            int userRowID = cursor.getInt(cursor.getColumnIndexOrThrow(UserEntry._ID));
+
+            // check if the passwords match, only until first match has its password changed
+            if (BCrypt.checkpw(oldPassword, passwordHash)) {
+
+                selection = UserEntry._ID + " = ?";
+                selectionArgs = new String[]{ String.valueOf(userRowID)};
+
+                ContentValues values = new ContentValues();
+                values.put(UserEntry.COLUMN_PASSWORD, passHash);
+
+                numUpdated = getWritableDatabase().update(
+                        UserEntry.TABLE_NAME,
+                        values,
+                        selection,
+                        selectionArgs
+                    );
+
+                break;
+            }
+        }
+        cursor.close();
+
+        // check if only 1 row got updated
+        return numUpdated == 1;
+    }
+
+    /**
+     * This function will update the email address associated with an account.
+     *
+     * Since this calls {@link #getWritableDatabase()}, do not call this from the main thread
+     * @param uuid the unique ID for the user
+     * @param newEmail the new email address for the user
+     * @return true if it was updated successfully
+     */
+    @WorkerThread
+    public boolean updateEmail(@Nullable String uuid, @Nullable  String newEmail) {
+
+        if (uuid == null || newEmail == null) {
+            return false;
+        }
+
+        // Filter results WHERE "userID" = 'My uuid'
+        String selection = UserEntry.COLUMN_ID + " = ?";
+        String[] selectionArgs = { uuid };
+
+        ContentValues values = new ContentValues();
+        values.put(UserEntry.COLUMN_EMAIL_ADDRESS, newEmail);
+
+        int numUpdated = getWritableDatabase().update(
+                UserEntry.TABLE_NAME,
+                values,
+                selection,
+                selectionArgs
+        );
+
+        // check if only 1 row got updated
+        return numUpdated == 1;
+    }
+
+
+    /**
+     * This function will update the name of the user in the database for the account.
+     *
+     * Since this calls {@link #getWritableDatabase()}, do not call this from the main thread
+     * @param uuid the unique ID for the user
+     * @param firstName the new first name
+     * @param lastName the new last name
+     * @return true if it is successful otherwise false
+     */
+    @WorkerThread
+    public boolean updateName(@Nullable String uuid, @Nullable  String firstName, @Nullable String lastName) {
+
+        if (uuid == null || firstName == null || lastName == null) {
+            return false;
+        }
+
+        // Filter results WHERE "userID" = 'My uuid'
+        String selection = UserEntry.COLUMN_ID + " = ?";
+        String[] selectionArgs = { uuid };
+
+        ContentValues values = new ContentValues();
+        values.put(UserEntry.COLUMN_FIRST_NAME, firstName);
+        values.put(UserEntry.COLUMN_LAST_NAME, lastName);
+
+        int numUpdated = getWritableDatabase().update(
+                UserEntry.TABLE_NAME,
+                values,
+                selection,
+                selectionArgs
+        );
+
+        // check if only 1 row got updated
+        return numUpdated == 1;
+    }
+
+
+
     // TODO: 2018-06-05 Add functions to export the user profile
     // TODO: 2018-06-05 Add function to import a user profile
     // TODO: 2018-06-05 Add A function to update the account information

@@ -311,4 +311,62 @@ public class Util
 
         return comment;
     }
+
+
+    /**
+     * This checks that the passwords that have been entered match and meet the
+     * minimum complexity requirements.
+     * @param password      the password that the user entered
+     * @param passwordConf  the confirmation of the password
+     * @return {@link PasswordState}
+     */
+    public static PasswordState checkPasswords(@NonNull String password, @NonNull String passwordConf)
+    {
+        if (password.length() == 0 || passwordConf.length() == 0) {
+            return PasswordState.MISSING;
+        }
+
+        int numUpper = 0;
+        int numLower = 0;
+        int numDigit = 0;
+        int numSpecial = 0;
+        int length = password.length();
+
+        // make sure that they match before checking complexity
+        if (!password.equals(passwordConf)) {
+            return PasswordState.MISMATCH;
+        }
+
+        // check complexity
+        for (int i = 0; i < length; i++) {
+
+            if (Character.isUpperCase(password.charAt(i))) {
+                numUpper++;
+            } else if (Character.isLowerCase(password.charAt(i))) {
+                numLower++;
+            } else if (Character.isDigit(password.charAt(i))) {
+                numDigit++;
+            } else if (Character.getType(password.charAt(i)) == Character.OTHER_PUNCTUATION) {
+                numSpecial++;
+            }
+        }
+
+        if (length < 8 || numUpper == 0 || numLower == 0 || numDigit == 0 || numSpecial == 0) {
+            return PasswordState.TOO_SIMPLE;
+        }
+
+        return PasswordState.GOOD;
+    }
+
+    /**
+     * Simple check of the email format, Note that the email does not need to be  RFC 5322
+     * compliment, it just needs to be something@something.something.else.
+     * @return true if the email is valid otherwise false.
+     */
+    public static boolean checkEmail(@Nullable String email) {
+
+        return email != null &&
+                email.length() != 0 &&
+                email.matches("^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$");
+    }
 }
