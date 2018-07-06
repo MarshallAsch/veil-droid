@@ -1,10 +1,12 @@
 package ca.marshallasch.veil;
 
+import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.button.MaterialButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,8 +41,14 @@ public class FragmentAddComment extends android.support.v4.app.Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_add_comment, container, false);
+
+        Activity activity = getActivity();
+        ActionBar actionBar = ((MainActivity) activity).getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+
         //setting a white background for overlaying the view post fragment
         view.setBackgroundColor(Color.WHITE);
+
         //retrieve passed bundle from the FragmentViewPost Class
         Bundle bundle = this.getArguments();
 
@@ -56,7 +64,7 @@ public class FragmentAddComment extends android.support.v4.app.Fragment {
             e.printStackTrace();
         }
 
-        currentUser = ((MainActivity) getActivity()).getCurrentUser();
+        currentUser = ((MainActivity) activity).getCurrentUser();
 
         TextView postTitle = view.findViewById(R.id.post_title);
 
@@ -76,7 +84,7 @@ public class FragmentAddComment extends android.support.v4.app.Fragment {
 
         //Handle cancel button
         cancelBtn.setOnClickListener(view1 -> {
-            Util.hideKeyboard(view1, getActivity());
+            Util.hideKeyboard(view1, activity);
             getFragmentManager().popBackStack();
         });
 
@@ -88,17 +96,17 @@ public class FragmentAddComment extends android.support.v4.app.Fragment {
 
             // the message can not be empty
             if (message.length() == 0) {
-                Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.comment_too_short, Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(activity.findViewById(R.id.top_view), R.string.comment_too_short, Snackbar.LENGTH_SHORT).show();
                 return;
             }
 
             DhtProto.Comment comment = Util.createComment(message, currentUser, anonymous);
 
             // save to the data store
-            DataStore.getInstance(getActivity()).saveComment(comment, postObject);
+            DataStore.getInstance(activity).saveComment(comment, postObject);
 
             // go back to the post view screen
-            Util.hideKeyboard(view1, getActivity());
+            Util.hideKeyboard(view1, activity);
             getFragmentManager().popBackStack();
 
         });
