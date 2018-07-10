@@ -10,6 +10,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.Launcher" >
+        <service
+            android:name="ca.marshallasch.veil.services.VeilService"
+            android:description="Rightmesh service" />
         <activity
             android:name=".MainActivity"
             android:windowSoftInputMode="adjustResize">
