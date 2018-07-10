@@ -38,7 +38,10 @@ public class FragmentDashBoard extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)  {
-        // hides the menu bar at the top so you have a full screen landing page
+
+        // return the action bar.
+        ((MainActivity) getActivity()).getSupportActionBar().show();
+
         View view = inflater.inflate(R.layout.fragment_dash_board, container,false);
 
         Activity activity = getActivity();

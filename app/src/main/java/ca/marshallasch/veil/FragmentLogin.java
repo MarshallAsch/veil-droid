@@ -40,8 +40,7 @@ public class FragmentLogin extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)  {
-        // hides the menu bar at the top so you have a full screen landing page
-        ((MainActivity) getActivity()).getSupportActionBar().hide();
+
 
         View view = inflater.inflate(R.layout.fragment_login, container,false);
 
@@ -126,12 +125,5 @@ public class FragmentLogin extends Fragment {
         });
 
         return view;
-    }
-
-
-    @Override
-    public void onDestroyView(){
-        super.onDestroyView();
-        ((MainActivity) getActivity()).getSupportActionBar().show();
     }
 }
