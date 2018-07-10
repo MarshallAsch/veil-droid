@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.util.Pair;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -34,11 +35,9 @@ final class Migrations
         db.execSQL("DROP TABLE IF EXISTS " + KnownPostsContract.KnownPostsEntry.TABLE_NAME);
     }
 
-
     static void upgradeV6(SQLiteDatabase db){
 
         // need to get the old values from the table
-
         List<Pair<String, String>> knownPosts = new ArrayList<>();
 
 
@@ -85,6 +84,66 @@ final class Migrations
 
             // note this is a potentially long running operation.
              db.insert(KnownPostsContract.KnownPostsEntry.TABLE_NAME, null, values);
+
+        }
+    }
+
+
+    /**
+     * The table for knownPosts was renamed and an extra column was added.
+     * @param db the database object
+     */
+    static void upgradeV7(SQLiteDatabase db) {
+
+        List<Pair<String, String>> knownPosts = new ArrayList<>();
+
+
+        String[] projection = {
+                KnownPostsContract.KnownPostsEntry.COLUMN_POST_HASH,
+                KnownPostsContract.KnownPostsEntry.COLUMN_COMMENT_HASH
+        };
+
+
+        Cursor cursor = db.query(
+                "KnownPostsContract",   // The table to query
+                projection,             // The array of columns to return (pass null to get all)
+                null,              // The columns for the WHERE clause
+                null,          // The values for the WHERE clause
+                null,          // don't group the rows
+                null,           // don't filter by row groups
+                null          // don't sort
+        );
+
+        String postHash;
+        String commentHash;
+
+        // get each post hash that is in the list
+        while(cursor.moveToNext()) {
+            postHash = cursor.getString(cursor.getColumnIndexOrThrow(KnownPostsContract.KnownPostsEntry.COLUMN_POST_HASH));
+            commentHash = cursor.getString(cursor.getColumnIndexOrThrow(KnownPostsContract.KnownPostsEntry.COLUMN_COMMENT_HASH));
+
+            // add the hash to the list
+            knownPosts.add(new Pair<>(postHash, commentHash));
+        }
+        cursor.close();
+
+        db.execSQL("DROP TABLE IF EXISTS KnownPostsContract");
+        db.execSQL(KnownPostsContract.SQL_CREATE_KNOWN_POSTS);
+        db.execSQL(PeerListContract.SQL_CREATE_PEER_LIST);
+
+
+        Date date = new Date();
+        // insert everything back into the table
+        for (Pair<String, String> hash: knownPosts) {
+
+            ContentValues values = new ContentValues();
+
+            values.put(KnownPostsContract.KnownPostsEntry.COLUMN_POST_HASH, hash.first);
+            values.put(KnownPostsContract.KnownPostsEntry.COLUMN_COMMENT_HASH, hash.second);
+            values.put(KnownPostsContract.KnownPostsEntry.COLUMN_TIME_INSERTED, date.getTime());
+
+            // note this is a potentially long running operation.
+            db.insert(KnownPostsContract.KnownPostsEntry.TABLE_NAME, null, values);
 
         }
     }

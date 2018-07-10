@@ -44,7 +44,7 @@ import ca.marshallasch.veil.utilities.Util;
 public class Database extends SQLiteOpenHelper
 {
     private static String DATABASE_NAME = "contentDiscoveryTables";
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 7;
 
     // this is for the singleton
     private static Database instance = null;
@@ -124,12 +124,18 @@ public class Database extends SQLiteOpenHelper
         db.execSQL(NotificationContract.SQL_CREATE_POST_NOTIFICATION);
         db.execSQL(UserContract.SQL_CREATE_USERS);
         db.execSQL(KnownPostsContract.SQL_CREATE_KNOWN_POSTS);
-
+        db.execSQL(PeerListContract.SQL_CREATE_PEER_LIST);
     }
 
+    /**
+     * Do the apropreate upgrade path for the database
+     * @param db the database to be upgraded
+     * @param oldVersion the old version of the DB
+     * @param newVersion the new version of the DB
+     */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if(oldVersion == 1){
+        if(oldVersion < 3){
             Migrations.upgradeV3(db);
         }
         if (oldVersion < 4) {
@@ -138,6 +144,10 @@ public class Database extends SQLiteOpenHelper
 
         if (oldVersion < 6) {
             Migrations.upgradeV6(db);
+        }
+
+        if (oldVersion < 7) {
+            Migrations.upgradeV7(db);
         }
     }
 
@@ -603,7 +613,6 @@ public class Database extends SQLiteOpenHelper
         // check if only 1 row got updated
         return numUpdated == 1;
     }
-
 
 
     // TODO: 2018-06-05 Add functions to export the user profile
