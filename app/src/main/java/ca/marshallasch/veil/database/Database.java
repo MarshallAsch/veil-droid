@@ -342,6 +342,7 @@ public class Database extends SQLiteOpenHelper
 
         values.put(KnownPostsEntry.COLUMN_POST_HASH, posthash);
         values.put(KnownPostsEntry.COLUMN_COMMENT_HASH, commentHash);
+        values.put(KnownPostsEntry.COLUMN_TIME_INSERTED, new Date().getTime());
 
         // note this is a potentially long running operation.
         long id = getWritableDatabase().insert(KnownPostsEntry.TABLE_NAME, null, values);
