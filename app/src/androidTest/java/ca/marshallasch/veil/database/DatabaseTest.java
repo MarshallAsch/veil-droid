@@ -1,12 +1,14 @@
 package ca.marshallasch.veil.database;
 
 import android.support.test.InstrumentationRegistry;
+import android.support.v4.util.Pair;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -122,8 +124,6 @@ public class DatabaseTest
         //empty comment hash and empty post hash should return false
         assertFalse(database.insertKnownPost("", ""));
 
-        assertEquals(3, database.getCount(KnownPostsContract.KnownPostsEntry.TABLE_NAME));
-
     }
 
 
@@ -144,8 +144,36 @@ public class DatabaseTest
 
         // after the update the dates should be different
         assertNotEquals(date, date2);
+    }
 
 
+    @Test
+    public void dumpKnownPosts()
+    {
+        assertNotNull(database.dumpKnownPosts());
+        assertNotNull(database.dumpKnownPosts(null));
+
+        assertTrue(database.insertKnownPost("KNOWN_POST_HASH_1", "KNOWN_COMMENT_HASH_1"));
+        assertTrue(database.insertKnownPost("KNOWN_POST_HASH_2", "KNOWN_COMMENT_HASH_2"));
+
+
+        Date date = database.getTimeLastSentData("user2");
+        assertNotNull(date);
+
+        List<Pair<String, String>> knownPosts = database.dumpKnownPosts(date);
+        assertNotNull(knownPosts);
+        assertNotEquals(0, knownPosts.size());
+
+        assertTrue(database.updateTimeLastSentData("user2"));
+
+        assertTrue(database.insertKnownPost("KNOWN_POST_HASH_3", "KNOWN_COMMENT_HASH_3"));
+
+        date = database.getTimeLastSentData("user2");
+        assertNotNull(date);
+
+        knownPosts = database.dumpKnownPosts(date);
+        assertNotNull(knownPosts);
+        assertEquals(1, knownPosts.size());
 
     }
 }

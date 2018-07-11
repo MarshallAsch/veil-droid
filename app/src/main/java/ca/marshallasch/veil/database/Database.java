@@ -236,7 +236,6 @@ public class Database extends SQLiteOpenHelper
 
     // TODO: 2018-05-31 Create a function that will get the list of all blocked user objects
 
-
     /**
      * Register a to receive notifications of new posts from a user or for comments about a specific
      * post.
@@ -353,10 +352,6 @@ public class Database extends SQLiteOpenHelper
         Log.d("INSERT", "ID: " + id + " POST: " + posthash);
         return id != -1;
     }
-
-    // TODO: 2018-06-04 Create accessors to get the information for different content types.
-    // these functions may be used just to get ID's or they may delegate the the DHT to get the
-    // actual content.
 
     /**
      * This will create a new user account and will assign them a new UUID that is
@@ -782,6 +777,15 @@ public class Database extends SQLiteOpenHelper
         return hashes;
     }
 
+    /**
+     * This will get a list of the mappings between posts and comments.
+     * All posts will have 1 record where the comment hash is the empty string.
+     *
+     * Since this calls {@link #getReadableDatabase()}, do not call this from the main thread
+     * @return a list of pairs where pair.first is the post hash and pair.second is the comment
+     */
+    @WorkerThread
+    @NonNull
     public List<Pair<String, String>> dumpKnownPosts() {
 
         String[] projection = {
@@ -818,8 +822,25 @@ public class Database extends SQLiteOpenHelper
         return hashes;
     }
 
+    /**
+     * This will get a list of the mappings between posts and comments that have been inserted
+     * after <code>since</code>.
+     * All posts will have 1 record where the comment hash is the empty string.
+     * If <code>since</code> is null then it will be set to the unix epoch.
+     *
+     * Since this calls {@link #getReadableDatabase()}, do not call this from the main thread
+     * @param since the date that all the entries should be gotten since.
+     * @return a list of pairs where pair.first is the post hash and pair.second is the comment
+     */
+    @WorkerThread
+    @NonNull
+    public List<Pair<String, String>> dumpKnownPosts(@Nullable Date since) {
 
-    public List<Pair<String, String>> dumpKnownPosts(Date since) {
+        List<Pair<String, String>> hashes = new ArrayList<>();
+
+        if (since == null) {
+            since = new Date(0);
+        }
 
         String[] projection = {
                 KnownPostsEntry.COLUMN_POST_HASH,
@@ -838,8 +859,6 @@ public class Database extends SQLiteOpenHelper
                 null,           // don't filter by row groups
                 null          // don't sort
         );
-
-        List<Pair<String, String>> hashes = new ArrayList<>();
 
         String postHash;
         String commentHash;
