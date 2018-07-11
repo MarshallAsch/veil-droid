@@ -38,3 +38,9 @@ message HashPair {
 message HashData {
     repeated HashPair entries = 1;
 }
+
+
+message SyncMessage {
+    repeated HashPair entries = 1;
+    repeated CommentMapping mappings = 2;
+}

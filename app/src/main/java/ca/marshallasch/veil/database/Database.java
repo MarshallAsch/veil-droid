@@ -26,6 +26,7 @@ import ca.marshallasch.veil.R;
 import ca.marshallasch.veil.database.BlockContract.BlockEntry;
 import ca.marshallasch.veil.database.KnownPostsContract.KnownPostsEntry;
 import ca.marshallasch.veil.database.NotificationContract.NotificationEntry;
+import ca.marshallasch.veil.database.PeerListContract.PeerListEntry;
 import ca.marshallasch.veil.database.UserContract.UserEntry;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.utilities.Util;
@@ -654,6 +655,53 @@ public class Database extends SQLiteOpenHelper
         return hashes;
     }
 
+    /**
+     * This function will get the time stamp of the last time that data was sent to a peer.
+     * If the <code>peerID</code> is null or there are no entries in the database then the timestamp
+     * of the unix epoch is given (midnight January 1st 1970).
+     *
+     * Since this calls {@link #getReadableDatabase()} ()}, do not call this from the main thread
+     * @param peerID the {@link io.left.rightmesh.id.MeshId} of the peer in string form.
+     * @return a {@link Date} object representing the timestamp.
+     */
+    @WorkerThread
+    public Date getTimeLastSentData(String peerID) {
+
+        Date time = new Date(0);
+
+        // stop ig the the peerID is missing
+        if (peerID == null) {
+            return time;
+        }
+
+        String[] projection = {
+                PeerListEntry.COLUMN_TIME_LAST_SENT
+        };
+
+        String selection = PeerListEntry.COLUMN_PEER_MESH_ID + " = ?";
+        String[] selectionArgs = { peerID };
+
+        Cursor cursor = getReadableDatabase().query(
+                true,
+                PeerListEntry.TABLE_NAME,   // The table to query
+                projection,             // The array of columns to return (pass null to get all)
+                selection,              // The columns for the WHERE clause
+                selectionArgs,          // The values for the WHERE clause
+                null,          // don't group the rows
+                null,           // don't filter by row groups
+                null,           // don't sort
+                null                // no limit to the results
+        );
+
+        while(cursor.moveToNext()) {
+            long millis = cursor.getLong(cursor.getColumnIndexOrThrow(UserEntry.COLUMN_TIMESTAMP));
+            time = new Date(millis);
+        }
+        cursor.close();
+
+        return time;
+    }
+
     @WorkerThread
     public List<String> getCommentHashes(String postHash) {
 
@@ -705,6 +753,45 @@ public class Database extends SQLiteOpenHelper
                 projection,             // The array of columns to return (pass null to get all)
                 null,              // The columns for the WHERE clause
                 null,          // The values for the WHERE clause
+                null,          // don't group the rows
+                null,           // don't filter by row groups
+                null          // don't sort
+        );
+
+        List<Pair<String, String>> hashes = new ArrayList<>();
+
+        String postHash;
+        String commentHash;
+
+        // get each post hash that is in the list
+        while(cursor.moveToNext()) {
+            postHash = cursor.getString(cursor.getColumnIndexOrThrow(KnownPostsEntry.COLUMN_POST_HASH));
+            commentHash = cursor.getString(cursor.getColumnIndexOrThrow(KnownPostsEntry.COLUMN_COMMENT_HASH));
+
+            // add the hash to the list
+            hashes.add(new Pair<>(postHash, commentHash));
+        }
+        cursor.close();
+
+        return hashes;
+    }
+
+
+    public List<Pair<String, String>> dumpKnownPosts(Date since) {
+
+        String[] projection = {
+                KnownPostsEntry.COLUMN_POST_HASH,
+                KnownPostsEntry.COLUMN_COMMENT_HASH
+        };
+
+        String selection = KnownPostsEntry.COLUMN_TIME_INSERTED + " = ?";
+        String[] selectionArgs = { String.valueOf(since.getTime()) };
+
+        Cursor cursor = getReadableDatabase().query(
+                KnownPostsEntry.TABLE_NAME,   // The table to query
+                projection,             // The array of columns to return (pass null to get all)
+                selection,              // The columns for the WHERE clause
+                selectionArgs,          // The values for the WHERE clause
                 null,          // don't group the rows
                 null,           // don't filter by row groups
                 null          // don't sort

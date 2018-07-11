@@ -7,6 +7,7 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -15,6 +16,7 @@ import ca.marshallasch.veil.database.Database;
 import ca.marshallasch.veil.exceptions.TooManyResultsException;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.proto.Sync;
+import io.left.rightmesh.id.MeshId;
 
 /**
  * This class is a delegate class for all of the data access to use this instead of the underling
@@ -181,6 +183,7 @@ public class DataStore
      * Generate the object for syncing the database between devices.
      * @return the mapping object
      */
+    @Deprecated
     public Sync.MappingMessage getDatabase() {
 
         List<Pair<String, String>> knownPosts = db.dumpKnownPosts();
@@ -214,6 +217,7 @@ public class DataStore
      * for the posts and the comments only.
      * @return the message object
      */
+    @Deprecated
     public Sync.HashData getDataStore() {
 
         List<Pair<String, DhtProto.DhtWrapper>> data = hashTableStore.getData();
@@ -237,6 +241,7 @@ public class DataStore
      * Will insert the database sync object into the database.
      * @param message the message to insert
      */
+    @Deprecated
     public void syncDatabase(Sync.MappingMessage message) {
 
         List<Sync.CommentMapping> mapping = message.getMappingsList();
@@ -261,6 +266,7 @@ public class DataStore
      * Will insert all of the synced data from another device.
      * @param message the data sync object.
      */
+    @Deprecated
     public void syncData(Sync.HashData message) {
 
         List<Sync.HashPair> mapping = message.getEntriesList();
@@ -271,5 +277,24 @@ public class DataStore
             hashTableStore.insert (entry.getEntry(), entry.getHash());
         }
     }
+
+
+
+
+    public Sync.SyncMessage getSyncFor(MeshId peer) {
+
+        // get time last sent data
+
+        Date timeLastSentData = db.getTimeLastSentData(peer.toString());
+
+        return null;
+    }
+
+
+
+
+
+
+
 
 }
