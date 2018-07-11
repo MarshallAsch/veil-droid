@@ -6,8 +6,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Date;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -127,8 +130,22 @@ public class DatabaseTest
     @Test
     public void updateTimeLastSentData()
     {
+        assertEquals(new Date(0), database.getTimeLastSentData("user1")); // should be the epoch
         assertTrue(database.updateTimeLastSentData("user1"));
 
-        assertNotNull(database.getTimeLastSentData("user1"));
+        Date date = database.getTimeLastSentData("user1");
+        assertNotNull(date);
+
+        assertTrue(database.updateTimeLastSentData("user1"));
+
+
+        Date date2 = database.getTimeLastSentData("user1");
+        assertNotNull(date2);
+
+        // after the update the dates should be different
+        assertNotEquals(date, date2);
+
+
+
     }
 }
