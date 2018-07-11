@@ -111,6 +111,8 @@ public class Database extends SQLiteOpenHelper
         getWritableDatabase().delete(NotificationEntry.TABLE_NAME, null, null);
         getWritableDatabase().delete(UserEntry.TABLE_NAME, null, null);
         getWritableDatabase().delete(KnownPostsEntry.TABLE_NAME, null, null);
+        getWritableDatabase().delete(PeerListEntry.TABLE_NAME, null, null);
+
     }
 
     /**
@@ -660,7 +662,7 @@ public class Database extends SQLiteOpenHelper
      * If the <code>peerID</code> is null or there are no entries in the database then the timestamp
      * of the unix epoch is given (midnight January 1st 1970).
      *
-     * Since this calls {@link #getReadableDatabase()} ()}, do not call this from the main thread
+     * Since this calls {@link #getReadableDatabase()}, do not call this from the main thread
      * @param peerID the {@link io.left.rightmesh.id.MeshId} of the peer in string form.
      * @return a {@link Date} object representing the timestamp.
      */
@@ -694,12 +696,52 @@ public class Database extends SQLiteOpenHelper
         );
 
         while(cursor.moveToNext()) {
-            long millis = cursor.getLong(cursor.getColumnIndexOrThrow(UserEntry.COLUMN_TIMESTAMP));
+            long millis = cursor.getLong(cursor.getColumnIndexOrThrow(PeerListEntry.COLUMN_TIME_LAST_SENT));
             time = new Date(millis);
         }
         cursor.close();
 
         return time;
+    }
+
+    /**
+     * This function will update the time that data was last sent to a specific peer.
+     * If the peer has not been seen before then a new entry is inserted into the table.
+     *
+     * Since this calls {@link #getWritableDatabase()}, do not call this from the main thread
+     * @param peerID the {@link io.left.rightmesh.id.MeshId} of the peer in string form.
+     * @return true if it was inserted successfully, false otherwise
+     */
+    @WorkerThread
+    public boolean updateTimeLastSentData(String peerID) {
+
+        // stop if the the peerID is missing
+        if (peerID == null) {
+            return false;
+        }
+
+        String selection = PeerListEntry.COLUMN_PEER_MESH_ID + " = ?";
+        String[] selectionArgs = { peerID };
+
+        ContentValues values = new ContentValues();
+        values.put(PeerListEntry.COLUMN_PEER_MESH_ID, peerID);
+        values.put(PeerListEntry.COLUMN_TIME_LAST_SENT, new Date().getTime());
+
+        int numUpdated = getWritableDatabase().update(
+                PeerListEntry.TABLE_NAME,   // The table to update
+                values,                  // The values to update
+                selection,              // The columns for the WHERE clause
+                selectionArgs          // The values for the WHERE clause
+        );
+
+        if (numUpdated != 1) {
+            // note this is a potentially long running operation.
+            long id = getWritableDatabase().insert(PeerListEntry.TABLE_NAME, null, values);
+
+            return id != -1;
+        }
+
+        return true;
     }
 
     @WorkerThread
@@ -784,7 +826,7 @@ public class Database extends SQLiteOpenHelper
                 KnownPostsEntry.COLUMN_COMMENT_HASH
         };
 
-        String selection = KnownPostsEntry.COLUMN_TIME_INSERTED + " = ?";
+        String selection = KnownPostsEntry.COLUMN_TIME_INSERTED + " >= ?";
         String[] selectionArgs = { String.valueOf(since.getTime()) };
 
         Cursor cursor = getReadableDatabase().query(

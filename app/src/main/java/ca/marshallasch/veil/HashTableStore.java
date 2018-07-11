@@ -606,9 +606,27 @@ public class HashTableStore implements ForumStorage
                     data.add(new Pair<String, DhtProto.DhtWrapper>(hash, element));
                 }
             }
-
         }
 
         return data;
+    }
+
+    /**
+     * Get the wrapper item for the data sync function. Will only get the first comment or post item
+     * with the given key.
+     * @param hash the hash identifying the entry
+     * @return the pair on success NULL if a match was not found.
+     */
+    public DhtProto.DhtWrapper getPostOrComment(String hash) {
+
+        List<DhtProto.DhtWrapper> list = hashMap.get(hash);
+
+        for (DhtProto.DhtWrapper element: list) {
+
+            if (element.getType() == DhtProto.MessageType.COMMENT || element.getType() == DhtProto.MessageType.POST) {
+                return element;
+            }
+        }
+        return null;
     }
 }

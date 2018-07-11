@@ -123,4 +123,12 @@ public class DatabaseTest
 
     }
 
+
+    @Test
+    public void updateTimeLastSentData()
+    {
+        assertTrue(database.updateTimeLastSentData("user1"));
+
+        assertNotNull(database.getTimeLastSentData("user1"));
+    }
 }

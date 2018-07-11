@@ -2,6 +2,7 @@ package ca.marshallasch.veil;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
+import android.support.v4.util.ArraySet;
 import android.support.v4.util.Pair;
 import android.util.Log;
 
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ca.marshallasch.veil.comparators.CommentComparator;
@@ -179,115 +181,79 @@ public class DataStore
         return comment;
     }
 
-    /**
-     * Generate the object for syncing the database between devices.
-     * @return the mapping object
-     */
-    @Deprecated
-    public Sync.MappingMessage getDatabase() {
 
-        List<Pair<String, String>> knownPosts = db.dumpKnownPosts();
+    public Sync.SyncMessage getSyncFor(MeshId peer) {
 
-        Sync.MappingMessage.Builder builder = Sync.MappingMessage.newBuilder();
+        // get time last sent data
+        Sync.SyncMessage.Builder builder = Sync.SyncMessage.newBuilder();
 
-        Sync.CommentMapping.Builder commentBuilder;
-        // add it to the list
-        for (Pair<String, String> pair: knownPosts) {
+        Date timeLastSentData = db.getTimeLastSentData(peer.toString());
 
-            commentBuilder = Sync.CommentMapping.newBuilder();
+        // get the list of comments and post hashes since the given time.
+        List<Pair<String, String>> mapping = db.dumpKnownPosts(timeLastSentData);
 
-            // handle nulls
-            if (pair.first != null) {
-                commentBuilder.setPostHash(pair.first);
-            }
+        Set<String> hashes = new ArraySet<>();
 
-            if (pair.second != null) {
-                commentBuilder.setCommentHash(pair.second);
-            }
+        for (Pair<String, String> pair: mapping) {
+            hashes.add(pair.first);
+            hashes.add(pair.second);
 
-            builder.addMappings(commentBuilder.build());
-        }
-
-        // build the message to send to other devices
-        return builder.build();
-    }
-
-    /**
-     * Generate the syncing object for the data store. It will contain all of the objects
-     * for the posts and the comments only.
-     * @return the message object
-     */
-    @Deprecated
-    public Sync.HashData getDataStore() {
-
-        List<Pair<String, DhtProto.DhtWrapper>> data = hashTableStore.getData();
-
-
-        Sync.HashData.Builder builder = Sync.HashData.newBuilder();
-
-        // generate the list
-        for(Pair<String, DhtProto.DhtWrapper> pair: data) {
-
-            builder.addEntries(Sync.HashPair.newBuilder()
-                    .setHash(pair.first)
-                    .setEntry(pair.second)
+            builder.addMappings(Sync.CommentMapping.newBuilder()
+                    .setPostHash(pair.first)
+                    .setCommentHash(pair.second)
                     .build());
         }
+        // remove the empty string from the empty comment hashes
+        hashes.remove("");
+
+        DhtProto.DhtWrapper wrapper;
+
+        for (String hash: hashes) {
+
+            // search for the comment or post
+            wrapper = hashTableStore.getPostOrComment(hash);
+
+            // insert into the list
+            if (wrapper != null) {
+                builder.addEntries(Sync.HashPair.newBuilder()
+                        .setHash(hash)
+                        .setEntry(wrapper)
+                        .build());
+            }
+        }
 
         return builder.build();
     }
 
-    /**
-     * Will insert the database sync object into the database.
-     * @param message the message to insert
-     */
-    @Deprecated
-    public void syncDatabase(Sync.MappingMessage message) {
 
-        List<Sync.CommentMapping> mapping = message.getMappingsList();
-        List<Sync.CommentMapping> oldMappings = getDatabase().getMappingsList();
+    public void insertSync(Sync.SyncMessage syncMessage) {
+
+
+        List<Sync.HashPair> entries = syncMessage.getEntriesList();
+
+        // insert all of the mappings
+        for (Sync.HashPair entry: entries) {
+            Log.d("PAIRS", "e: " + entry.getEntry().getType().getNumber() + " :: " + entry.getHash());
+            hashTableStore.insert (entry.getEntry(), entry.getHash());
+        }
+
+        List<Sync.CommentMapping> mapping = syncMessage.getMappingsList();
+        List<Pair<String, String>> knownPosts = db.dumpKnownPosts();
 
         Log.d("MAPPING", "LEN: " + mapping.size());
 
         // insert all of the mappings
         for (Sync.CommentMapping entry: mapping) {
 
-            // skip if we alrey have the entry
-            if (oldMappings.contains(entry)) {
+            // TODO: 2018-07-11 improve the efficiency of this
+            // skip if we already have the entry
+            if (knownPosts.contains(new Pair<>(entry.getPostHash(), entry.getCommentHash()))) {
                 continue;
             }
 
-            Log.d("MAPPING", "post: " + entry.getPostHash());
             db.insertKnownPost(entry.getPostHash(), entry.getCommentHash());
         }
-    }
 
-    /**
-     * Will insert all of the synced data from another device.
-     * @param message the data sync object.
-     */
-    @Deprecated
-    public void syncData(Sync.HashData message) {
-
-        List<Sync.HashPair> mapping = message.getEntriesList();
-
-        // insert all of the mappings
-        for (Sync.HashPair entry: mapping) {
-            Log.d("PAIRS", "e: " + entry.getEntry().getType().getNumber() + " :: " + entry.getHash());
-            hashTableStore.insert (entry.getEntry(), entry.getHash());
-        }
-    }
-
-
-
-
-    public Sync.SyncMessage getSyncFor(MeshId peer) {
-
-        // get time last sent data
-
-        Date timeLastSentData = db.getTimeLastSentData(peer.toString());
-
-        return null;
     }
 
 

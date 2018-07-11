@@ -12,9 +12,9 @@ public class PeerListContract
     static final String SQL_CREATE_PEER_LIST = "CREATE TABLE " +  PeerListEntry.TABLE_NAME +
             "(" +
             PeerListEntry._ID + " INTEGER PRIMARY KEY," +
-            PeerListEntry.COLUMN_PEER_MESH_ID + " VARCHAR(43)," +
-            PeerListEntry.COLUMN_TIME_LAST_SENT + " DATETIME," +
-            ");";
+            PeerListEntry.COLUMN_PEER_MESH_ID + " VARCHAR(43) UNIQUE," +
+            PeerListEntry.COLUMN_TIME_LAST_SENT + " DATETIME" +
+            ")";
 
     // Constructor made private to eliminate people from accidentally instantiating this contract class
     private PeerListContract(){}
