@@ -59,7 +59,6 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         dataStore = DataStore.getInstance(this);
 
         navigateTo(new FragmentLanding(), false);
-
         // Gets an instance of the Android-specific MeshManager singleton.
         meshManager = AndroidMeshManager.getInstance(this, this);
     }
