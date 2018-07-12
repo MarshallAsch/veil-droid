@@ -1,6 +1,7 @@
 package ca.marshallasch.veil;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.ArraySet;
 import android.support.v4.util.Pair;
@@ -181,7 +182,116 @@ public class DataStore
         return comment;
     }
 
+    /**
+     * Generate the object for syncing the database between devices.
+     * @return the mapping object
+     * @deprecated  This is being kept in for backwards compatibility and for the stats
+     */
+    @Deprecated
+    public Sync.MappingMessage getDatabase() {
 
+        List<Pair<String, String>> knownPosts = db.dumpKnownPosts();
+
+        Sync.MappingMessage.Builder builder = Sync.MappingMessage.newBuilder();
+
+        Sync.CommentMapping.Builder commentBuilder;
+        // add it to the list
+        for (Pair<String, String> pair: knownPosts) {
+
+            commentBuilder = Sync.CommentMapping.newBuilder();
+
+            // handle nulls
+            if (pair.first != null) {
+                commentBuilder.setPostHash(pair.first);
+            }
+
+            if (pair.second != null) {
+                commentBuilder.setCommentHash(pair.second);
+            }
+
+            builder.addMappings(commentBuilder.build());
+        }
+
+        // build the message to send to other devices
+        return builder.build();
+    }
+
+    /**
+     * Generate the syncing object for the data store. It will contain all of the objects
+     * for the posts and the comments only.
+     * @return the message object
+     * @deprecated  This is being kept in for backwards compatibility and for the stats
+     */
+    @Deprecated
+    public Sync.HashData getDataStore() {
+
+        List<Pair<String, DhtProto.DhtWrapper>> data = hashTableStore.getData();
+
+
+        Sync.HashData.Builder builder = Sync.HashData.newBuilder();
+
+        // generate the list
+        for(Pair<String, DhtProto.DhtWrapper> pair: data) {
+
+            builder.addEntries(Sync.HashPair.newBuilder()
+                    .setHash(pair.first)
+                    .setEntry(pair.second)
+                    .build());
+        }
+
+        return builder.build();
+    }
+
+    /**
+     * Will insert the database sync object into the database.
+     * @param message the message to insert
+     * @deprecated  This is being kept in for backwards compatibility and for the stats
+     */
+    @Deprecated
+    public void syncDatabase(Sync.MappingMessage message) {
+
+        List<Sync.CommentMapping> mapping = message.getMappingsList();
+        List<Sync.CommentMapping> oldMappings = getDatabase().getMappingsList();
+
+        Log.d("MAPPING", "LEN: " + mapping.size());
+
+        // insert all of the mappings
+        for (Sync.CommentMapping entry: mapping) {
+
+            // skip if we alrey have the entry
+            if (oldMappings.contains(entry)) {
+                continue;
+            }
+
+            Log.d("MAPPING", "post: " + entry.getPostHash());
+            db.insertKnownPost(entry.getPostHash(), entry.getCommentHash());
+        }
+    }
+
+    /**
+     * Will insert all of the synced data from another device.
+     * @param message the data sync object.
+     * @deprecated  This is being kept in for backwards compatibility and for the stats
+     */
+    @Deprecated
+    public void syncData(Sync.HashData message) {
+
+        List<Sync.HashPair> mapping = message.getEntriesList();
+
+        // insert all of the mappings
+        for (Sync.HashPair entry: mapping) {
+            Log.d("PAIRS", "e: " + entry.getEntry().getType().getNumber() + " :: " + entry.getHash());
+            hashTableStore.insert (entry.getEntry(), entry.getHash());
+        }
+    }
+
+    /**
+     * This will generate a data synchronization message for the given peer.
+     * This is the version 2 of the data synchronization protocol.
+     * @param peer the {@link MeshId} for the peer to send the sync message too
+     * @return a sync message that is filled with the data for that peer
+     */
+    @NonNull
     public Sync.SyncMessage getSyncFor(MeshId peer) {
 
         // get time last sent data
@@ -225,9 +335,17 @@ public class DataStore
         return builder.build();
     }
 
+    /**
+     * This will insert the data sync message into the data store and the database.
+     * This is for the version 2 message.
+     *
+     * @param syncMessage the message from the remote peer to save.
+     */
+    public void insertSync(@Nullable Sync.SyncMessage syncMessage) {
 
-    public void insertSync(Sync.SyncMessage syncMessage) {
-
+        if (syncMessage == null) {
+            return;
+        }
 
         List<Sync.HashPair> entries = syncMessage.getEntriesList();
 
@@ -255,12 +373,4 @@ public class DataStore
         }
 
     }
-
-
-
-
-
-
-
-
 }

@@ -103,7 +103,7 @@ public class FragmentDiscoverForums extends Fragment implements  SwipeRefreshLay
             MeshManager manager = ((MainActivity) getActivity()).meshManager;
             Set<MeshId> peers = manager.getPeers(MainActivity.DATA_PORT);
 
-            Sync.Message dataRequest = Sync.Message.newBuilder().setType(Sync.SyncMessageType.REQUEST_DATA).build();
+            Sync.Message dataRequest = Sync.Message.newBuilder().setType(Sync.SyncMessageType.REQUEST_DATA_V2).build();
 
             // request an update from everyone
             for (MeshId peer: peers) {

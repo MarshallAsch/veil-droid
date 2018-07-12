@@ -8,14 +8,19 @@ import "dht.proto";
 
 //used to figure out what type of message to parse
 enum SyncMessageType {
-    SYNC_DATA = 0;
-    REQUEST_DATA = 1;
+    MAPPING_MESSAGE = 0;
+    HASH_DATA = 1;
+    REQUEST_DATA_V1 = 2;
+    REQUEST_DATA_V2 = 3;
+    SYNC_DATA = 4;
 }
 
 // message wrapper for all messages so that the correct one can be recreated
 message Message {
     SyncMessageType type = 1;
-    SyncMessage syncMessage = 2;
+    MappingMessage mapping = 2;
+    HashData data = 3;
+    SyncMessage syncMessage = 4;
 }
 
 message CommentMapping {
@@ -23,9 +28,17 @@ message CommentMapping {
     string commentHash = 2;
 }
 
+message MappingMessage {
+    repeated CommentMapping mappings = 1;
+}
+
 message HashPair {
     string hash = 1;
     DhtWrapper entry = 2;
+}
+
+message HashData {
+    repeated HashPair entries = 1;
 }
 
 message SyncMessage {

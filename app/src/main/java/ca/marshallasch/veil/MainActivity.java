@@ -251,15 +251,16 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
 
         if (type == Sync.SyncMessageType.SYNC_DATA) {
 
+            Log.d("DATA_SYNC", "received data sync message");
+
             dataStore.insertSync(message.getSyncMessage());
             Intent intent = new Intent(NEW_DATA_BROADCAST);
             LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 
-        } else if (type == Sync.SyncMessageType.REQUEST_DATA) {
+        } else if (type == Sync.SyncMessageType.REQUEST_DATA_V2) {
 
-            Log.d("DATA_REQUEST", "received request for data");
-            // if someone sent a message asking for data send a responce with everything
-
+            Log.d("DATA_REQUEST_v2", "received request for data");
+            // if someone sent a message asking for data send a response with everything
 
             Sync.SyncMessage syncMessage = dataStore.getSyncFor(event.peerUuid);
 
@@ -271,6 +272,41 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
 
             try {
                 meshManager.sendDataReliable(event.peerUuid, DATA_PORT, toSend.toByteArray());
+            }
+            catch (RightMeshException e1) {
+                e1.printStackTrace();
+            }
+        } else if (type == Sync.SyncMessageType.HASH_DATA) {
+
+            Log.d("DATA_RECEIVE",  message.getData().toString());
+            dataStore.syncData(message.getData());
+        } else if (type == Sync.SyncMessageType.MAPPING_MESSAGE) {
+            Log.d("DATA_RECEIVE_MAP",  message.getMapping().toString());
+            dataStore.syncDatabase(message.getMapping());
+        } else if (type == Sync.SyncMessageType.REQUEST_DATA_V1) {
+
+            Log.d("DATA_REQUEST", "recived request for data");
+            // if someone sent a message asking for data send a responce with everything
+
+            Sync.HashData hashData = dataStore.getDataStore();
+            Sync.MappingMessage mappingMessage = dataStore.getDatabase();
+
+            // send messages to the peer.
+            Sync.Message toSend = Sync.Message.newBuilder()
+                    .setType(Sync.SyncMessageType.HASH_DATA)
+                    .setData(hashData)
+                    .build();
+
+            try {
+                meshManager.sendDataReliable(event.peerUuid, DATA_PORT, toSend.toByteArray());
+
+                toSend = Sync.Message.newBuilder()
+                        .setType(Sync.SyncMessageType.MAPPING_MESSAGE)
+                        .setMapping(mappingMessage)
+                        .build();
+
+                meshManager.sendDataReliable(event.peerUuid, DATA_PORT, toSend.toByteArray());
+
             }
             catch (RightMeshException e1) {
                 e1.printStackTrace();
@@ -296,12 +332,11 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
 
             Log.d("FOUND", "found user: " + event.peerUuid);
 
-
             // send messages to the peer requesting their data.
             try {
 
                 Sync.Message message = Sync.Message.newBuilder()
-                        .setType(Sync.SyncMessageType.REQUEST_DATA)
+                        .setType(Sync.SyncMessageType.REQUEST_DATA_V2)
                         .build();
                 meshManager.sendDataReliable(event.peerUuid, DATA_PORT, message.toByteArray());
 
