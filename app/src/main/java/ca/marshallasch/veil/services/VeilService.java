@@ -9,6 +9,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.os.Process;
+import android.widget.Toast;
 
 import ca.marshallasch.veil.controllers.RightMeshController;
 
@@ -72,6 +73,17 @@ public class VeilService extends Service {
         //start RightMesh connection through controller using service context
         rightMeshController = new RightMeshController();
         rightMeshController.connect(this);
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Toast.makeText(this, "veil service started", Toast.LENGTH_SHORT).show();
+
+        Message msg = veilServiceHandler.obtainMessage();
+        msg.arg1 = startId;
+        veilServiceHandler.sendMessage(msg);
+
+        return START_STICKY;
     }
 
     /**

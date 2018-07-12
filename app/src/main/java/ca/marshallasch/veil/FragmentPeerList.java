@@ -67,12 +67,12 @@ public class FragmentPeerList extends Fragment
         peerList.setText("Peers:\n");
 
         Set<MeshId> peers = null;
-        try {
+       /* try {
             peers = ((MainActivity) getActivity()).meshManager.getPeers(9182);
         }
         catch (RightMeshException e) {
             e.printStackTrace();
-        }
+        }*/
 
         if (peers != null) {
             for (MeshId peer : peers) {

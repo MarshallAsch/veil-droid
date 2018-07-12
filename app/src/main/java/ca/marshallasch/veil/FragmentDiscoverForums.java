@@ -79,7 +79,7 @@ public class FragmentDiscoverForums extends Fragment implements  SwipeRefreshLay
 
         // register receiver to be notified when the data changes
         localBroadcastManager = LocalBroadcastManager.getInstance(activity);
-        localBroadcastManager.registerReceiver(localReceiver, new IntentFilter(MainActivity.NEW_DATA_BROADCAST));
+       // localBroadcastManager.registerReceiver(localReceiver, new IntentFilter(MainActivity.NEW_DATA_BROADCAST));
 
 
 
@@ -98,7 +98,7 @@ public class FragmentDiscoverForums extends Fragment implements  SwipeRefreshLay
     @Override
     public void onRefresh()
     {
-        Log.d("REFRESH", "refreshing the data set");
+       /* Log.d("REFRESH", "refreshing the data set");
         try {
             MeshManager manager = ((MainActivity) getActivity()).meshManager;
             Set<MeshId> peers = manager.getPeers(MainActivity.DATA_PORT);
@@ -120,7 +120,7 @@ public class FragmentDiscoverForums extends Fragment implements  SwipeRefreshLay
         }
         catch (RightMeshException e) {
             e.printStackTrace();
-        }
+        } */
     }
 
     private final  BroadcastReceiver localReceiver = new BroadcastReceiver() {
@@ -130,14 +130,14 @@ public class FragmentDiscoverForums extends Fragment implements  SwipeRefreshLay
 
             String action = intent.getAction();
 
-            if (action.equals(MainActivity.NEW_DATA_BROADCAST)) {
+           /* if (action.equals(MainActivity.NEW_DATA_BROADCAST)) {
 
                 List<DhtProto.Post> posts = DataStore.getInstance(context).getKnownPosts();
                 postListAdapter.update(posts);
                 postListAdapter.notifyDataSetChanged();
                 refreshLayout.setRefreshing(false);
 
-            }
+            }*/
         }
     };
 
