@@ -65,15 +65,12 @@ public class MainActivity extends AppCompatActivity {
     {
         super.onDestroy();
 
-        /*dataStore.save(this);
+        dataStore.save(this);
         dataStore.close();
 
-        try {
-            meshManager.stop();
-        }
-        catch (RightMeshException e) {
-            e.printStackTrace();
-        }*/
+        //stopping Rightmesh service
+        stopService(new Intent(this, VeilService.class));
+
     }
 
     @Override

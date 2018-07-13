@@ -47,7 +47,7 @@ public class VeilService extends Service {
 
             // Stop the service using the startId,
             // prevent stopping in middle of handling another job
-            stopSelf(msg.arg1);
+           // stopSelf(msg.arg1);
         }
     }
 
