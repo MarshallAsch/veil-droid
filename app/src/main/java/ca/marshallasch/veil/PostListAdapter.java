@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import ca.marshallasch.veil.proto.DhtProto;
+import ca.marshallasch.veil.utilities.Util;
 
 
 /**
@@ -34,17 +36,20 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
         private TextView title;
         private TextView contentPreview;
         private TextView commentCount;
+        private TextView authorName;
+        private TextView timeStamp;
 
         /**
          * constructor for the ViewHolder class
-         * @param itemsView the XML layout for the cell. Currently is a list_cell.xml
+         * @param itemsView the XML layout for the cell. Currently is a post_list_cell.xmll.xml
          */
         ViewHolder(View itemsView){
             super(itemsView);
             title = itemsView.findViewById(R.id.title);
             contentPreview = itemsView.findViewById(R.id.content_preview);
             commentCount = itemsView.findViewById(R.id.comments);
-
+            authorName = itemsView.findViewById(R.id.author_name);
+            timeStamp = itemsView.findViewById(R.id.time_stamp);
         }
     }
 
@@ -76,7 +81,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
     @NonNull
     @Override
     public PostListAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_cell, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.post_list_cell, parent, false);
 
         return new ViewHolder(view);
     }
@@ -96,6 +101,15 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
         viewHolder.title.setText(post.getTitle());
         viewHolder.contentPreview.setText(post.getMessage());
         viewHolder.commentCount.setText(activity.getString(R.string.num_comments, numComments));
+        viewHolder.authorName.setText(post.getAuthorName());
+
+        CharSequence dateString = DateUtils.getRelativeTimeSpanString(
+                Util.timestampToDate(post.getTimestamp()).getTime(),
+                System.currentTimeMillis(),
+                0,
+                DateUtils.FORMAT_ABBREV_RELATIVE);
+
+        viewHolder.timeStamp.setText(dateString);
 
         viewHolder.itemView.findViewById(R.id.view_btn).setOnClickListener(view -> {
             FragmentViewPost fragViewPost = new FragmentViewPost();

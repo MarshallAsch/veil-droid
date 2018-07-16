@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ca.marshallasch.veil.comparators.CommentComparator;
+import ca.marshallasch.veil.comparators.PostComparator;
 import ca.marshallasch.veil.database.Database;
 import ca.marshallasch.veil.database.KnownPostsContract;
 import ca.marshallasch.veil.exceptions.TooManyResultsException;
@@ -81,7 +82,8 @@ public class DataStore
     }
 
     /**
-     * Gets all the known posts in a the data store
+     * Gets all the known posts in a the data store.
+     * The list will be sorted, newest posts first
      * @return the list of posts.
      */
     public List<DhtProto.Post> getKnownPosts() {
@@ -107,6 +109,9 @@ public class DataStore
                 posts.add(post);
             }
         }
+
+        // make sure the list of posts are in chronological order
+        Collections.sort(posts, new PostComparator());
 
         return posts;
     }
