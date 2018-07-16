@@ -1,6 +1,7 @@
 package ca.marshallasch.veil;
 
 import android.content.Context;
+import android.support.annotation.IntRange;
 import android.support.annotation.Nullable;
 import android.support.v4.util.Pair;
 import android.util.Log;
@@ -12,6 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import ca.marshallasch.veil.comparators.CommentComparator;
 import ca.marshallasch.veil.database.Database;
+import ca.marshallasch.veil.database.KnownPostsContract;
 import ca.marshallasch.veil.exceptions.TooManyResultsException;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.proto.Sync;
@@ -176,6 +178,26 @@ public class DataStore
 
         return comment;
     }
+
+    /**
+     * This will get the number of comments that exist for given post and will return the number.
+     *
+     * @param postHash the string identifying the particular post
+     * @return the number of comments for the post, 0 if none are found
+     */
+    @IntRange(from=0)
+    public int getNumCommentsFor(@Nullable String postHash) {
+
+        if (postHash == null) {
+            return 0;
+        }
+
+        String select = KnownPostsContract.KnownPostsEntry.COLUMN_POST_HASH + " = ? AND " + KnownPostsContract.KnownPostsEntry.COLUMN_COMMENT_HASH + " != \"\" ";
+        String[] selectArgs = {postHash};
+
+        return db.getCount(KnownPostsContract.KnownPostsEntry.TABLE_NAME, select, selectArgs);
+    }
+
 
     /**
      * Generate the object for syncing the database between devices.

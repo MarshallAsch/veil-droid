@@ -33,6 +33,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
      static class ViewHolder extends RecyclerView.ViewHolder {
         private TextView title;
         private TextView contentPreview;
+        private TextView commentCount;
 
         /**
          * constructor for the ViewHolder class
@@ -42,6 +43,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
             super(itemsView);
             title = itemsView.findViewById(R.id.title);
             contentPreview = itemsView.findViewById(R.id.content_preview);
+            commentCount = itemsView.findViewById(R.id.comments);
 
         }
     }
@@ -87,15 +89,20 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, final int position) {
         // Going to need to trim the content before it gets added here.
-        viewHolder.title.setText(posts.get(position).getTitle());
-        viewHolder.contentPreview.setText(posts.get(position).getMessage());
+        DhtProto.Post post = posts.get(position);
+
+        int numComments = DataStore.getInstance(activity).getNumCommentsFor(post.getUuid());
+
+        viewHolder.title.setText(post.getTitle());
+        viewHolder.contentPreview.setText(post.getMessage());
+        viewHolder.commentCount.setText(activity.getString(R.string.num_comments, numComments));
 
         viewHolder.itemView.findViewById(R.id.view_btn).setOnClickListener(view -> {
             FragmentViewPost fragViewPost = new FragmentViewPost();
             //create a bundle to pass data to the next fragment for viewing
             Bundle bundle = new Bundle();
 
-            bundle.putByteArray(activity.getString(R.string.post_object_key), posts.get(position).toByteArray());
+            bundle.putByteArray(activity.getString(R.string.post_object_key), post.toByteArray());
 
             fragViewPost.setArguments(bundle);
             ((MainActivity) activity).navigateTo(fragViewPost, true);
