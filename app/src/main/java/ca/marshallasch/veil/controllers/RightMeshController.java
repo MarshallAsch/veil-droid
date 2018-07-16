@@ -236,6 +236,18 @@ public class RightMeshController implements MeshStateListener{
         }
     }
 
+    /**
+     * Shows activity for RightMesh Settings
+     */
+    public void showMeshSettings(){
+        try {
+            meshManager.showSettingsActivity();
+        }
+        catch (RightMeshException e) {
+            e.printStackTrace();
+        }
+    }
+
 
 
 }

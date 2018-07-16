@@ -55,7 +55,7 @@ public class VeilService extends Service {
         public void handleMessage(Message msg) {
             switch (msg.what){
                 case ACTION_VIEW_MESH_SETTINGS:
-                    Log.i("VeilService", "Mesh Settings Clicked");
+                    rightMeshController.showMeshSettings();
                     break;
                 default:
                     super.handleMessage(msg);
