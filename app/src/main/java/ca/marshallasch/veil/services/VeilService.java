@@ -7,8 +7,10 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.os.Messenger;
 import android.support.annotation.Nullable;
 import android.os.Process;
+import android.util.Log;
 import android.widget.Toast;
 
 import ca.marshallasch.veil.controllers.RightMeshController;
@@ -25,10 +27,18 @@ public class VeilService extends Service {
     private Looper veilServiceLooper;
     private ServiceHandler veilServiceHandler;
 
+    //Message Strings
+    public static final int ACTION_VIEW_MESH_SETTINGS = 1;
+
+
     /**
      * ServiceHandler class for the {@link VeilService}
      */
     private final class ServiceHandler extends Handler {
+        public ServiceHandler() {
+
+        }
+
         /**
          * function for creating the ServiceHandler
          * @param looper thread's looper
@@ -43,13 +53,20 @@ public class VeilService extends Service {
          */
         @Override
         public void handleMessage(Message msg) {
-            //TODO: handle msg
-
-            // Stop the service using the startId,
-            // prevent stopping in middle of handling another job
-           // stopSelf(msg.arg1);
+            switch (msg.what){
+                case ACTION_VIEW_MESH_SETTINGS:
+                    Log.i("VeilService", "Mesh Settings Clicked");
+                    break;
+                default:
+                    super.handleMessage(msg);
+            }
         }
     }
+
+    /**
+     * Target for clients to send messages to ServiceHandler
+     */
+    final Messenger veilMessenger = new Messenger(new ServiceHandler());
 
 
     /**
@@ -77,7 +94,7 @@ public class VeilService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Toast.makeText(this, "veil service started", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Veil service started.", Toast.LENGTH_SHORT).show();
 
         Message msg = veilServiceHandler.obtainMessage();
         msg.arg1 = startId;
@@ -92,22 +109,22 @@ public class VeilService extends Service {
     @Override
     public void onDestroy(){
         super.onDestroy();
+        Toast.makeText(this, "Veil service ended.", Toast.LENGTH_SHORT).show();
         rightMeshController.disconnect();
         rightMeshController = null;
-
         //force kill service so it has no chance of recreating itself
         android.os.Process.killProcess(android.os.Process.myPid());
     }
 
     /**
-     * ??????????????????
-     * @param intent
+     * Allows for binding to {@link VeilService} returning an interface to the messenger
+     * @param intent an intent call from the client side
      * @return
      */
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        //no binding at the moment
-        return null;
+        Toast.makeText(this, "binding", Toast.LENGTH_SHORT).show();
+        return veilMessenger.getBinder();
     }
 }

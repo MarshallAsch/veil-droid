@@ -1,7 +1,14 @@
 package ca.marshallasch.veil;
 
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -10,21 +17,52 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.services.VeilService;
 import io.left.rightmesh.android.AndroidMeshManager;
 
 public class MainActivity extends AppCompatActivity {
-
-    public static final int DATA_PORT = 9182;
-    // private static final int DISCOVERY_PORT = 9183;       // This port will be used for the DHT
-                                                            // to keep all of that traffic separate
+    // This port will be used for the DHT to keep all of that traffic separate
+    // private static final int DISCOVERY_PORT = 9183;
 
     //MemoryStore instance - for storing data in local hashtable
     DataStore dataStore = null;
 
+    /** messenger for communicating with {@link VeilService} **/
+    Messenger messengerService = null;
+
+    // flag for indicating if we have called bind on service
+    boolean isBound;
     private DhtProto.User currentUser = null;
+
+    /**
+     * Class for interacting with {@link VeilService}
+     */
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        /**
+         * Called when connection to service has been established.
+         * @param componentName
+         * @param service Client side representation of a raw IBinder object
+         */
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder service) {
+            messengerService = new Messenger(service);
+            isBound = true;
+        }
+
+        /**
+         * Handles when the service has unexpectedly crashed or disconnects
+         * @param componentName
+         */
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            messengerService = null;
+            isBound = false;
+        }
+    };
+
 
 
     @Override
@@ -74,10 +112,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStart(){
+        super.onStart();
+        //bind to service
+        bindService(new Intent(this, VeilService.class), serviceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
     protected void onStop()
     {
         super.onStop();
-
+        //unbind from service
+        if(isBound) {
+            unbindService(serviceConnection);
+            isBound = false;
+        }
         dataStore.save(this);
     }
 
@@ -117,12 +166,7 @@ public class MainActivity extends AppCompatActivity {
                 frag = new FragmentPeerList();
                 break;
             case R.id.setup:
-                /*try {
-                    meshManager.showSettingsActivity();
-                }
-                catch (RightMeshException e) {
-                    e.printStackTrace();
-                }*/
+                sendServiceMessage(null);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -185,4 +229,19 @@ public class MainActivity extends AppCompatActivity {
     {
         this.currentUser = currentUser;
     }
+
+
+    public void sendServiceMessage(@Nullable View view){
+        //return if the service is not bound
+        if(!isBound) return;
+
+        Message msg = Message.obtain(null, VeilService.ACTION_VIEW_MESH_SETTINGS, 0, 0);
+        try {
+            messengerService.send(msg);
+        } catch (RemoteException e){
+            e.printStackTrace();
+        }
+
+    }
+
 }

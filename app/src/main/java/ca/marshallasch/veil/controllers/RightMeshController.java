@@ -8,6 +8,8 @@ import android.widget.Toast;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
+import java.util.Set;
+
 import ca.marshallasch.veil.DataStore;
 import ca.marshallasch.veil.proto.Sync;
 import io.left.rightmesh.android.AndroidMeshManager;
@@ -210,5 +212,30 @@ public class RightMeshController implements MeshStateListener{
             }
         }
     }
+
+    public void manualRefresh(){
+        try {
+            MeshManager manager = this.meshManager;
+            Set<MeshId> peers = manager.getPeers(this.DATA_PORT);
+
+            Sync.Message dataRequest = Sync.Message.newBuilder().setType(Sync.SyncMessageType.REQUEST_DATA).build();
+
+            // request an update from everyone
+            for (MeshId peer: peers) {
+
+                // do not ask myself for info
+                if (peer.equals(manager.getUuid())) {
+                    continue;
+                }
+                manager.sendDataReliable(peer, this.DATA_PORT, dataRequest.toByteArray());
+            }
+
+        }
+        catch (RightMeshException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
 }

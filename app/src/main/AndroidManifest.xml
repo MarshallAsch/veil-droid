@@ -11,7 +11,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.Launcher" >
         <service
-            android:name="ca.marshallasch.veil.services.VeilService" />
+            android:name="ca.marshallasch.veil.services.VeilService"
+            android:exported="false"/>
         <activity
             android:name=".MainActivity"
             android:windowSoftInputMode="adjustResize">
