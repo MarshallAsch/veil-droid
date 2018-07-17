@@ -71,10 +71,18 @@ public class FragmentPeerList extends Fragment
         return view;
     }
 
+    @Override
+    public void onDestroyView(){
+        super.onDestroyView();
+
+        //unregister broadcast receiver
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(broadcastReceiver);
+
+    }
+
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("Fragmentpeerlist","Broadcast received! " + intent.getAction());
             Set<MeshId> peers = (Set<MeshId>) intent.getSerializableExtra("peersList");
             if (peers != null) {
                 for (MeshId peer : peers) {

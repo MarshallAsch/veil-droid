@@ -235,9 +235,11 @@ public class RightMeshController implements MeshStateListener{
         catch (RightMeshException e) {
             e.printStackTrace();
         }
+        Intent intent = new Intent(RightMeshController.NEW_DATA_BROADCAST);
+        LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
     }
 
-    public Intent getPeers(){
+    public void getPeers(){
         Set<MeshId> peers = null;
         try{
             peers = meshManager.getPeers(DATA_PORT);
@@ -249,8 +251,8 @@ public class RightMeshController implements MeshStateListener{
         //MeshId is serializable
         //Ref: https://developer.rightmesh.io/api/latest/reference/io/left/rightmesh/id/MeshID.php
         intent.putExtra("peersList", (Serializable) peers);
+        LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
 
-        return intent;
     }
 
     /**
