@@ -15,6 +15,9 @@ import android.widget.Toast;
 import ca.marshallasch.veil.controllers.RightMeshController;
 
 /**
+ * Hosts all RightMesh logic on this service thread. Also receives {@link Message}s from
+ * {@link ca.marshallasch.veil.MainActivity} to handle work requested from application.
+ *
  * @author Weihan Li
  * @version 1.0
  * @created on 2018-07-09

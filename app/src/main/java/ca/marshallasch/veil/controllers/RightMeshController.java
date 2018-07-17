@@ -26,7 +26,7 @@ import static io.left.rightmesh.mesh.MeshManager.REMOVED;
 
 /**
  *
- * All Rightmesh logic is abstracted into this class
+ * All RightMesh logic is abstracted into this class
  *
  * @author Weihan Li
  * @version 1.0
@@ -214,6 +214,10 @@ public class RightMeshController implements MeshStateListener{
         }
     }
 
+    /**
+     * Requests data from connected peers over the mesh and sends a broadcast notifying that
+     * data has been updated.
+     */
     public void manualRefresh(){
         try {
             MeshManager manager = this.meshManager;
@@ -239,6 +243,9 @@ public class RightMeshController implements MeshStateListener{
         LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
     }
 
+    /**
+     * Sends a set of {@link MeshId} objects as a serialized set over a local broadcast.
+     */
     public void getPeers(){
         Set<MeshId> peers = null;
         try{
