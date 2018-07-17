@@ -10,6 +10,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.support.annotation.Nullable;
 import android.os.Process;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -29,6 +30,8 @@ public class VeilService extends Service {
 
     //Message Strings
     public static final int ACTION_VIEW_MESH_SETTINGS = 1;
+    public static final int ACTION_MAIN_RESUME_MESH = 2;
+    public static final int ACTION_MAIN_REFRESH_PEER_LIST = 3;
 
 
     /**
@@ -57,6 +60,12 @@ public class VeilService extends Service {
                 case ACTION_VIEW_MESH_SETTINGS:
                     rightMeshController.showMeshSettings();
                     break;
+                case ACTION_MAIN_RESUME_MESH:
+                    rightMeshController.resumeMeshManager();
+                    break;
+                case ACTION_MAIN_REFRESH_PEER_LIST:
+                    sendLocalBroadcast(rightMeshController.getPeers());
+                    break;
                 default:
                     super.handleMessage(msg);
             }
@@ -75,7 +84,6 @@ public class VeilService extends Service {
     @Override
     public void onCreate(){
         super.onCreate();
-
 
         //Start up thread and make it background priority so it doesn't disrupt UI
         HandlerThread veilServiceThread = new HandlerThread("VeilServiceThread",
@@ -126,5 +134,14 @@ public class VeilService extends Service {
     public IBinder onBind(Intent intent) {
         Toast.makeText(this, "binding", Toast.LENGTH_SHORT).show();
         return veilMessenger.getBinder();
+    }
+
+    /**
+     * Uses the service's instance to send a local broadcast informing listeners that a requested
+     * task is complete. It also sends back data if the service call requested data.
+     * @param intent the intent that holds the message and/or data.
+     */
+    private void sendLocalBroadcast(Intent intent){
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 }

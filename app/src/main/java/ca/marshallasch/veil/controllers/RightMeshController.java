@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import ca.marshallasch.veil.DataStore;
@@ -236,16 +237,43 @@ public class RightMeshController implements MeshStateListener{
         }
     }
 
+    public Intent getPeers(){
+        Set<MeshId> peers = null;
+        try{
+            peers = meshManager.getPeers(DATA_PORT);
+        } catch (RightMeshException e){
+            e.printStackTrace();
+        }
+
+        Intent intent = new Intent("getPeers");
+        //MeshId is serializable
+        //Ref: https://developer.rightmesh.io/api/latest/reference/io/left/rightmesh/id/MeshID.php
+        intent.putExtra("peersList", (Serializable) peers);
+
+        return intent;
+    }
+
     /**
      * Shows activity for RightMesh Settings
      */
     public void showMeshSettings(){
         try {
             meshManager.showSettingsActivity();
-        }
-        catch (RightMeshException e) {
+        } catch (RightMeshException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Resumes Mesh functionality
+     */
+    public void resumeMeshManager(){
+        try {
+            meshManager.resume();
+        } catch (RightMeshException e){
+            e.printStackTrace();
+        }
+
     }
 
 

@@ -13,6 +13,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -86,12 +87,9 @@ public class MainActivity extends AppCompatActivity {
      */
     @Override
     protected void onResume() {
-       //try {
-            super.onResume();
-            /*meshManager.resume();
-        } catch (RightMeshException e) {
-            e.printStackTrace();
-        }*/
+        super.onResume();
+        sendServiceMessage(null, VeilService.ACTION_MAIN_RESUME_MESH);
+
     }
 
     /**
@@ -166,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
                 frag = new FragmentPeerList();
                 break;
             case R.id.setup:
-                sendServiceMessage(null);
+                sendServiceMessage(null, VeilService.ACTION_VIEW_MESH_SETTINGS);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -231,11 +229,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void sendServiceMessage(@Nullable View view){
+    /**
+     * Sends messages to {@link VeilService} to do work with.
+     * @param view optional view for setting objects in view
+     * @param command non optional command int defined by static strings in {@link VeilService}
+     */
+    public void sendServiceMessage(@Nullable View view, @NonNull int command){
         //return if the service is not bound
         if(!isBound) return;
 
-        Message msg = Message.obtain(null, VeilService.ACTION_VIEW_MESH_SETTINGS, 0, 0);
+        Message msg = Message.obtain(null, command, 0, 0);
         try {
             messengerService.send(msg);
         } catch (RemoteException e){
