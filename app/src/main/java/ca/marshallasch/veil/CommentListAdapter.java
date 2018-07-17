@@ -90,6 +90,7 @@ public class CommentListAdapter extends RecyclerView.Adapter<CommentListAdapter.
         holder.authorName.setText(authorName);
         holder.content.setText(comment.getMessage());
 
+        // generate a string that describes the age of the comment, 1s, 4 min, 5 hours, etc.
         CharSequence dateString = DateUtils.getRelativeTimeSpanString(
                 Util.timestampToDate(comment.getTimestamp()).getTime(),
                 System.currentTimeMillis(),

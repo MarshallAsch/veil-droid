@@ -103,6 +103,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
         viewHolder.commentCount.setText(activity.getString(R.string.num_comments, numComments));
         viewHolder.authorName.setText(post.getAuthorName());
 
+        // generate a string that describes the age of the post, 1s, 4 min, 5 hours, etc.
         CharSequence dateString = DateUtils.getRelativeTimeSpanString(
                 Util.timestampToDate(post.getTimestamp()).getTime(),
                 System.currentTimeMillis(),
