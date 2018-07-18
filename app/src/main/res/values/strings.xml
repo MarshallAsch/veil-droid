@@ -1,6 +1,11 @@
 <resources>
     <string name="app_name">Veil</string>
 
+    <!-- menu items -->
+    <string name="app_settings">App Settings</string>
+    <string name="rightmesh_settings">RightMesh Settings</string>
+    <string name="connected_peers">Connected Peers</string>
+
     <!-- menu bar items-->
     <string name="login_menu_title">Login</string>
     <string name="signup_menu_title">Signup</string>
@@ -93,7 +98,8 @@
     <string name="edit">Edit</string>
 
     <!-- Settings Page Strings -->
-    <string name="toggle_dark_mode"> Toggle Dark Theme</string>
+    <string name="toggle_dark_mode">Toggle dark theme</string>
+    <string name="dark_theme_option_description">Join the dark side</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
