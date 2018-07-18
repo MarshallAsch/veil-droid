@@ -11,5 +11,4 @@
     <item
         android:id="@+id/connected_peers"
         android:title="@string/connected_peers"/>
-
 </menu>

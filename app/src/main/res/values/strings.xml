@@ -5,6 +5,7 @@
     <string name="app_settings">App Settings</string>
     <string name="rightmesh_settings">RightMesh Settings</string>
     <string name="connected_peers">Connected Peers</string>
+    <string name="display_settings">Display Settings</string>
 
     <!-- menu bar items-->
     <string name="login_menu_title">Login</string>

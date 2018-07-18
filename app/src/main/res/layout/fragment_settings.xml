@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="20dp"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="52dp"
+        android:layout_marginTop="35dp"
         android:text="@string/toggle_dark_mode"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -21,10 +21,33 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/textView9"
+        android:id="@+id/dark_view_description_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/dark_theme_option_description"
         app:layout_constraintStart_toStartOf="@+id/toggle_dark_theme"
         app:layout_constraintTop_toBottomOf="@+id/toggle_dark_theme" />
+
+    <TextView
+        android:id="@+id/display_settings_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="@string/display_settings"
+        android:textColor="@color/colorPrimary"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/toggle_dark_theme"
+        app:layout_constraintStart_toStartOf="@+id/toggle_dark_theme" />
+
+    <View
+        android:id="@+id/display_settings_divider"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dark_view_description_text" />
+
 </android.support.constraint.ConstraintLayout>

@@ -137,6 +137,9 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
             case android.R.id.home:
                 getSupportFragmentManager().popBackStack();
                 return true;
+            case R.id.app_settings:
+                frag = new FragmentSettings();
+                break;
             case R.id.connected_peers:
                 frag = new FragmentPeerList();
                 break;
