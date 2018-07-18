@@ -14,13 +14,9 @@
     <string name="first_name_title">First Name</string>
     <string name="last_name_title">Last Name</string>
     <string name="sign_up_button_label">Sign Up</string>
-
-
     <string name="password_old_title">Current Password</string>
     <string name="password_new_title">New Password</string>
     <string name="password_conf_new_title">Confirm New Password</string>
-
-
     <string name="password_requirements_label">At least 8 characters long, 1 uppercase, 1 lowercase, 1 number, and 1 special character</string>
 
     <!-- Create Post strings -->
@@ -36,18 +32,11 @@
     <string name="password_mismatch">Passwords do not match</string>
     <string name="password_complexity">Passwords too simple</string>
     <string name="password_accepted">Password good</string>
-
     <string name="comment_too_short">The comment message too short.</string>
-
-
     <string name="missing_name">Name is missing</string>
-
     <string name="invalid_email">Invalid Email Address</string>
-
     <string name="username_pass_not_match">Invalid username or password</string>
-
     <string name="unknown_err">Unknown Error</string>
-
     <string name="failed_to_save_data">Can not save the data</string>
 
     <!-- General strings for use throughout the app -->
@@ -89,13 +78,10 @@
     <string name="view">View</string>
     <string name="full_name_placeholder">%s %s</string>
     <string name="remember_me_label">Remember username and password</string>
-  
     <string name="add_a_comment">Add a comment</string>
     <string name="comment_hint">Add a comment about the post.</string>
     <string name="post">Post</string>
-
     <string name="anonymous">Anonymous</string>
-
     <string name="account_settings">Account Settings</string>
     <string name="full_name">Full Name</string>
     <string name="edit_button_content_description">Edit Button</string>
@@ -104,10 +90,13 @@
     <string name="change_email_message">Please enter your new email</string>
     <string name="change_name">Change Name</string>
     <string name="change_name_message">Please enter your new name</string>
-
     <string name="edit">Edit</string>
 
+    <!-- Settings Page Strings -->
+    <string name="toggle_dark_mode"> Toggle Dark Theme</string>
 
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 
 </resources>
