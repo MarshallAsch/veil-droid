@@ -12,6 +12,7 @@ import java.io.Serializable;
 import java.util.Set;
 
 import ca.marshallasch.veil.DataStore;
+import ca.marshallasch.veil.R;
 import ca.marshallasch.veil.proto.Sync;
 import io.left.rightmesh.android.AndroidMeshManager;
 import io.left.rightmesh.android.MeshService;
@@ -35,7 +36,13 @@ import static io.left.rightmesh.mesh.MeshManager.REMOVED;
  */
 
 public class RightMeshController implements MeshStateListener{
+    //Broadcast public strings
     public static final String NEW_DATA_BROADCAST = "ca.marshallasch.veil.controllers.NEW_DATA_BROADCAST";
+    public static final String GET_PEERS_BROADCAST = "ca.marshallasch.veil.controllers.GET_PEERS_BROADCAST";
+
+    //intent filter public strings
+    public static final String PEERS_LIST = "ca.marshallasch.veil.controllers.PEERS_LIST";
+
     // MeshManager instance - interface to the mesh network.
     AndroidMeshManager meshManager = null;
     Context serviceContext = null;
@@ -43,8 +50,6 @@ public class RightMeshController implements MeshStateListener{
 
     //MemoryStore instance - for storing data in local HashTable
     DataStore dataStore = null;
-
-    private boolean meshActive = false;
 
     /**
      * Get a {@link AndroidMeshManager} instance and/or start RightMesh if it isn't already
@@ -57,7 +62,7 @@ public class RightMeshController implements MeshStateListener{
     }
 
     /**
-     * Close the RightMesh connection and/or stopping the service is there is no other apps using
+     * Close the RightMesh connection and/or stopping the service if the app is no longer using
      * RightMesh
      */
     public void disconnect(){
@@ -76,9 +81,7 @@ public class RightMeshController implements MeshStateListener{
      *
      * @param e event object from mesh
      */
-    private void handleDataReceived(MeshManager.RightMeshEvent e)
-    {
-        // TODO: 2018-05-28 Add in logic to handle the incoming data
+    private void handleDataReceived(MeshManager.RightMeshEvent e) {
         final MeshManager.DataReceivedEvent event = (MeshManager.DataReceivedEvent) e;
 
         Sync.Message message;
@@ -154,16 +157,12 @@ public class RightMeshController implements MeshStateListener{
                     meshManager.on(PEER_CHANGED, this::handlePeerChanged);
 
                 } catch (RightMeshException e) {
-                    String status = "Error initializing the library" + e.toString();
+                    String status = R.string.error_initializing_the_library + e.toString();
+                    e.printStackTrace();
                     Toast.makeText(serviceContext, status, Toast.LENGTH_SHORT).show();
                     return;
                 }
                 Log.d("MESH", "initilized");
-
-            case RESUME:  // over the mesh!
-
-                meshActive = true;
-                break;
             case FAILURE:  // Mesh connection unavailable,
             case DISABLED: // time for Plan B.
                 break;
@@ -254,10 +253,10 @@ public class RightMeshController implements MeshStateListener{
             e.printStackTrace();
         }
 
-        Intent intent = new Intent("getPeers");
+        Intent intent = new Intent(this.GET_PEERS_BROADCAST);
         //MeshId is serializable
         //Ref: https://developer.rightmesh.io/api/latest/reference/io/left/rightmesh/id/MeshID.php
-        intent.putExtra("peersList", (Serializable) peers);
+        intent.putExtra(this.PEERS_LIST, (Serializable) peers);
         LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
 
     }
@@ -282,9 +281,5 @@ public class RightMeshController implements MeshStateListener{
         } catch (RightMeshException e){
             e.printStackTrace();
         }
-
     }
-
-
-
 }

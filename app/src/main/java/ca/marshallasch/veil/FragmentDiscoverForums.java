@@ -14,7 +14,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -74,7 +73,7 @@ public class FragmentDiscoverForums extends Fragment implements  SwipeRefreshLay
         refreshLayout.setOnRefreshListener(this);
 
         // register receiver to be notified when the data changes
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
+        LocalBroadcastManager.getInstance(activity).registerReceiver(
                 broadcastReceiver, new IntentFilter(RightMeshController.NEW_DATA_BROADCAST));
 
 
@@ -91,8 +90,7 @@ public class FragmentDiscoverForums extends Fragment implements  SwipeRefreshLay
 
     @Override
     public void onRefresh() {
-        ((MainActivity) getActivity()).sendServiceMessage(null, VeilService.ACTION_MAIN_MANUAL_REFRESH);
-        postListAdapter.notifyDataSetChanged();
+        ((MainActivity) getActivity()).sendServiceMessage(null, VeilService.ACTION_MAIN_REFRESH_FORUMS_LIST);
     }
 
     private final  BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {

@@ -63,6 +63,7 @@
     <!-- Error Messages -->
     <string name="failed_to_load_title">Failed to load title</string>
     <string name="failed_to_load_content">Failed to load content</string>
+    <string name="error_initializing_the_library">Error initializing the library</string>
 
     <!-- Bundle keys -->
     <string name="post_object_key">post_object_key</string>

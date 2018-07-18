@@ -20,6 +20,7 @@ import android.widget.TextView;
 
 import java.util.Set;
 
+import ca.marshallasch.veil.controllers.RightMeshController;
 import ca.marshallasch.veil.services.VeilService;
 import io.left.rightmesh.id.MeshId;
 import io.left.rightmesh.util.RightMeshException;
@@ -53,7 +54,7 @@ public class FragmentPeerList extends Fragment
          * from {@link ca.marshallasch.veil.services.VeilService}
          */
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
-                broadcastReceiver, new IntentFilter("getPeers"));
+                broadcastReceiver, new IntentFilter(RightMeshController.GET_PEERS_BROADCAST));
 
         Activity activity = getActivity();
         ActionBar actionBar = ((MainActivity) activity).getSupportActionBar();
@@ -83,7 +84,7 @@ public class FragmentPeerList extends Fragment
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Set<MeshId> peers = (Set<MeshId>) intent.getSerializableExtra("peersList");
+            Set<MeshId> peers = (Set<MeshId>) intent.getSerializableExtra(RightMeshController.PEERS_LIST);
             if (peers != null) {
                 for (MeshId peer : peers) {
                     peerList.append("\n" + peer.toString());

@@ -33,25 +33,13 @@ public class VeilService extends Service {
     public static final int ACTION_VIEW_MESH_SETTINGS = 1;
     public static final int ACTION_MAIN_RESUME_MESH = 2;
     public static final int ACTION_MAIN_REFRESH_PEER_LIST = 3;
-    public static final int ACTION_MAIN_MANUAL_REFRESH = 4;
+    public static final int ACTION_MAIN_REFRESH_FORUMS_LIST = 4;
 
 
     /**
      * ServiceHandler class for the {@link VeilService}
      */
     private final class ServiceHandler extends Handler {
-        public ServiceHandler() {
-
-        }
-
-        /**
-         * function for creating the ServiceHandler
-         * @param looper thread's looper
-         */
-        public ServiceHandler(Looper looper){
-            super(looper);
-        }
-
         /**
          * Where messages to do work on the thread is processed
          * @param msg work message
@@ -68,7 +56,7 @@ public class VeilService extends Service {
                 case ACTION_MAIN_REFRESH_PEER_LIST:
                     rightMeshController.getPeers();
                     break;
-                case ACTION_MAIN_MANUAL_REFRESH:
+                case ACTION_MAIN_REFRESH_FORUMS_LIST:
                     rightMeshController.manualRefresh();
                     break;
                 default:
@@ -95,10 +83,6 @@ public class VeilService extends Service {
                 Process.THREAD_PRIORITY_BACKGROUND);
         veilServiceThread.start();
 
-        //Get the handlerThread's Looper and use it for handler
-        veilServiceLooper = veilServiceThread.getLooper();
-        veilServiceHandler = new ServiceHandler(veilServiceLooper);
-
 
         //start RightMesh connection through controller using service context
         rightMeshController = new RightMeshController();
@@ -108,10 +92,6 @@ public class VeilService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Toast.makeText(this, "Veil service started.", Toast.LENGTH_SHORT).show();
-
-        Message msg = veilServiceHandler.obtainMessage();
-        msg.arg1 = startId;
-        veilServiceHandler.sendMessage(msg);
 
         return START_STICKY;
     }
