@@ -69,6 +69,12 @@ public class FragmentPeerList extends Fragment
         // refresh the list when the button is pressed
         refresh.setOnClickListener(view1 -> refreshList());
 
+        int nbRunning = 0;
+        for (Thread t : Thread.getAllStackTraces().keySet()) {
+            if (t.getState()==Thread.State.RUNNABLE) nbRunning++;
+        }
+        Log.e("THREADS: ", String.valueOf(nbRunning));
+
         return view;
     }
 

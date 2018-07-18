@@ -35,11 +35,20 @@ public class VeilService extends Service {
     public static final int ACTION_MAIN_REFRESH_PEER_LIST = 3;
     public static final int ACTION_MAIN_REFRESH_FORUMS_LIST = 4;
 
+    /**
+     * Target for clients to send messages to ServiceHandler
+     */
+    Messenger veilMessenger = null;
 
     /**
      * ServiceHandler class for the {@link VeilService}
      */
     private final class ServiceHandler extends Handler {
+
+        public ServiceHandler (Looper looper){
+            super(looper);
+        }
+
         /**
          * Where messages to do work on the thread is processed
          * @param msg work message
@@ -65,11 +74,6 @@ public class VeilService extends Service {
         }
     }
 
-    /**
-     * Target for clients to send messages to ServiceHandler
-     */
-    final Messenger veilMessenger = new Messenger(new ServiceHandler());
-
 
     /**
      * Connects to RightMesh when service is started
@@ -83,6 +87,9 @@ public class VeilService extends Service {
                 Process.THREAD_PRIORITY_BACKGROUND);
         veilServiceThread.start();
 
+        veilServiceLooper = veilServiceThread.getLooper();
+
+        veilMessenger = new Messenger(new ServiceHandler(veilServiceLooper));
 
         //start RightMesh connection through controller using service context
         rightMeshController = new RightMeshController();
