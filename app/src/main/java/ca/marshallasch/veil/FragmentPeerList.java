@@ -11,7 +11,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +22,6 @@ import java.util.Set;
 import ca.marshallasch.veil.controllers.RightMeshController;
 import ca.marshallasch.veil.services.VeilService;
 import io.left.rightmesh.id.MeshId;
-import io.left.rightmesh.util.RightMeshException;
 
 
 /**
@@ -69,12 +67,6 @@ public class FragmentPeerList extends Fragment
         // refresh the list when the button is pressed
         refresh.setOnClickListener(view1 -> refreshList());
 
-        int nbRunning = 0;
-        for (Thread t : Thread.getAllStackTraces().keySet()) {
-            if (t.getState()==Thread.State.RUNNABLE) nbRunning++;
-        }
-        Log.e("THREADS: ", String.valueOf(nbRunning));
-
         return view;
     }
 
@@ -96,7 +88,6 @@ public class FragmentPeerList extends Fragment
                     peerList.append("\n" + peer.toString());
                 }
             }
-
         }
     };
 

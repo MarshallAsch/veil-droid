@@ -26,8 +26,6 @@ import ca.marshallasch.veil.controllers.RightMeshController;
 public class VeilService extends Service {
 
     private RightMeshController rightMeshController;
-    private Looper veilServiceLooper;
-    private ServiceHandler veilServiceHandler;
 
     //Message Strings
     public static final int ACTION_VIEW_MESH_SETTINGS = 1;
@@ -45,7 +43,12 @@ public class VeilService extends Service {
      */
     private final class ServiceHandler extends Handler {
 
-        public ServiceHandler (Looper looper){
+        /**
+         * Creates the service handler on the given thread.
+         *
+         * @param looper the looper for the thread that the work will be run on.
+         */
+        ServiceHandler (Looper looper){
             super(looper);
         }
 
@@ -87,9 +90,7 @@ public class VeilService extends Service {
                 Process.THREAD_PRIORITY_BACKGROUND);
         veilServiceThread.start();
 
-        veilServiceLooper = veilServiceThread.getLooper();
-
-        veilMessenger = new Messenger(new ServiceHandler(veilServiceLooper));
+        veilMessenger = new Messenger(new ServiceHandler(veilServiceThread.getLooper()));
 
         //start RightMesh connection through controller using service context
         rightMeshController = new RightMeshController();
@@ -119,7 +120,7 @@ public class VeilService extends Service {
     /**
      * Allows for binding to {@link VeilService} returning an interface to the messenger
      * @param intent an intent call from the client side
-     * @return
+     * @return the default IBinder object for the messenger
      */
     @Nullable
     @Override

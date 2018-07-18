@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import ca.marshallasch.veil.R;
 import ca.marshallasch.veil.database.BlockContract.BlockEntry;
 import ca.marshallasch.veil.database.KnownPostsContract.KnownPostsEntry;
@@ -37,10 +39,14 @@ import ca.marshallasch.veil.utilities.Util;
  *
  * Note the at SQLite does not impose length restrictions.
  *
+ * Any call that will read from or write to the database will be synchronous so that one one can
+ * be executing at a time.
+ *
  * @author Marshall Asch
  * @version 1.0
  * @since 2018-05-31
  */
+@ThreadSafe
 public class Database extends SQLiteOpenHelper
 {
     private static String DATABASE_NAME = "contentDiscoveryTables";
@@ -166,7 +172,11 @@ public class Database extends SQLiteOpenHelper
         values.put(BlockEntry.COLUMN_TIMESTAMP, System.currentTimeMillis());
 
         // note this is a potentially long running operation.
-        long id = getWritableDatabase().insertWithOnConflict(BlockEntry.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+        long id;
+
+        synchronized (this) {
+            id = getWritableDatabase().insertWithOnConflict(BlockEntry.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+        }
 
         return id != -1;
     }
@@ -193,7 +203,11 @@ public class Database extends SQLiteOpenHelper
         // Specify arguments in placeholder order.
         String[] selectionArgs = {userID};
 
-        int numDeleted = getWritableDatabase().delete(BlockEntry.TABLE_NAME, selection, selectionArgs);
+        int numDeleted;
+
+        synchronized (this) {
+            numDeleted = getWritableDatabase().delete(BlockEntry.TABLE_NAME, selection, selectionArgs);
+        }
 
         // makes sure only 1 row was removed, anything else would be an error
         return numDeleted == 1;
@@ -244,7 +258,11 @@ public class Database extends SQLiteOpenHelper
         values.put(NotificationEntry.COLUMN_TIMESTAMP, System.currentTimeMillis());
 
         // note this is a potentially long running operation.
-        long id = getWritableDatabase().insertWithOnConflict(NotificationEntry.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+
+        long id;
+        synchronized (this) {
+            id = getWritableDatabase().insertWithOnConflict(NotificationEntry.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+        }
 
         return id != -1;
     }
@@ -270,8 +288,10 @@ public class Database extends SQLiteOpenHelper
         // Specify arguments in placeholder order.
         String[] selectionArgs = {hash};
 
-        int numDeleted = getWritableDatabase().delete(NotificationEntry.TABLE_NAME, selection, selectionArgs);
-
+        int numDeleted;
+        synchronized (this) {
+            numDeleted = getWritableDatabase().delete(NotificationEntry.TABLE_NAME, selection, selectionArgs);
+        }
         // makes sure only 1 row was removed, anything else would be an error
         return numDeleted == 1;
     }
@@ -334,7 +354,11 @@ public class Database extends SQLiteOpenHelper
         values.put(KnownPostsEntry.COLUMN_COMMENT_HASH, commentHash);
 
         // note this is a potentially long running operation.
-        long id = getWritableDatabase().insert(KnownPostsEntry.TABLE_NAME, null, values);
+
+        long id;
+        synchronized (this) {
+            id = getWritableDatabase().insert(KnownPostsEntry.TABLE_NAME, null, values);
+        }
 
         Log.d("INSERT", "ID: " + id + " POST: " + posthash);
         return id != -1;
@@ -386,7 +410,10 @@ public class Database extends SQLiteOpenHelper
         values.put(UserEntry.COLUMN_TIMESTAMP, createdAt.getTime());
 
         // note this is a potentially long running operation.
-        long id = getWritableDatabase().insert(UserEntry.TABLE_NAME, null, values);
+        long id;
+        synchronized (this) {
+            id = getWritableDatabase().insert(UserEntry.TABLE_NAME, null, values);
+        }
 
         // check if the creation was successful, return the user if it was
         return id != -1 ? user : null;
@@ -422,15 +449,18 @@ public class Database extends SQLiteOpenHelper
         String selection = UserEntry.COLUMN_EMAIL_ADDRESS + " = ?";
         String[] selectionArgs = { email };
 
-        Cursor cursor = getReadableDatabase().query(
-                UserEntry.TABLE_NAME,   // The table to query
-                projection,             // The array of columns to return (pass null to get all)
-                selection,              // The columns for the WHERE clause
-                selectionArgs,          // The values for the WHERE clause
-                null,          // don't group the rows
-                null,           // don't filter by row groups
-                null           // don't sort the rows
-        );
+        Cursor cursor;
+        synchronized (this) {
+            cursor = getReadableDatabase().query(
+                    UserEntry.TABLE_NAME,   // The table to query
+                    projection,             // The array of columns to return (pass null to get all)
+                    selection,              // The columns for the WHERE clause
+                    selectionArgs,          // The values for the WHERE clause
+                    null,          // don't group the rows
+                    null,           // don't filter by row groups
+                    null           // don't sort the rows
+            );
+        }
 
         DhtProto.User user = null;
 
@@ -495,15 +525,18 @@ public class Database extends SQLiteOpenHelper
         String selection = UserEntry.COLUMN_EMAIL_ADDRESS + " = ?";
         String[] selectionArgs = { email };
 
-        Cursor cursor = getReadableDatabase().query(
-                UserEntry.TABLE_NAME,   // The table to query
-                projection,             // The array of columns to return (pass null to get all)
-                selection,              // The columns for the WHERE clause
-                selectionArgs,          // The values for the WHERE clause
-                null,          // don't group the rows
-                null,           // don't filter by row groups
-                null           // don't sort the rows
-        );
+        Cursor cursor;
+        synchronized (this) {
+            cursor = getReadableDatabase().query(
+                    UserEntry.TABLE_NAME,   // The table to query
+                    projection,             // The array of columns to return (pass null to get all)
+                    selection,              // The columns for the WHERE clause
+                    selectionArgs,          // The values for the WHERE clause
+                    null,          // don't group the rows
+                    null,           // don't filter by row groups
+                    null           // don't sort the rows
+            );
+        }
 
         // check each of the accounts that have the same email address.
         while(cursor.moveToNext()) {
@@ -519,12 +552,14 @@ public class Database extends SQLiteOpenHelper
                 ContentValues values = new ContentValues();
                 values.put(UserEntry.COLUMN_PASSWORD, passHash);
 
-                numUpdated = getWritableDatabase().update(
-                        UserEntry.TABLE_NAME,
-                        values,
-                        selection,
-                        selectionArgs
+                synchronized (this) {
+                    numUpdated = getWritableDatabase().update(
+                            UserEntry.TABLE_NAME,
+                            values,
+                            selection,
+                            selectionArgs
                     );
+                }
 
                 break;
             }
@@ -557,12 +592,15 @@ public class Database extends SQLiteOpenHelper
         ContentValues values = new ContentValues();
         values.put(UserEntry.COLUMN_EMAIL_ADDRESS, newEmail);
 
-        int numUpdated = getWritableDatabase().update(
-                UserEntry.TABLE_NAME,
-                values,
-                selection,
-                selectionArgs
-        );
+        int numUpdated;
+        synchronized (this) {
+            numUpdated = getWritableDatabase().update(
+                    UserEntry.TABLE_NAME,
+                    values,
+                    selection,
+                    selectionArgs
+            );
+        }
 
         // check if only 1 row got updated
         return numUpdated == 1;
@@ -593,12 +631,15 @@ public class Database extends SQLiteOpenHelper
         values.put(UserEntry.COLUMN_FIRST_NAME, firstName);
         values.put(UserEntry.COLUMN_LAST_NAME, lastName);
 
-        int numUpdated = getWritableDatabase().update(
-                UserEntry.TABLE_NAME,
-                values,
-                selection,
-                selectionArgs
-        );
+        int numUpdated;
+        synchronized (this) {
+            numUpdated = getWritableDatabase().update(
+                    UserEntry.TABLE_NAME,
+                    values,
+                    selection,
+                    selectionArgs
+            );
+        }
 
         // check if only 1 row got updated
         return numUpdated == 1;
@@ -618,17 +659,20 @@ public class Database extends SQLiteOpenHelper
                 KnownPostsEntry.COLUMN_POST_HASH
         };
 
-        Cursor cursor = getReadableDatabase().query(
-                true,
-                KnownPostsEntry.TABLE_NAME,   // The table to query
-                projection,             // The array of columns to return (pass null to get all)
-                null,              // The columns for the WHERE clause
-                null,          // The values for the WHERE clause
-                null,          // don't group the rows
-                null,           // don't filter by row groups
-                null,           // don't sort
-                null                // no limit to the results
-        );
+        Cursor cursor;
+        synchronized (this) {
+            cursor = getReadableDatabase().query(
+                    true,
+                    KnownPostsEntry.TABLE_NAME,   // The table to query
+                    projection,             // The array of columns to return (pass null to get all)
+                    null,              // The columns for the WHERE clause
+                    null,          // The values for the WHERE clause
+                    null,          // don't group the rows
+                    null,           // don't filter by row groups
+                    null,           // don't sort
+                    null                // no limit to the results
+            );
+        }
 
         List<String> hashes = new ArrayList<>();
 
@@ -656,17 +700,20 @@ public class Database extends SQLiteOpenHelper
         String[] whereArgs = {postHash};
 
 
-        Cursor cursor = getReadableDatabase().query(
-                true,
-                KnownPostsEntry.TABLE_NAME,   // The table to query
-                projection,             // The array of columns to return (pass null to get all)
-                where,              // The columns for the WHERE clause
-                whereArgs,          // The values for the WHERE clause
-                null,          // don't group the rows
-                null,           // don't filter by row groups
-                null,           // don't sort
-                null                // no limit to the results
-        );
+        Cursor cursor;
+        synchronized (this) {
+            cursor = getReadableDatabase().query(
+                    true,
+                    KnownPostsEntry.TABLE_NAME,   // The table to query
+                    projection,             // The array of columns to return (pass null to get all)
+                    where,              // The columns for the WHERE clause
+                    whereArgs,          // The values for the WHERE clause
+                    null,          // don't group the rows
+                    null,           // don't filter by row groups
+                    null,           // don't sort
+                    null                // no limit to the results
+            );
+        }
 
         List<String> hashes = new ArrayList<>();
 
@@ -689,16 +736,18 @@ public class Database extends SQLiteOpenHelper
                 KnownPostsEntry.COLUMN_COMMENT_HASH
         };
 
-
-        Cursor cursor = getReadableDatabase().query(
-                KnownPostsEntry.TABLE_NAME,   // The table to query
-                projection,             // The array of columns to return (pass null to get all)
-                null,              // The columns for the WHERE clause
-                null,          // The values for the WHERE clause
-                null,          // don't group the rows
-                null,           // don't filter by row groups
-                null          // don't sort
-        );
+        Cursor cursor;
+        synchronized (this) {
+            cursor = getReadableDatabase().query(
+                    KnownPostsEntry.TABLE_NAME,   // The table to query
+                    projection,             // The array of columns to return (pass null to get all)
+                    null,              // The columns for the WHERE clause
+                    null,          // The values for the WHERE clause
+                    null,          // don't group the rows
+                    null,           // don't filter by row groups
+                    null          // don't sort
+            );
+        }
 
         List<Pair<String, String>> hashes = new ArrayList<>();
 
@@ -732,15 +781,18 @@ public class Database extends SQLiteOpenHelper
         // what is being selected
         String[] selection = {"COUNT(*)"};
 
-        Cursor c = getReadableDatabase().query(
-                tableName,   // The table to query
-                selection,               // The array of columns to return (pass null to get all)
-                where,                   // The columns for the WHERE clause
-                whereArgs,               // The values for the WHERE clause
-                null,           // don't group the rows
-                null,            // don't filter by row groups
-                null            // don't sort results
-        );
+        Cursor c;
+        synchronized (this) {
+            c = getReadableDatabase().query(
+                    tableName,   // The table to query
+                    selection,               // The array of columns to return (pass null to get all)
+                    where,                   // The columns for the WHERE clause
+                    whereArgs,               // The values for the WHERE clause
+                    null,           // don't group the rows
+                    null,            // don't filter by row groups
+                    null            // don't sort results
+            );
+        }
 
         // get the count, if the count is missing then set it to 0
         int count = c.moveToFirst() ? c.getInt(0) : 0;
