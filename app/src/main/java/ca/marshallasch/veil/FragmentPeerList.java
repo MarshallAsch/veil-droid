@@ -1,10 +1,15 @@
 package ca.marshallasch.veil;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,8 +19,9 @@ import android.widget.TextView;
 
 import java.util.Set;
 
+import ca.marshallasch.veil.controllers.RightMeshController;
+import ca.marshallasch.veil.services.VeilService;
 import io.left.rightmesh.id.MeshId;
-import io.left.rightmesh.util.RightMeshException;
 
 
 /**
@@ -41,6 +47,12 @@ public class FragmentPeerList extends Fragment
     {
         View view = inflater.inflate(R.layout.fragment_peer_list, container,false);
 
+        /**
+         * registering broadcast recevier to recevier messages
+         * from {@link ca.marshallasch.veil.services.VeilService}
+         */
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
+                broadcastReceiver, new IntentFilter(RightMeshController.GET_PEERS_BROADCAST));
 
         Activity activity = getActivity();
         ActionBar actionBar = ((MainActivity) activity).getSupportActionBar();
@@ -58,26 +70,33 @@ public class FragmentPeerList extends Fragment
         return view;
     }
 
+    @Override
+    public void onDestroyView(){
+        super.onDestroyView();
+
+        //unregister broadcast receiver
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(broadcastReceiver);
+
+    }
+
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Set<MeshId> peers = (Set<MeshId>) intent.getSerializableExtra(RightMeshController.PEERS_LIST);
+            if (peers != null) {
+                for (MeshId peer : peers) {
+                    peerList.append("\n" + peer.toString());
+                }
+            }
+        }
+    };
+
 
     /**
      * Refresh the list of connected peers.
      */
     private void refreshList() {
-
         peerList.setText("Peers:\n");
-
-        Set<MeshId> peers = null;
-        try {
-            peers = ((MainActivity) getActivity()).meshManager.getPeers(9182);
-        }
-        catch (RightMeshException e) {
-            e.printStackTrace();
-        }
-
-        if (peers != null) {
-            for (MeshId peer : peers) {
-                peerList.append("\n" + peer.toString());
-            }
-        }
+        ((MainActivity) getActivity()).sendServiceMessage(null, VeilService.ACTION_MAIN_REFRESH_PEER_LIST);
     }
 }
