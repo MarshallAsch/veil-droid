@@ -2,6 +2,7 @@ package ca.marshallasch.veil.services;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -12,7 +13,10 @@ import android.support.annotation.Nullable;
 import android.os.Process;
 import android.widget.Toast;
 
+import com.google.protobuf.InvalidProtocolBufferException;
+
 import ca.marshallasch.veil.controllers.RightMeshController;
+import ca.marshallasch.veil.proto.DhtProto;
 
 /**
  * Hosts all RightMesh logic on this service thread. Also receives {@link Message}s from
@@ -32,6 +36,11 @@ public class VeilService extends Service {
     public static final int ACTION_MAIN_RESUME_MESH = 2;
     public static final int ACTION_MAIN_REFRESH_PEER_LIST = 3;
     public static final int ACTION_MAIN_REFRESH_FORUMS_LIST = 4;
+    public static final int ACTION_NOTIFY_NEW_DATA = 5;
+
+    public static final String EXTRA_POST = "EXTRA_POST";
+    public static final String EXTRA_COMMENT = "EXTRA_COMMENT";
+
 
     /**
      * Target for clients to send messages to ServiceHandler
@@ -70,6 +79,23 @@ public class VeilService extends Service {
                     break;
                 case ACTION_MAIN_REFRESH_FORUMS_LIST:
                     rightMeshController.manualRefresh();
+                    break;
+                case ACTION_NOTIFY_NEW_DATA:
+
+                    DhtProto.Post post = null;
+                    DhtProto.Comment comment = null;
+                    Bundle bundle = msg.getData();
+
+                    try {
+                        post = DhtProto.Post.parseFrom(bundle.getByteArray(EXTRA_POST));
+                        comment = DhtProto.Comment.parseFrom(bundle.getByteArray(EXTRA_COMMENT));
+                    }
+                    catch (InvalidProtocolBufferException e) {
+                        e.printStackTrace();
+                    }
+
+                    rightMeshController.notifyNewContent(post, comment);
+
                     break;
                 default:
                     super.handleMessage(msg);

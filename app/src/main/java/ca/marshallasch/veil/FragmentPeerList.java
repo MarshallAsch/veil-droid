@@ -97,6 +97,6 @@ public class FragmentPeerList extends Fragment
      */
     private void refreshList() {
         peerList.setText("Peers:\n");
-        ((MainActivity) getActivity()).sendServiceMessage(null, VeilService.ACTION_MAIN_REFRESH_PEER_LIST);
+        ((MainActivity) getActivity()).sendServiceMessage( VeilService.ACTION_MAIN_REFRESH_PEER_LIST, null);
     }
 }
