@@ -86,9 +86,17 @@ public class VeilService extends Service {
                     DhtProto.Comment comment = null;
                     Bundle bundle = msg.getData();
 
+                    byte[] postArray = bundle.getByteArray(EXTRA_POST);
+                    byte[] commentArray = bundle.getByteArray(EXTRA_COMMENT);
+
                     try {
-                        post = DhtProto.Post.parseFrom(bundle.getByteArray(EXTRA_POST));
-                        comment = DhtProto.Comment.parseFrom(bundle.getByteArray(EXTRA_COMMENT));
+                        if (postArray != null) {
+                            post = DhtProto.Post.parseFrom(postArray);
+                        }
+
+                        if (commentArray != null) {
+                            comment = DhtProto.Comment.parseFrom(commentArray);
+                        }
                     }
                     catch (InvalidProtocolBufferException e) {
                         e.printStackTrace();
