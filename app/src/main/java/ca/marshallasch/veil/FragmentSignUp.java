@@ -26,8 +26,6 @@ import ca.marshallasch.veil.utilities.Util;
  */
 public class FragmentSignUp extends Fragment
 {
-
-
     private EditText firstNameInput;
     private EditText lastNameInput;
     private EditText emailAddressInput;
@@ -40,7 +38,6 @@ public class FragmentSignUp extends Fragment
     public FragmentSignUp(){
         super();
     }
-
 
     @Nullable
     @Override
@@ -83,7 +80,6 @@ public class FragmentSignUp extends Fragment
 
         return view;
     }
-
 
     /**
      * This handles the account creation and input validation.

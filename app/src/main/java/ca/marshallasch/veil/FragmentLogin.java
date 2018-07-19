@@ -46,7 +46,6 @@ public class FragmentLogin extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)  {
 
-
         activity = getActivity();
         View view = inflater.inflate(R.layout.fragment_login, container,false);
 
@@ -117,7 +116,6 @@ public class FragmentLogin extends Fragment {
 
         return view;
     }
-
 
     /**
      * Use this AsyncTask to move the login work into a separate thread to offload some of the
