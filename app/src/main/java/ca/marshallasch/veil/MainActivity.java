@@ -1,6 +1,7 @@
 package ca.marshallasch.veil;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -8,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -35,7 +37,6 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
 {
 
     public static final String NEW_DATA_BROADCAST = "ca.marshallasch.veil.NEW_DATA_BROADCAST";
-
     public static final int DATA_PORT = 9182;
     // private static final int DISCOVERY_PORT = 9183;       // This port will be used for the DHT
                                                             // to keep all of that traffic separate
@@ -48,16 +49,18 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
 
     private DhtProto.User currentUser = null;
 
-    private boolean meshActive = false;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(R.style.AppTheme);
+        if(AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES) {
+            setTheme(R.style.AppTheme_Dark);
+        }
+        else{
+            setTheme(R.style.AppTheme);
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         dataStore = DataStore.getInstance(this);
-
         navigateTo(new FragmentLanding(), false);
 
         // Gets an instance of the Android-specific MeshManager singleton.
@@ -188,8 +191,6 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
                 Log.d("MESH", "initilized");
 
             case RESUME:  // over the mesh!
-
-                meshActive = true;
                 break;
             case FAILURE:  // Mesh connection unavailable,
             case DISABLED: // time for Plan B.
@@ -320,7 +321,6 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
 
             // send messages to the peer.
             try {
-
                 Sync.Message message = Sync.Message.newBuilder()
                         .setType(Sync.SyncMessageType.HASH_DATA)
                         .setData(hashData)
