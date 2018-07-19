@@ -110,7 +110,7 @@ public class RightMeshController implements MeshStateListener{
             // notify anyone interested that the data store has been updated.
             Intent intent = new Intent(NEW_DATA_BROADCAST);
             LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
-        } else if (type == Sync.SyncMessageType.REQUEST_DATA) {
+        } else if (type == Sync.SyncMessageType.REQUEST_DATA_V1) {
 
             Log.d("DATA_REQUEST", "recived request for data");
             // if someone sent a message asking for data send a responce with everything
@@ -134,6 +134,25 @@ public class RightMeshController implements MeshStateListener{
 
                 meshManager.sendDataReliable(event.peerUuid, DATA_PORT, toSend.toByteArray());
 
+            }
+            catch (RightMeshException e1) {
+                e1.printStackTrace();
+            }
+        } else if (type == Sync.SyncMessageType.REQUEST_DATA_V2) {
+
+            Log.d("DATA_REQUEST_v2", "received request for data");
+            // if someone sent a message asking for data send a response with everything
+
+            Sync.SyncMessage syncMessage = dataStore.getSyncFor(event.peerUuid);
+
+            // send messages to the peer.
+            Sync.Message toSend = Sync.Message.newBuilder()
+                    .setType(Sync.SyncMessageType.SYNC_DATA)
+                    .setSyncMessage(syncMessage)
+                    .build();
+
+            try {
+                meshManager.sendDataReliable(event.peerUuid, DATA_PORT, toSend.toByteArray());
             }
             catch (RightMeshException e1) {
                 e1.printStackTrace();
@@ -190,8 +209,6 @@ public class RightMeshController implements MeshStateListener{
 
             Log.d("FOUND", "found user: " + event.peerUuid);
 
-
-
             Sync.HashData hashData = dataStore.getDataStore();
             Sync.MappingMessage mappingMessage =  dataStore.getDatabase();
 
@@ -199,14 +216,7 @@ public class RightMeshController implements MeshStateListener{
             try {
 
                 Sync.Message message = Sync.Message.newBuilder()
-                        .setType(Sync.SyncMessageType.HASH_DATA)
-                        .setData(hashData)
-                        .build();
-                meshManager.sendDataReliable(event.peerUuid, DATA_PORT, message.toByteArray());
-
-                message = Sync.Message.newBuilder()
-                        .setType(Sync.SyncMessageType.MAPPING_MESSAGE)
-                        .setMapping(mappingMessage)
+                        .setType(Sync.SyncMessageType.REQUEST_DATA_V2)
                         .build();
                 meshManager.sendDataReliable(event.peerUuid, DATA_PORT, message.toByteArray());
             }
@@ -225,7 +235,7 @@ public class RightMeshController implements MeshStateListener{
             MeshManager manager = this.meshManager;
             Set<MeshId> peers = manager.getPeers(this.DATA_PORT);
 
-            Sync.Message dataRequest = Sync.Message.newBuilder().setType(Sync.SyncMessageType.REQUEST_DATA).build();
+            Sync.Message dataRequest = Sync.Message.newBuilder().setType(Sync.SyncMessageType.REQUEST_DATA_V2).build();
 
             // request an update from everyone
             for (MeshId peer: peers) {

@@ -88,16 +88,6 @@ public class MainUITest {
                                 0)));
         textInputEditText3.perform(scrollTo(), replaceText("john@gmail.com"), closeSoftKeyboard());
 
-        //on the SignUp page click and add the string "5192263535" to the phone text edit
-        ViewInteraction textInputEditText4 = onView(
-                allOf(withId(R.id.phone_text_edit),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(R.id.phone_text_input),
-                                        0),
-                                0)));
-        textInputEditText4.perform(scrollTo(), replaceText("5192263535"), closeSoftKeyboard());
-
         //on the SignUp page click and add the string "Symfony65!" to the password text edit
         ViewInteraction textInputEditText5 = onView(
                 allOf(withId(R.id.password_text_edit),

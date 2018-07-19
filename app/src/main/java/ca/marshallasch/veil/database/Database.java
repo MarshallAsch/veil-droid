@@ -28,6 +28,7 @@ import ca.marshallasch.veil.R;
 import ca.marshallasch.veil.database.BlockContract.BlockEntry;
 import ca.marshallasch.veil.database.KnownPostsContract.KnownPostsEntry;
 import ca.marshallasch.veil.database.NotificationContract.NotificationEntry;
+import ca.marshallasch.veil.database.PeerListContract.PeerListEntry;
 import ca.marshallasch.veil.database.UserContract.UserEntry;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.utilities.Util;
@@ -50,7 +51,7 @@ import ca.marshallasch.veil.utilities.Util;
 public class Database extends SQLiteOpenHelper
 {
     private static String DATABASE_NAME = "contentDiscoveryTables";
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 7;
 
     // this is for the singleton
     private static Database instance = null;
@@ -116,6 +117,8 @@ public class Database extends SQLiteOpenHelper
         getWritableDatabase().delete(NotificationEntry.TABLE_NAME, null, null);
         getWritableDatabase().delete(UserEntry.TABLE_NAME, null, null);
         getWritableDatabase().delete(KnownPostsEntry.TABLE_NAME, null, null);
+        getWritableDatabase().delete(PeerListEntry.TABLE_NAME, null, null);
+
     }
 
     /**
@@ -130,12 +133,18 @@ public class Database extends SQLiteOpenHelper
         db.execSQL(NotificationContract.SQL_CREATE_POST_NOTIFICATION);
         db.execSQL(UserContract.SQL_CREATE_USERS);
         db.execSQL(KnownPostsContract.SQL_CREATE_KNOWN_POSTS);
-
+        db.execSQL(PeerListContract.SQL_CREATE_PEER_LIST);
     }
 
+    /**
+     * Do the apropreate upgrade path for the database
+     * @param db the database to be upgraded
+     * @param oldVersion the old version of the DB
+     * @param newVersion the new version of the DB
+     */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if(oldVersion == 1){
+        if(oldVersion < 3){
             Migrations.upgradeV3(db);
         }
         if (oldVersion < 4) {
@@ -144,6 +153,10 @@ public class Database extends SQLiteOpenHelper
 
         if (oldVersion < 6) {
             Migrations.upgradeV6(db);
+        }
+
+        if (oldVersion < 7) {
+            Migrations.upgradeV7(db);
         }
     }
 
@@ -236,7 +249,6 @@ public class Database extends SQLiteOpenHelper
     }
 
     // TODO: 2018-05-31 Create a function that will get the list of all blocked user objects
-
 
     /**
      * Register a to receive notifications of new posts from a user or for comments about a specific
@@ -352,6 +364,7 @@ public class Database extends SQLiteOpenHelper
 
         values.put(KnownPostsEntry.COLUMN_POST_HASH, posthash);
         values.put(KnownPostsEntry.COLUMN_COMMENT_HASH, commentHash);
+        values.put(KnownPostsEntry.COLUMN_TIME_INSERTED, new Date().getTime());
 
         // note this is a potentially long running operation.
 
@@ -363,10 +376,6 @@ public class Database extends SQLiteOpenHelper
         Log.d("INSERT", "ID: " + id + " POST: " + posthash);
         return id != -1;
     }
-
-    // TODO: 2018-06-04 Create accessors to get the information for different content types.
-    // these functions may be used just to get ID's or they may delegate the the DHT to get the
-    // actual content.
 
     /**
      * This will create a new user account and will assign them a new UUID that is
@@ -646,7 +655,6 @@ public class Database extends SQLiteOpenHelper
     }
 
 
-
     // TODO: 2018-06-05 Add functions to export the user profile
     // TODO: 2018-06-05 Add function to import a user profile
     // TODO: 2018-06-05 Add A function to update the account information
@@ -686,6 +694,93 @@ public class Database extends SQLiteOpenHelper
         cursor.close();
 
         return hashes;
+    }
+
+    /**
+     * This function will get the time stamp of the last time that data was sent to a peer.
+     * If the <code>peerID</code> is null or there are no entries in the database then the timestamp
+     * of the unix epoch is given (midnight January 1st 1970).
+     *
+     * Since this calls {@link #getReadableDatabase()}, do not call this from the main thread
+     * @param peerID the {@link io.left.rightmesh.id.MeshId} of the peer in string form.
+     * @return a {@link Date} object representing the timestamp.
+     */
+    @WorkerThread
+    public Date getTimeLastSentData(String peerID) {
+
+        Date time = new Date(0);
+
+        // stop ig the the peerID is missing
+        if (peerID == null) {
+            return time;
+        }
+
+        String[] projection = {
+                PeerListEntry.COLUMN_TIME_LAST_SENT
+        };
+
+        String selection = PeerListEntry.COLUMN_PEER_MESH_ID + " = ?";
+        String[] selectionArgs = { peerID };
+
+        Cursor cursor = getReadableDatabase().query(
+                true,
+                PeerListEntry.TABLE_NAME,   // The table to query
+                projection,             // The array of columns to return (pass null to get all)
+                selection,              // The columns for the WHERE clause
+                selectionArgs,          // The values for the WHERE clause
+                null,          // don't group the rows
+                null,           // don't filter by row groups
+                null,           // don't sort
+                null                // no limit to the results
+        );
+
+        while(cursor.moveToNext()) {
+            long millis = cursor.getLong(cursor.getColumnIndexOrThrow(PeerListEntry.COLUMN_TIME_LAST_SENT));
+            time = new Date(millis);
+        }
+        cursor.close();
+
+        return time;
+    }
+
+    /**
+     * This function will update the time that data was last sent to a specific peer.
+     * If the peer has not been seen before then a new entry is inserted into the table.
+     *
+     * Since this calls {@link #getWritableDatabase()}, do not call this from the main thread
+     * @param peerID the {@link io.left.rightmesh.id.MeshId} of the peer in string form.
+     * @return true if it was inserted successfully, false otherwise
+     */
+    @WorkerThread
+    public boolean updateTimeLastSentData(String peerID) {
+
+        // stop if the the peerID is missing
+        if (peerID == null) {
+            return false;
+        }
+
+        String selection = PeerListEntry.COLUMN_PEER_MESH_ID + " = ?";
+        String[] selectionArgs = { peerID };
+
+        ContentValues values = new ContentValues();
+        values.put(PeerListEntry.COLUMN_PEER_MESH_ID, peerID);
+        values.put(PeerListEntry.COLUMN_TIME_LAST_SENT, new Date().getTime());
+
+        int numUpdated = getWritableDatabase().update(
+                PeerListEntry.TABLE_NAME,   // The table to update
+                values,                  // The values to update
+                selection,              // The columns for the WHERE clause
+                selectionArgs          // The values for the WHERE clause
+        );
+
+        if (numUpdated != 1) {
+            // note this is a potentially long running operation.
+            long id = getWritableDatabase().insert(PeerListEntry.TABLE_NAME, null, values);
+
+            return id != -1;
+        }
+
+        return true;
     }
 
     @WorkerThread
@@ -729,6 +824,15 @@ public class Database extends SQLiteOpenHelper
         return hashes;
     }
 
+    /**
+     * This will get a list of the mappings between posts and comments.
+     * All posts will have 1 record where the comment hash is the empty string.
+     *
+     * Since this calls {@link #getReadableDatabase()}, do not call this from the main thread
+     * @return a list of pairs where pair.first is the post hash and pair.second is the comment
+     */
+    @WorkerThread
+    @NonNull
     public List<Pair<String, String>> dumpKnownPosts() {
 
         String[] projection = {
@@ -750,6 +854,60 @@ public class Database extends SQLiteOpenHelper
         }
 
         List<Pair<String, String>> hashes = new ArrayList<>();
+
+        String postHash;
+        String commentHash;
+
+        // get each post hash that is in the list
+        while(cursor.moveToNext()) {
+            postHash = cursor.getString(cursor.getColumnIndexOrThrow(KnownPostsEntry.COLUMN_POST_HASH));
+            commentHash = cursor.getString(cursor.getColumnIndexOrThrow(KnownPostsEntry.COLUMN_COMMENT_HASH));
+
+            // add the hash to the list
+            hashes.add(new Pair<>(postHash, commentHash));
+        }
+        cursor.close();
+
+        return hashes;
+    }
+
+    /**
+     * This will get a list of the mappings between posts and comments that have been inserted
+     * after <code>since</code>.
+     * All posts will have 1 record where the comment hash is the empty string.
+     * If <code>since</code> is null then it will be set to the unix epoch.
+     *
+     * Since this calls {@link #getReadableDatabase()}, do not call this from the main thread
+     * @param since the date that all the entries should be gotten since.
+     * @return a list of pairs where pair.first is the post hash and pair.second is the comment
+     */
+    @WorkerThread
+    @NonNull
+    public List<Pair<String, String>> dumpKnownPosts(@Nullable Date since) {
+
+        List<Pair<String, String>> hashes = new ArrayList<>();
+
+        if (since == null) {
+            since = new Date(0);
+        }
+
+        String[] projection = {
+                KnownPostsEntry.COLUMN_POST_HASH,
+                KnownPostsEntry.COLUMN_COMMENT_HASH
+        };
+
+        String selection = KnownPostsEntry.COLUMN_TIME_INSERTED + " >= ?";
+        String[] selectionArgs = { String.valueOf(since.getTime()) };
+
+        Cursor cursor = getReadableDatabase().query(
+                KnownPostsEntry.TABLE_NAME,   // The table to query
+                projection,             // The array of columns to return (pass null to get all)
+                selection,              // The columns for the WHERE clause
+                selectionArgs,          // The values for the WHERE clause
+                null,          // don't group the rows
+                null,           // don't filter by row groups
+                null          // don't sort
+        );
 
         String postHash;
         String commentHash;
