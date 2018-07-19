@@ -40,12 +40,12 @@ public class FragmentSignUp extends Fragment
         super();
     }
 
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
         View view = inflater.inflate(R.layout.fragment_signup, container, false);
-        ((MainActivity) getActivity()).getSupportActionBar().hide();
 
         // navigate back to the landing screen
         view.setFocusableInTouchMode(true);
@@ -83,13 +83,6 @@ public class FragmentSignUp extends Fragment
         return view;
     }
 
-    @Override
-    public void onDestroyView(){
-        super.onDestroyView();
-
-        // return the action bar.
-        ((MainActivity) getActivity()).getSupportActionBar().show();
-    }
 
     /**
      * This handles the account creation and input validation.

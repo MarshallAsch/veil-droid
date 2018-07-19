@@ -3,6 +3,7 @@ package ca.marshallasch.veil;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -84,12 +85,19 @@ public class CommentListAdapter extends RecyclerView.Adapter<CommentListAdapter.
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
 
         DhtProto.Comment comment = commentList.get(position);
-        String aythorName = comment.getAnonymous() ? context.getString(R.string.anonymous) : comment.getAuthorName();
+        String authorName = comment.getAnonymous() ? context.getString(R.string.anonymous) : comment.getAuthorName();
 
-        holder.authorName.setText(aythorName);
+        holder.authorName.setText(authorName);
         holder.content.setText(comment.getMessage());
-        holder.date.setText(Util.timestampToDate(comment.getTimestamp()).toString());
 
+        // generate a string that describes the age of the comment, 1s, 4 min, 5 hours, etc.
+        CharSequence dateString = DateUtils.getRelativeTimeSpanString(
+                Util.timestampToDate(comment.getTimestamp()).getTime(),
+                System.currentTimeMillis(),
+                0,
+                DateUtils.FORMAT_ABBREV_RELATIVE);
+
+        holder.date.setText(dateString);
     }
 
     /**
