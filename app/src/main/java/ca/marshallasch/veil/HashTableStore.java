@@ -18,6 +18,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import ca.marshallasch.veil.comparators.CommentComparator;
 import ca.marshallasch.veil.comparators.EntryComparator;
 import ca.marshallasch.veil.exceptions.TooManyResultsException;
@@ -40,15 +42,19 @@ import static ca.marshallasch.veil.proto.DhtProto.KeywordType.TITLE_PARTIAL;
  *
  * Do not access this class directly for the data. you should go through {@link DataStore}.
  *
+ * Note that the {@link HashMap} and the {@link ArrayList} classes are not thread safe.
+ * Since this class is called by multiple threads any insert or read call needs to lock on the
+ * hash map. and anything that modifies or looks at the value of en entry needs to lock on that list.
  *
  * @author Marshall Asch
  * @version 1.0
  * @since 2018-06-08
  */
+@ThreadSafe
 public class HashTableStore implements ForumStorage
 {
     // Made package-private so that it can be accessed for testing.
-    HashMap<String, List<DhtProto.DhtWrapper>> hashMap;
+    final HashMap<String, List<DhtProto.DhtWrapper>> hashMap;
 
 
     private static HashTableStore instance;
@@ -112,7 +118,9 @@ public class HashTableStore implements ForumStorage
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(mapFile, false);
 
-            MapSerializer.write(fileOutputStream, hashMap);
+            synchronized (hashMap) {
+                MapSerializer.write(fileOutputStream, hashMap);
+            }
 
             Log.d("SAVE", "saved map");
             fileOutputStream.close();
@@ -186,7 +194,11 @@ public class HashTableStore implements ForumStorage
     @Nullable
     public DhtProto.Post findPostByHash(String hash) throws TooManyResultsException
     {
-        ArrayList<DhtProto.DhtWrapper> entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(hash);
+        ArrayList<DhtProto.DhtWrapper> entries;
+
+        synchronized (hashMap) {
+            entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(hash);
+        }
 
         if (entries == null) {
             return null;
@@ -224,7 +236,11 @@ public class HashTableStore implements ForumStorage
     public List<DhtProto.Post> findPostsByKeyword(String keyword)
     {
         keyword = keyword.toLowerCase(Locale.getDefault());
-        ArrayList<DhtProto.DhtWrapper> entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(Util.generateHash(keyword.getBytes()));
+        ArrayList<DhtProto.DhtWrapper> entries;
+
+        synchronized (hashMap) {
+            entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(Util.generateHash(keyword.getBytes()));
+        }
 
         if (entries == null) {
             return new ArrayList<>();
@@ -301,7 +317,10 @@ public class HashTableStore implements ForumStorage
     @NonNull
     public List<DhtProto.Comment> findCommentsByPost(String postHash)
     {
-        ArrayList<DhtProto.DhtWrapper> entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(postHash);
+        ArrayList<DhtProto.DhtWrapper> entries;
+        synchronized (hashMap) {
+            entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(postHash);
+        }
 
         if (entries == null) {
             return new ArrayList<>();
@@ -357,7 +376,10 @@ public class HashTableStore implements ForumStorage
     @Nullable
     public DhtProto.Comment findCommentByHash(String hash) throws TooManyResultsException
     {
-        ArrayList<DhtProto.DhtWrapper> entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(hash);
+        ArrayList<DhtProto.DhtWrapper> entries;
+        synchronized (hashMap) {
+            entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(hash);
+        }
 
         if (entries == null) {
             return null;
@@ -438,7 +460,10 @@ public class HashTableStore implements ForumStorage
     @Override
     public Pair<String, DhtProto.User> findUserByHash(String userHash) throws TooManyResultsException
     {
-        ArrayList<DhtProto.DhtWrapper> entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(userHash);
+        ArrayList<DhtProto.DhtWrapper> entries;
+        synchronized (hashMap) {
+            entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(userHash);
+        }
 
         if (entries == null) {
             return null;
@@ -480,7 +505,11 @@ public class HashTableStore implements ForumStorage
         }
 
         name = name.toLowerCase(Locale.getDefault());
-        ArrayList<DhtProto.DhtWrapper> entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(Util.generateHash(name.getBytes()));
+        ArrayList<DhtProto.DhtWrapper> entries;
+
+        synchronized (hashMap) {
+            entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(Util.generateHash(name.getBytes()));
+        }
 
         if (entries == null) {
             return new ArrayList<>();
@@ -562,7 +591,11 @@ public class HashTableStore implements ForumStorage
      */
     public void insert(@NonNull  DhtProto.DhtWrapper data, String key) {
 
-        ArrayList<DhtProto.DhtWrapper> entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(key);
+        ArrayList<DhtProto.DhtWrapper> entries;
+
+        synchronized (hashMap) {
+            entries = (ArrayList<DhtProto.DhtWrapper>) hashMap.get(key);
+        }
 
         if (entries == null) {
             entries = new ArrayList<>();
@@ -580,7 +613,9 @@ public class HashTableStore implements ForumStorage
             entries.add(data);
         }
 
-        hashMap.put(key, entries);
+        synchronized (hashMap) {
+            hashMap.put(key, entries);
+        }
     }
 
 
@@ -593,7 +628,11 @@ public class HashTableStore implements ForumStorage
 
         List<Pair<String, DhtProto.DhtWrapper>> data = new ArrayList<>();
 
-        Set<Map.Entry<String, List<DhtProto.DhtWrapper>>> set = hashMap.entrySet();
+        Set<Map.Entry<String, List<DhtProto.DhtWrapper>>> set;
+
+        synchronized (hashMap) {
+            set = hashMap.entrySet();
+        }
 
         for(Map.Entry<String, List<DhtProto.DhtWrapper>> entry: set) {
             String hash = entry.getKey();
@@ -606,7 +645,6 @@ public class HashTableStore implements ForumStorage
                     data.add(new Pair<String, DhtProto.DhtWrapper>(hash, element));
                 }
             }
-
         }
 
         return data;
