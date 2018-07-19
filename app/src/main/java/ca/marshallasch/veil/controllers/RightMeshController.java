@@ -2,6 +2,8 @@ package ca.marshallasch.veil.controllers;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
@@ -13,6 +15,7 @@ import java.util.Set;
 
 import ca.marshallasch.veil.DataStore;
 import ca.marshallasch.veil.R;
+import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.proto.Sync;
 import io.left.rightmesh.android.AndroidMeshManager;
 import io.left.rightmesh.android.MeshService;
@@ -240,6 +243,48 @@ public class RightMeshController implements MeshStateListener{
         }
         Intent intent = new Intent(RightMeshController.NEW_DATA_BROADCAST);
         LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
+    }
+
+    /**
+     * This function will notify all connected devices that a new post or a new comment was created.
+     * @param post required post object
+     * @param comment optional comment object, if this is null then it is notifying of a new post
+     *                not a new comment
+     */
+    public void notifyNewContent(@NonNull DhtProto.Post post, @Nullable DhtProto.Comment comment) {
+
+        // notify other users that there is a new comment or new post
+        try {
+            Set<MeshId> peers = meshManager.getPeers(DATA_PORT);
+
+            Sync.NewContent.Builder builder = Sync.NewContent.newBuilder();
+
+            builder.setPost(post);
+
+            if (comment != null) {
+                builder.setComment(comment);
+            }
+
+            Sync.NewContent newContent = builder.build();
+
+            Sync.Message dataRequest = Sync.Message.newBuilder()
+                    .setType(Sync.SyncMessageType.NEW_CONTENT)
+                    .setNewContent(newContent)
+                    .build();
+
+            // request an update from everyone
+            for (MeshId peer: peers) {
+
+                // do not ask myself for info
+                if (peer.equals(meshManager.getUuid())) {
+                    continue;
+                }
+                meshManager.sendDataReliable(peer, DATA_PORT, dataRequest.toByteArray());
+            }
+        }
+        catch (RightMeshException e) {
+            e.printStackTrace();
+        }
     }
 
     /**

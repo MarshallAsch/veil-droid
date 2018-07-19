@@ -230,6 +230,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Sends messages to {@link VeilService} to do work with.
      * @param command non optional command int defined by static strings in {@link VeilService}
+     * @param bundle the optional bundle to include in the message
      */
     public void sendServiceMessage(int command, @Nullable Bundle bundle ){
         //return if the service is not bound

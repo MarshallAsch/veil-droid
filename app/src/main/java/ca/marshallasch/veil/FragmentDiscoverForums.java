@@ -90,7 +90,7 @@ public class FragmentDiscoverForums extends Fragment implements  SwipeRefreshLay
 
     @Override
     public void onRefresh() {
-        ((MainActivity) getActivity()).sendServiceMessage(null, VeilService.ACTION_MAIN_REFRESH_FORUMS_LIST);
+        ((MainActivity) getActivity()).sendServiceMessage(VeilService.ACTION_MAIN_REFRESH_FORUMS_LIST, null);
     }
 
     private final  BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
