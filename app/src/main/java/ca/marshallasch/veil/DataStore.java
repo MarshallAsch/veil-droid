@@ -1,6 +1,7 @@
 package ca.marshallasch.veil;
 
 import android.content.Context;
+import android.support.annotation.IntRange;
 import android.support.annotation.Nullable;
 import android.support.v4.util.Pair;
 import android.util.Log;
@@ -11,7 +12,9 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ca.marshallasch.veil.comparators.CommentComparator;
+import ca.marshallasch.veil.comparators.PostComparator;
 import ca.marshallasch.veil.database.Database;
+import ca.marshallasch.veil.database.KnownPostsContract;
 import ca.marshallasch.veil.exceptions.TooManyResultsException;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.proto.Sync;
@@ -79,7 +82,8 @@ public class DataStore
     }
 
     /**
-     * Gets all the known posts in a the data store
+     * Gets all the known posts in a the data store.
+     * The list will be sorted, newest posts first
      * @return the list of posts.
      */
     public List<DhtProto.Post> getKnownPosts() {
@@ -105,6 +109,9 @@ public class DataStore
                 posts.add(post);
             }
         }
+
+        // make sure the list of posts are in chronological order
+        Collections.sort(posts, new PostComparator());
 
         return posts;
     }
@@ -176,6 +183,26 @@ public class DataStore
 
         return comment;
     }
+
+    /**
+     * This will get the number of comments that exist for given post and will return the number.
+     *
+     * @param postHash the string identifying the particular post
+     * @return the number of comments for the post, 0 if none are found
+     */
+    @IntRange(from=0)
+    public int getNumCommentsFor(@Nullable String postHash) {
+
+        if (postHash == null) {
+            return 0;
+        }
+
+        String select = KnownPostsContract.KnownPostsEntry.COLUMN_POST_HASH + " = ? AND " + KnownPostsContract.KnownPostsEntry.COLUMN_COMMENT_HASH + " != \"\" ";
+        String[] selectArgs = {postHash};
+
+        return db.getCount(KnownPostsContract.KnownPostsEntry.TABLE_NAME, select, selectArgs);
+    }
+
 
     /**
      * Generate the object for syncing the database between devices.

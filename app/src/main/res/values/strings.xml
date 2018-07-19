@@ -108,6 +108,9 @@
     <string name="edit">Edit</string>
 
 
+    <string name="num_comments">Comments: %d</string>
+
+
 
 
 </resources>
