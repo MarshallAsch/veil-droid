@@ -82,7 +82,7 @@ public class FragmentPeerList extends Fragment
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Set<MeshId> peers = (Set<MeshId>) intent.getSerializableExtra(RightMeshController.PEERS_LIST);
+            Set<MeshId> peers = (Set<MeshId>) intent.getSerializableExtra(RightMeshController.EXTRA_PEERS_LIST);
             if (peers != null) {
                 for (MeshId peer : peers) {
                     peerList.append("\n" + peer.toString());

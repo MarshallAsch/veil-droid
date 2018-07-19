@@ -24,8 +24,7 @@ import ca.marshallasch.veil.proto.DhtProto;
  *
  * @author Weihan Li
  * @version 1.0
- * @created on 2018-07-09
- * @name veil-droid
+ * @since 2018-07-09
  */
 public class VeilService extends Service {
 
@@ -38,9 +37,9 @@ public class VeilService extends Service {
     public static final int ACTION_MAIN_REFRESH_FORUMS_LIST = 4;
     public static final int ACTION_NOTIFY_NEW_DATA = 5;
 
+    // extra fields that can be set in the bundle to set data in the message
     public static final String EXTRA_POST = "EXTRA_POST";
     public static final String EXTRA_COMMENT = "EXTRA_COMMENT";
-
 
     /**
      * Target for clients to send messages to ServiceHandler
@@ -111,7 +110,6 @@ public class VeilService extends Service {
         }
     }
 
-
     /**
      * Connects to RightMesh when service is started
      */
@@ -119,16 +117,16 @@ public class VeilService extends Service {
     public void onCreate(){
         super.onCreate();
 
+        //start RightMesh connection through controller using service context
+        rightMeshController = new RightMeshController();
+        rightMeshController.connect(this);
+
         //Start up thread and make it background priority so it doesn't disrupt UI
         HandlerThread veilServiceThread = new HandlerThread("VeilServiceThread",
                 Process.THREAD_PRIORITY_BACKGROUND);
         veilServiceThread.start();
 
         veilMessenger = new Messenger(new ServiceHandler(veilServiceThread.getLooper()));
-
-        //start RightMesh connection through controller using service context
-        rightMeshController = new RightMeshController();
-        rightMeshController.connect(this);
     }
 
     @Override
