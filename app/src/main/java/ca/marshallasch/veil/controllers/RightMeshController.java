@@ -245,7 +245,12 @@ public class RightMeshController implements MeshStateListener{
         LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
     }
 
-
+    /**
+     * This function will notify all connected devices that a new post or a new comment was created.
+     * @param post required post object
+     * @param comment optional comment object, if this is null then it is notifying of a new post
+     *                not a new comment
+     */
     public void notifyNewContent(@NonNull DhtProto.Post post, @Nullable DhtProto.Comment comment) {
 
         // notify other users that there is a new comment or new post
