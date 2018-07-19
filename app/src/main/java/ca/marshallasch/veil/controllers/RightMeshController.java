@@ -157,6 +157,30 @@ public class RightMeshController implements MeshStateListener{
             catch (RightMeshException e1) {
                 e1.printStackTrace();
             }
+        } else if (type == Sync.SyncMessageType.NEW_CONTENT) {
+            Log.d("NEW_CONTENT", "received new content");
+
+            Sync.NewContent newContent = message.getNewContent();
+
+            DhtProto.Post post = newContent.getPost();
+            DhtProto.Comment comment = newContent.getComment();
+
+            if (comment == null && post != null) {
+                dataStore.savePost(post);
+
+                // notify anyone interested that the data store has been updated.
+                Intent intent = new Intent(NEW_DATA_BROADCAST);
+                LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
+            } else if (comment != null && post != null) {
+                dataStore.saveComment(comment, post);
+
+                // notify anyone interested that the data store has been updated.
+                Intent intent = new Intent(NEW_DATA_BROADCAST);
+                LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
+            }
+            else {
+                Log.d("INVALID_CONTENT", "New content message is missing content");
+            }
         }
     }
 
