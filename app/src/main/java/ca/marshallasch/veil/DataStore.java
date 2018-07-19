@@ -208,10 +208,21 @@ public class DataStore
         return db.getCount(KnownPostsContract.KnownPostsEntry.TABLE_NAME, select, selectArgs);
     }
 
+    /**
+     * This will check if a post has been read. Will call {@link Database#isRead(String)}
+     * @param postHash the post to check
+     * @return true if it is read, otherwise false.
+     */
     public boolean isRead(String postHash) {
         return db.isRead(postHash);
     }
 
+    /**
+     * Mark the post as read or unread. This will call to  {@link Database#markRead(String, boolean)}
+     * @param postHash the post to mark as read
+     * @param read true if the post is being marked as read, otherwise false.
+     * @return true on success
+     */
     public boolean markRead(String postHash, boolean read) {
         return  db.markRead(postHash, read);
     }
