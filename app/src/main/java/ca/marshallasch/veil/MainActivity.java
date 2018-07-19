@@ -17,7 +17,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.services.VeilService;
@@ -87,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        sendServiceMessage(null, VeilService.ACTION_MAIN_RESUME_MESH);
+        sendServiceMessage( VeilService.ACTION_MAIN_RESUME_MESH, null);
 
     }
 
@@ -163,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
                 frag = new FragmentPeerList();
                 break;
             case R.id.setup:
-                sendServiceMessage(null, VeilService.ACTION_VIEW_MESH_SETTINGS);
+                sendServiceMessage(VeilService.ACTION_VIEW_MESH_SETTINGS, null);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -230,14 +229,14 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Sends messages to {@link VeilService} to do work with.
-     * @param view optional view for setting objects in view
      * @param command non optional command int defined by static strings in {@link VeilService}
      */
-    public void sendServiceMessage(@Nullable View view, @NonNull int command){
+    public void sendServiceMessage(int command, @Nullable Bundle bundle ){
         //return if the service is not bound
         if(!isBound) return;
 
         Message msg = Message.obtain(null, command, 0, 0);
+        msg.setData(bundle);
         try {
             messengerService.send(msg);
         } catch (RemoteException e){

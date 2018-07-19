@@ -17,8 +17,14 @@ import android.widget.TextView;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
+import java.util.Set;
+
 import ca.marshallasch.veil.proto.DhtProto;
+import ca.marshallasch.veil.proto.Sync;
 import ca.marshallasch.veil.utilities.Util;
+import io.left.rightmesh.id.MeshId;
+import io.left.rightmesh.mesh.MeshManager;
+import io.left.rightmesh.util.RightMeshException;
 
 
 /**
@@ -104,6 +110,36 @@ public class FragmentAddComment extends android.support.v4.app.Fragment {
 
             // save to the data store
             DataStore.getInstance(activity).saveComment(comment, postObject);
+
+            // notify other users that there is a new comment
+            try {
+                MeshManager manager = ((MainActivity) activity).meshManager;
+                Set<MeshId> peers = manager.getPeers(MainActivity.DATA_PORT);
+
+
+                Sync.NewContent newContent = Sync.NewContent.newBuilder()
+                        .setComment(comment)
+                        .setPost(postObject)
+                        .build();
+
+                Sync.Message dataRequest = Sync.Message.newBuilder()
+                        .setType(Sync.SyncMessageType.NEW_CONTENT)
+                        .setNewContent(newContent)
+                        .build();
+
+                // request an update from everyone
+                for (MeshId peer: peers) {
+
+                    // do not ask myself for info
+                    if (peer.equals(manager.getUuid())) {
+                        continue;
+                    }
+                    manager.sendDataReliable(peer, MainActivity.DATA_PORT, dataRequest.toByteArray());
+                }
+            }
+            catch (RightMeshException e) {
+                e.printStackTrace();
+            }
 
             // go back to the post view screen
             Util.hideKeyboard(view1, activity);

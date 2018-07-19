@@ -11,6 +11,7 @@ enum SyncMessageType {
     MAPPING_MESSAGE = 0;
     HASH_DATA = 1;
     REQUEST_DATA = 2;
+    NEW_CONTENT = 5;
 }
 
 // message wrapper for all messages so that the correct one can be recreated
@@ -18,6 +19,7 @@ message Message {
     SyncMessageType type = 1;
     MappingMessage mapping = 2;
     HashData data = 3;
+    NewContent newContent = 5;
 }
 
 message CommentMapping {
@@ -37,4 +39,9 @@ message HashPair {
 
 message HashData {
     repeated HashPair entries = 1;
+}
+
+message NewContent {
+    Post post = 1;
+    Comment comment = 2;
 }
