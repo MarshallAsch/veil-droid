@@ -2,6 +2,8 @@ package ca.marshallasch.veil.controllers;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
@@ -13,6 +15,7 @@ import java.util.Set;
 
 import ca.marshallasch.veil.DataStore;
 import ca.marshallasch.veil.R;
+import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.proto.Sync;
 import io.left.rightmesh.android.AndroidMeshManager;
 import io.left.rightmesh.android.MeshService;
@@ -107,7 +110,7 @@ public class RightMeshController implements MeshStateListener{
             // notify anyone interested that the data store has been updated.
             Intent intent = new Intent(NEW_DATA_BROADCAST);
             LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
-        } else if (type == Sync.SyncMessageType.REQUEST_DATA) {
+        } else if (type == Sync.SyncMessageType.REQUEST_DATA_V1) {
 
             Log.d("DATA_REQUEST", "recived request for data");
             // if someone sent a message asking for data send a responce with everything
@@ -131,6 +134,25 @@ public class RightMeshController implements MeshStateListener{
 
                 meshManager.sendDataReliable(event.peerUuid, DATA_PORT, toSend.toByteArray());
 
+            }
+            catch (RightMeshException e1) {
+                e1.printStackTrace();
+            }
+        } else if (type == Sync.SyncMessageType.REQUEST_DATA_V2) {
+
+            Log.d("DATA_REQUEST_v2", "received request for data");
+            // if someone sent a message asking for data send a response with everything
+
+            Sync.SyncMessage syncMessage = dataStore.getSyncFor(event.peerUuid);
+
+            // send messages to the peer.
+            Sync.Message toSend = Sync.Message.newBuilder()
+                    .setType(Sync.SyncMessageType.SYNC_DATA)
+                    .setSyncMessage(syncMessage)
+                    .build();
+
+            try {
+                meshManager.sendDataReliable(event.peerUuid, DATA_PORT, toSend.toByteArray());
             }
             catch (RightMeshException e1) {
                 e1.printStackTrace();
@@ -187,8 +209,6 @@ public class RightMeshController implements MeshStateListener{
 
             Log.d("FOUND", "found user: " + event.peerUuid);
 
-
-
             Sync.HashData hashData = dataStore.getDataStore();
             Sync.MappingMessage mappingMessage =  dataStore.getDatabase();
 
@@ -196,14 +216,7 @@ public class RightMeshController implements MeshStateListener{
             try {
 
                 Sync.Message message = Sync.Message.newBuilder()
-                        .setType(Sync.SyncMessageType.HASH_DATA)
-                        .setData(hashData)
-                        .build();
-                meshManager.sendDataReliable(event.peerUuid, DATA_PORT, message.toByteArray());
-
-                message = Sync.Message.newBuilder()
-                        .setType(Sync.SyncMessageType.MAPPING_MESSAGE)
-                        .setMapping(mappingMessage)
+                        .setType(Sync.SyncMessageType.REQUEST_DATA_V2)
                         .build();
                 meshManager.sendDataReliable(event.peerUuid, DATA_PORT, message.toByteArray());
             }
@@ -222,7 +235,7 @@ public class RightMeshController implements MeshStateListener{
             MeshManager manager = this.meshManager;
             Set<MeshId> peers = manager.getPeers(this.DATA_PORT);
 
-            Sync.Message dataRequest = Sync.Message.newBuilder().setType(Sync.SyncMessageType.REQUEST_DATA).build();
+            Sync.Message dataRequest = Sync.Message.newBuilder().setType(Sync.SyncMessageType.REQUEST_DATA_V2).build();
 
             // request an update from everyone
             for (MeshId peer: peers) {
@@ -240,6 +253,48 @@ public class RightMeshController implements MeshStateListener{
         }
         Intent intent = new Intent(RightMeshController.NEW_DATA_BROADCAST);
         LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
+    }
+
+    /**
+     * This function will notify all connected devices that a new post or a new comment was created.
+     * @param post required post object
+     * @param comment optional comment object, if this is null then it is notifying of a new post
+     *                not a new comment
+     */
+    public void notifyNewContent(@NonNull DhtProto.Post post, @Nullable DhtProto.Comment comment) {
+
+        // notify other users that there is a new comment or new post
+        try {
+            Set<MeshId> peers = meshManager.getPeers(DATA_PORT);
+
+            Sync.NewContent.Builder builder = Sync.NewContent.newBuilder();
+
+            builder.setPost(post);
+
+            if (comment != null) {
+                builder.setComment(comment);
+            }
+
+            Sync.NewContent newContent = builder.build();
+
+            Sync.Message dataRequest = Sync.Message.newBuilder()
+                    .setType(Sync.SyncMessageType.NEW_CONTENT)
+                    .setNewContent(newContent)
+                    .build();
+
+            // request an update from everyone
+            for (MeshId peer: peers) {
+
+                // do not ask myself for info
+                if (peer.equals(meshManager.getUuid())) {
+                    continue;
+                }
+                meshManager.sendDataReliable(peer, DATA_PORT, dataRequest.toByteArray());
+            }
+        }
+        catch (RightMeshException e) {
+            e.printStackTrace();
+        }
     }
 
     /**

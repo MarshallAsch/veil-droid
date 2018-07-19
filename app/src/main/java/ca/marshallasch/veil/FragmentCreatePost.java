@@ -17,14 +17,10 @@ import android.widget.EditText;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Set;
 
 import ca.marshallasch.veil.proto.DhtProto;
-import ca.marshallasch.veil.proto.Sync;
+import ca.marshallasch.veil.services.VeilService;
 import ca.marshallasch.veil.utilities.Util;
-import io.left.rightmesh.id.MeshId;
-import io.left.rightmesh.mesh.MeshManager;
-import io.left.rightmesh.util.RightMeshException;
 
 /**
  * This is the class to create a new post item and will add it to the data stores.
@@ -112,33 +108,10 @@ public class FragmentCreatePost extends Fragment
         if (dataStore.savePost(post)) {
 
             // notify other users of a new post
-            try {
-                MeshManager manager = ((MainActivity) activity).meshManager;
-                Set<MeshId> peers = manager.getPeers(MainActivity.DATA_PORT);
+            Bundle bundle = new Bundle();
+            bundle.putByteArray(VeilService.EXTRA_POST, post.toByteArray());
 
-
-                Sync.NewContent newContent = Sync.NewContent.newBuilder()
-                        .setPost(post)
-                        .build();
-
-                Sync.Message dataRequest = Sync.Message.newBuilder()
-                        .setType(Sync.SyncMessageType.NEW_CONTENT)
-                        .setNewContent(newContent)
-                        .build();
-
-                // request an update from everyone
-                for (MeshId peer: peers) {
-
-                    // do not ask myself for info
-                    if (peer.equals(manager.getUuid())) {
-                        continue;
-                    }
-                    manager.sendDataReliable(peer, MainActivity.DATA_PORT, dataRequest.toByteArray());
-                }
-            }
-            catch (RightMeshException e) {
-                e.printStackTrace();
-            }
+            ((MainActivity) activity).sendServiceMessage(VeilService.ACTION_NOTIFY_NEW_DATA, bundle);
 
             return true;
         } else {

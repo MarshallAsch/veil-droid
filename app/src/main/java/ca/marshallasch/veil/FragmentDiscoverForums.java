@@ -89,35 +89,8 @@ public class FragmentDiscoverForums extends Fragment implements  SwipeRefreshLay
     }
 
     @Override
-    public void onRefresh()
-    {
-        Log.d("REFRESH", "refreshing the data set");
-        try {
-            MeshManager manager = ((MainActivity) getActivity()).meshManager;
-            Set<MeshId> peers = manager.getPeers(MainActivity.DATA_PORT);
-
-            Sync.Message dataRequest = Sync.Message.newBuilder().setType(Sync.SyncMessageType.REQUEST_DATA_V2).build();
-
-            // request an update from everyone
-            for (MeshId peer: peers) {
-
-                // do not ask myself for info
-                if (peer.equals(manager.getUuid())) {
-                    continue;
-                }
-                manager.sendDataReliable(peer, MainActivity.DATA_PORT, dataRequest.toByteArray());
-            }
-
-            postListAdapter.notifyDataSetChanged();
-
-        }
-        catch (RightMeshException e) {
-            e.printStackTrace();
-        }
-
     public void onRefresh() {
-        ((MainActivity) getActivity()).sendServiceMessage(null, VeilService.ACTION_MAIN_REFRESH_FORUMS_LIST);
-
+        ((MainActivity) getActivity()).sendServiceMessage(VeilService.ACTION_MAIN_REFRESH_FORUMS_LIST, null);
     }
 
     private final  BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {

@@ -207,126 +207,6 @@ public class MainActivity extends AppCompatActivity {
         transaction.commit();
     }
 
-
-    /**
-     * Handles incoming data events from the mesh
-     *
-     * @param e event object from mesh
-     */
-    private void handleDataReceived(RightMeshEvent e)
-    {
-        // TODO: 2018-05-28 Add in logic to handle the incoming data
-        final DataReceivedEvent event = (DataReceivedEvent) e;
-
-        Sync.Message message;
-        try {
-            message = Sync.Message.parseFrom(event.data);
-        }
-        catch (InvalidProtocolBufferException e1) {
-            e1.printStackTrace();
-            return;
-        }
-
-        Sync.SyncMessageType type = message.getType();
-
-        if (type == Sync.SyncMessageType.SYNC_DATA) {
-
-            Log.d("DATA_SYNC", "received data sync message");
-
-            dataStore.insertSync(message.getSyncMessage());
-            Intent intent = new Intent(NEW_DATA_BROADCAST);
-            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-
-        } else if (type == Sync.SyncMessageType.REQUEST_DATA_V2) {
-
-            Log.d("DATA_REQUEST_v2", "received request for data");
-            // if someone sent a message asking for data send a response with everything
-
-            Sync.SyncMessage syncMessage = dataStore.getSyncFor(event.peerUuid);
-
-            // send messages to the peer.
-            Sync.Message toSend = Sync.Message.newBuilder()
-                    .setType(Sync.SyncMessageType.SYNC_DATA)
-                    .setSyncMessage(syncMessage)
-                    .build();
-
-            try {
-                meshManager.sendDataReliable(event.peerUuid, DATA_PORT, toSend.toByteArray());
-            }
-            catch (RightMeshException e1) {
-                e1.printStackTrace();
-            }
-        } else if (type == Sync.SyncMessageType.HASH_DATA) {
-
-            Log.d("DATA_RECEIVE",  message.getData().toString());
-            dataStore.syncData(message.getData());
-        } else if (type == Sync.SyncMessageType.MAPPING_MESSAGE) {
-            Log.d("DATA_RECEIVE_MAP",  message.getMapping().toString());
-            dataStore.syncDatabase(message.getMapping());
-        } else if (type == Sync.SyncMessageType.REQUEST_DATA_V1) {
-
-            Log.d("DATA_REQUEST", "recived request for data");
-            // if someone sent a message asking for data send a responce with everything
-
-            Sync.HashData hashData = dataStore.getDataStore();
-            Sync.MappingMessage mappingMessage = dataStore.getDatabase();
-
-            // send messages to the peer.
-            Sync.Message toSend = Sync.Message.newBuilder()
-                    .setType(Sync.SyncMessageType.HASH_DATA)
-                    .setData(hashData)
-                    .build();
-
-            try {
-                meshManager.sendDataReliable(event.peerUuid, DATA_PORT, toSend.toByteArray());
-
-                toSend = Sync.Message.newBuilder()
-                        .setType(Sync.SyncMessageType.MAPPING_MESSAGE)
-                        .setMapping(mappingMessage)
-                        .build();
-
-                meshManager.sendDataReliable(event.peerUuid, DATA_PORT, toSend.toByteArray());
-
-            }
-            catch (RightMeshException e1) {
-                e1.printStackTrace();
-            }
-        }
-    }
-
-    /**
-     * Handles peer update events from the mesh - maintains a list of peers and updates the display.
-     *
-     * @param e event object from mesh
-     */
-    private void handlePeerChanged(RightMeshEvent e) {
-
-        // Update peer list.
-        PeerChangedEvent event = (PeerChangedEvent) e;
-        if (event.state != REMOVED) {
-
-            if (event.peerUuid.equals(meshManager.getUuid())) {
-                Log.d("FOUND", "found loopback: " + event.peerUuid);
-                return;
-            }
-
-            Log.d("FOUND", "found user: " + event.peerUuid);
-
-            // send messages to the peer requesting their data.
-            try {
-
-                Sync.Message message = Sync.Message.newBuilder()
-                        .setType(Sync.SyncMessageType.REQUEST_DATA_V2)
-                        .build();
-                meshManager.sendDataReliable(event.peerUuid, DATA_PORT, message.toByteArray());
-
-            }
-            catch (RightMeshException e1) {
-                e1.printStackTrace();
-            }
-        }
-    }
-
     /**
      * Gets the current user.
      * @return currentUser
@@ -350,6 +230,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Sends messages to {@link VeilService} to do work with.
      * @param command non optional command int defined by static strings in {@link VeilService}
+     * @param bundle the optional bundle to include in the message
      */
     public void sendServiceMessage(int command, @Nullable Bundle bundle ){
         //return if the service is not bound
