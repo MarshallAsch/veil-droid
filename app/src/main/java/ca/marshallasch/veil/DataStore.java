@@ -208,6 +208,13 @@ public class DataStore
         return db.getCount(KnownPostsContract.KnownPostsEntry.TABLE_NAME, select, selectArgs);
     }
 
+    public boolean isRead(String postHash) {
+        return db.isRead(postHash);
+    }
+
+    public boolean markRead(String postHash, boolean read) {
+        return  db.markRead(postHash, read);
+    }
 
     /**
      * Generate the object for syncing the database between devices.
