@@ -1,5 +1,6 @@
 package ca.marshallasch.veil;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -120,16 +121,40 @@ public class FragmentSignUp extends Fragment
                 break;
         }
 
-        // create the user in the database
-        Database db = Database.getInstance(getActivity());
-        DhtProto.User user = db.createUser(firstName, lastName, email, password);
-        db.close();
+        new SignUpTask().execute(firstName, lastName, email, password);
+    }
 
-        if (user == null) {
-            Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.unknown_err, Snackbar.LENGTH_SHORT).show();
-        } else {
-            ((MainActivity) getActivity()).setCurrentUser(user);
-            ((MainActivity) getActivity()).navigateTo(new FragmentDashBoard(), false);
+    /**
+     * Use this AsyncTask to move the account creation work into a separate thread to offload some of
+     * the work from the main thread.
+     */
+    private class SignUpTask extends AsyncTask<String, Void, DhtProto.User>
+    {
+        @Override
+        protected DhtProto.User doInBackground(String... strings)
+        {
+            String firstName = strings[0];
+            String lastName = strings[1];
+            String email = strings[2];
+            String password = strings[3];
+
+            // create the user in the database
+            Database db = Database.getInstance(getActivity());
+            DhtProto.User user = db.createUser(firstName, lastName, email, password);
+            db.close();
+
+            return user;
+        }
+
+        @Override
+        protected void onPostExecute(DhtProto.User user)
+        {
+            if (user == null) {
+                Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.unknown_err, Snackbar.LENGTH_SHORT).show();
+            } else {
+                ((MainActivity) getActivity()).setCurrentUser(user);
+                ((MainActivity) getActivity()).navigateTo(new FragmentDashBoard(), false);
+            }
         }
     }
 }
