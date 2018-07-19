@@ -10,7 +10,10 @@ import "dht.proto";
 enum SyncMessageType {
     MAPPING_MESSAGE = 0;
     HASH_DATA = 1;
-    REQUEST_DATA = 2;
+    REQUEST_DATA_V1 = 2;
+    REQUEST_DATA_V2 = 3;
+    SYNC_DATA = 4;
+    NEW_CONTENT = 5;
 }
 
 // message wrapper for all messages so that the correct one can be recreated
@@ -18,13 +21,14 @@ message Message {
     SyncMessageType type = 1;
     MappingMessage mapping = 2;
     HashData data = 3;
+    SyncMessage syncMessage = 4;
+    NewContent newContent = 5;
 }
 
 message CommentMapping {
     string postHash = 1;
     string commentHash = 2;
 }
-
 
 message MappingMessage {
     repeated CommentMapping mappings = 1;
@@ -37,4 +41,14 @@ message HashPair {
 
 message HashData {
     repeated HashPair entries = 1;
+}
+
+message SyncMessage {
+    repeated HashPair entries = 1;
+    repeated CommentMapping mappings = 2;
+}
+
+message NewContent {
+    Post post = 1;
+    Comment comment = 2;
 }

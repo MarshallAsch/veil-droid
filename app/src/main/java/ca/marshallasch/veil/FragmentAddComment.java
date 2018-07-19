@@ -18,6 +18,7 @@ import android.widget.TextView;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 import ca.marshallasch.veil.proto.DhtProto;
+import ca.marshallasch.veil.services.VeilService;
 import ca.marshallasch.veil.utilities.Util;
 
 
@@ -104,6 +105,13 @@ public class FragmentAddComment extends android.support.v4.app.Fragment {
 
             // save to the data store
             DataStore.getInstance(activity).saveComment(comment, postObject);
+
+            Bundle bundle1 = new Bundle();
+            bundle1.putByteArray(VeilService.EXTRA_POST, postObject.toByteArray());
+            bundle1.putByteArray(VeilService.EXTRA_COMMENT, comment.toByteArray());
+
+            ((MainActivity) activity).sendServiceMessage(VeilService.ACTION_NOTIFY_NEW_DATA, bundle1);
+
 
             // go back to the post view screen
             Util.hideKeyboard(view1, activity);

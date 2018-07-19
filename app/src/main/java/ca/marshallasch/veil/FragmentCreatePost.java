@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import ca.marshallasch.veil.proto.DhtProto;
+import ca.marshallasch.veil.services.VeilService;
 import ca.marshallasch.veil.utilities.Util;
 
 /**
@@ -105,6 +106,13 @@ public class FragmentCreatePost extends Fragment
         DataStore dataStore = DataStore.getInstance(getContext());
 
         if (dataStore.savePost(post)) {
+
+            // notify other users of a new post
+            Bundle bundle = new Bundle();
+            bundle.putByteArray(VeilService.EXTRA_POST, post.toByteArray());
+
+            ((MainActivity) activity).sendServiceMessage(VeilService.ACTION_NOTIFY_NEW_DATA, bundle);
+
             return true;
         } else {
             Snackbar.make(activity.findViewById(R.id.top_view), R.string.failed_to_save_data, Snackbar.LENGTH_SHORT).show();

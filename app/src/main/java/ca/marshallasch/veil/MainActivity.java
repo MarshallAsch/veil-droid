@@ -1,53 +1,68 @@
 package ca.marshallasch.veil;
 
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
-
-import com.google.protobuf.InvalidProtocolBufferException;
 
 import ca.marshallasch.veil.proto.DhtProto;
-import ca.marshallasch.veil.proto.Sync;
+import ca.marshallasch.veil.services.VeilService;
 import io.left.rightmesh.android.AndroidMeshManager;
-import io.left.rightmesh.android.MeshService;
-import io.left.rightmesh.id.MeshId;
-import io.left.rightmesh.mesh.MeshManager.DataReceivedEvent;
-import io.left.rightmesh.mesh.MeshManager.PeerChangedEvent;
-import io.left.rightmesh.mesh.MeshManager.RightMeshEvent;
-import io.left.rightmesh.mesh.MeshStateListener;
-import io.left.rightmesh.util.RightMeshException;
 
-import static io.left.rightmesh.mesh.MeshManager.DATA_RECEIVED;
-import static io.left.rightmesh.mesh.MeshManager.PEER_CHANGED;
-import static io.left.rightmesh.mesh.MeshManager.REMOVED;
-
-public class MainActivity extends AppCompatActivity implements MeshStateListener
-{
-
-    public static final String NEW_DATA_BROADCAST = "ca.marshallasch.veil.NEW_DATA_BROADCAST";
-    public static final int DATA_PORT = 9182;
-    // private static final int DISCOVERY_PORT = 9183;       // This port will be used for the DHT
-                                                            // to keep all of that traffic separate
-
-    // MeshManager instance - interface to the mesh network.
-    AndroidMeshManager meshManager = null;
+public class MainActivity extends AppCompatActivity {
+    // This port will be used for the DHT to keep all of that traffic separate
+    // private static final int DISCOVERY_PORT = 9183;
 
     //MemoryStore instance - for storing data in local hashtable
     DataStore dataStore = null;
 
+    /** messenger for communicating with {@link VeilService} **/
+    Messenger messengerService = null;
+
+    // flag for indicating if we have called bind on service
+    boolean isBound;
     private DhtProto.User currentUser = null;
+
+    /**
+     * Class for interacting with {@link VeilService}
+     */
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        /**
+         * Called when connection to service has been established.
+         * @param componentName
+         * @param service Client side representation of a raw IBinder object
+         */
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder service) {
+            messengerService = new Messenger(service);
+            isBound = true;
+        }
+
+        /**
+         * Handles when the service has unexpectedly crashed or disconnects
+         * @param componentName
+         */
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            messengerService = null;
+            isBound = false;
+        }
+    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,10 +76,13 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         setContentView(R.layout.activity_main);
 
         dataStore = DataStore.getInstance(this);
+
+        //starts RightMesh Service
+        Intent intent = new Intent(this, VeilService.class);
+        startService(intent);
+
         navigateTo(new FragmentLanding(), false);
 
-        // Gets an instance of the Android-specific MeshManager singleton.
-        meshManager = AndroidMeshManager.getInstance(this, this);
     }
 
     /**
@@ -72,12 +90,9 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
      */
     @Override
     protected void onResume() {
-        try {
-            super.onResume();
-            meshManager.resume();
-        } catch (RightMeshException e) {
-            e.printStackTrace();
-        }
+        super.onResume();
+        sendServiceMessage( VeilService.ACTION_MAIN_RESUME_MESH, null);
+
     }
 
     /**
@@ -92,19 +107,27 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         dataStore.save(this);
         dataStore.close();
 
-        try {
-            meshManager.stop();
-        }
-        catch (RightMeshException e) {
-            e.printStackTrace();
-        }
+        //stopping Rightmesh service
+        stopService(new Intent(this, VeilService.class));
+
+    }
+
+    @Override
+    protected void onStart(){
+        super.onStart();
+        //bind to service
+        bindService(new Intent(this, VeilService.class), serviceConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
     protected void onStop()
     {
         super.onStop();
-
+        //unbind from service
+        if(isBound) {
+            unbindService(serviceConnection);
+            isBound = false;
+        }
         dataStore.save(this);
     }
 
@@ -147,12 +170,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
                 frag = new FragmentPeerList();
                 break;
             case R.id.setup:
-                try {
-                    meshManager.showSettingsActivity();
-                }
-                catch (RightMeshException e) {
-                    e.printStackTrace();
-                }
+                sendServiceMessage(VeilService.ACTION_VIEW_MESH_SETTINGS, null);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -164,42 +182,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         return true;
     }
 
-    /**
-     * Called by the {@link MeshService} when the mesh state changes. Initializes mesh connection
-     * on first call.
-     *
-     * @param meshId our own user id on first detecting
-     * @param state state which indicates SUCCESS or an error code
-     */
-    @Override
-    public void meshStateChanged(MeshId meshId, int state)
-    {
-        switch(state) {
-            case SUCCESS: // Begin connecting
-
-                try {
-                    meshManager.bind(DATA_PORT);
-
-                    meshManager.on(DATA_RECEIVED, this::handleDataReceived);
-                    meshManager.on(PEER_CHANGED, this::handlePeerChanged);
-
-                } catch (RightMeshException e) {
-                    String status = "Error initializing the library" + e.toString();
-                    Toast.makeText(getApplicationContext(), status, Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                Log.d("MESH", "initilized");
-
-            case RESUME:  // over the mesh!
-                break;
-            case FAILURE:  // Mesh connection unavailable,
-            case DISABLED: // time for Plan B.
-                break;
-        }
-    }
-
-    /**
-     * Navigate to the given fragment.
+    /** Navigate to the given fragment.
      *
      * @param fragment       Fragment to navigate to.
      * @param addToBackStack Whether or not the current fragment should be added to the back stack.
@@ -231,114 +214,6 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         transaction.commit();
     }
 
-
-    /**
-     * Handles incoming data events from the mesh
-     *
-     * @param e event object from mesh
-     */
-    private void handleDataReceived(RightMeshEvent e)
-    {
-        // TODO: 2018-05-28 Add in logic to handle the incoming data
-        final DataReceivedEvent event = (DataReceivedEvent) e;
-
-        Sync.Message message;
-        try {
-            message = Sync.Message.parseFrom(event.data);
-        }
-        catch (InvalidProtocolBufferException e1) {
-            e1.printStackTrace();
-            return;
-        }
-
-        Sync.SyncMessageType type = message.getType();
-
-        if (type == Sync.SyncMessageType.HASH_DATA) {
-
-            Log.d("DATA_RECEIVE", message.getData().toString());
-            dataStore.syncData(message.getData());
-        } else if (type == Sync.SyncMessageType.MAPPING_MESSAGE) {
-            Log.d("DATA_RECEIVE_MAP", message.getMapping().toString());
-
-            dataStore.syncDatabase(message.getMapping());
-
-            // notify anyone interested that the data store has been updated.
-            Intent intent = new Intent(NEW_DATA_BROADCAST);
-            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-        } else if (type == Sync.SyncMessageType.REQUEST_DATA) {
-
-            Log.d("DATA_REQUEST", "recived request for data");
-            // if someone sent a message asking for data send a responce with everything
-
-            Sync.HashData hashData = dataStore.getDataStore();
-            Sync.MappingMessage mappingMessage = dataStore.getDatabase();
-
-            // send messages to the peer.
-            Sync.Message toSend = Sync.Message.newBuilder()
-                    .setType(Sync.SyncMessageType.HASH_DATA)
-                    .setData(hashData)
-                    .build();
-
-            try {
-                meshManager.sendDataReliable(event.peerUuid, DATA_PORT, toSend.toByteArray());
-
-                toSend = Sync.Message.newBuilder()
-                        .setType(Sync.SyncMessageType.MAPPING_MESSAGE)
-                        .setMapping(mappingMessage)
-                        .build();
-
-                meshManager.sendDataReliable(event.peerUuid, DATA_PORT, toSend.toByteArray());
-
-            }
-            catch (RightMeshException e1) {
-                e1.printStackTrace();
-            }
-        }
-    }
-
-    /**
-     * Handles peer update events from the mesh - maintains a list of peers and updates the display.
-     *
-     * @param e event object from mesh
-     */
-    private void handlePeerChanged(RightMeshEvent e) {
-
-        // Update peer list.
-        PeerChangedEvent event = (PeerChangedEvent) e;
-        if (event.state != REMOVED) {
-
-            if (event.peerUuid.equals(meshManager.getUuid())) {
-                Log.d("FOUND", "found loopback: " + event.peerUuid);
-                return;
-            }
-
-            Log.d("FOUND", "found user: " + event.peerUuid);
-
-
-
-            Sync.HashData hashData = dataStore.getDataStore();
-            Sync.MappingMessage mappingMessage =  dataStore.getDatabase();
-
-            // send messages to the peer.
-            try {
-                Sync.Message message = Sync.Message.newBuilder()
-                        .setType(Sync.SyncMessageType.HASH_DATA)
-                        .setData(hashData)
-                        .build();
-                meshManager.sendDataReliable(event.peerUuid, DATA_PORT, message.toByteArray());
-
-                message = Sync.Message.newBuilder()
-                        .setType(Sync.SyncMessageType.MAPPING_MESSAGE)
-                        .setMapping(mappingMessage)
-                        .build();
-                meshManager.sendDataReliable(event.peerUuid, DATA_PORT, message.toByteArray());
-            }
-            catch (RightMeshException e1) {
-                e1.printStackTrace();
-            }
-        }
-    }
-
     /**
      * Gets the current user.
      * @return currentUser
@@ -357,4 +232,25 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
     {
         this.currentUser = currentUser;
     }
+
+
+    /**
+     * Sends messages to {@link VeilService} to do work with.
+     * @param command non optional command int defined by static strings in {@link VeilService}
+     * @param bundle the optional bundle to include in the message
+     */
+    public void sendServiceMessage(int command, @Nullable Bundle bundle ){
+        //return if the service is not bound
+        if(!isBound) return;
+
+        Message msg = Message.obtain(null, command, 0, 0);
+        msg.setData(bundle);
+        try {
+            messengerService.send(msg);
+        } catch (RemoteException e){
+            e.printStackTrace();
+        }
+
+    }
+
 }

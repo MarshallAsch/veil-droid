@@ -1,20 +1,28 @@
 package ca.marshallasch.veil;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.IntRange;
 import android.support.annotation.Nullable;
+import android.support.v4.util.ArraySet;
 import android.support.v4.util.Pair;
 import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ca.marshallasch.veil.comparators.CommentComparator;
+import ca.marshallasch.veil.comparators.PostComparator;
 import ca.marshallasch.veil.database.Database;
+import ca.marshallasch.veil.database.KnownPostsContract;
 import ca.marshallasch.veil.exceptions.TooManyResultsException;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.proto.Sync;
+import io.left.rightmesh.id.MeshId;
 
 /**
  * This class is a delegate class for all of the data access to use this instead of the underling
@@ -79,7 +87,8 @@ public class DataStore
     }
 
     /**
-     * Gets all the known posts in a the data store
+     * Gets all the known posts in a the data store.
+     * The list will be sorted, newest posts first
      * @return the list of posts.
      */
     public List<DhtProto.Post> getKnownPosts() {
@@ -105,6 +114,9 @@ public class DataStore
                 posts.add(post);
             }
         }
+
+        // make sure the list of posts are in chronological order
+        Collections.sort(posts, new PostComparator());
 
         return posts;
     }
@@ -178,9 +190,31 @@ public class DataStore
     }
 
     /**
+     * This will get the number of comments that exist for given post and will return the number.
+     *
+     * @param postHash the string identifying the particular post
+     * @return the number of comments for the post, 0 if none are found
+     */
+    @IntRange(from=0)
+    public int getNumCommentsFor(@Nullable String postHash) {
+
+        if (postHash == null) {
+            return 0;
+        }
+
+        String select = KnownPostsContract.KnownPostsEntry.COLUMN_POST_HASH + " = ? AND " + KnownPostsContract.KnownPostsEntry.COLUMN_COMMENT_HASH + " != \"\" ";
+        String[] selectArgs = {postHash};
+
+        return db.getCount(KnownPostsContract.KnownPostsEntry.TABLE_NAME, select, selectArgs);
+    }
+
+
+    /**
      * Generate the object for syncing the database between devices.
      * @return the mapping object
+     * @deprecated  This is being kept in for backwards compatibility and for the stats
      */
+    @Deprecated
     public Sync.MappingMessage getDatabase() {
 
         List<Pair<String, String>> knownPosts = db.dumpKnownPosts();
@@ -213,7 +247,9 @@ public class DataStore
      * Generate the syncing object for the data store. It will contain all of the objects
      * for the posts and the comments only.
      * @return the message object
+     * @deprecated  This is being kept in for backwards compatibility and for the stats
      */
+    @Deprecated
     public Sync.HashData getDataStore() {
 
         List<Pair<String, DhtProto.DhtWrapper>> data = hashTableStore.getData();
@@ -236,7 +272,9 @@ public class DataStore
     /**
      * Will insert the database sync object into the database.
      * @param message the message to insert
+     * @deprecated  This is being kept in for backwards compatibility and for the stats
      */
+    @Deprecated
     public void syncDatabase(Sync.MappingMessage message) {
 
         List<Sync.CommentMapping> mapping = message.getMappingsList();
@@ -260,7 +298,9 @@ public class DataStore
     /**
      * Will insert all of the synced data from another device.
      * @param message the data sync object.
+     * @deprecated  This is being kept in for backwards compatibility and for the stats
      */
+    @Deprecated
     public void syncData(Sync.HashData message) {
 
         List<Sync.HashPair> mapping = message.getEntriesList();
@@ -272,4 +312,92 @@ public class DataStore
         }
     }
 
+    /**
+     * This will generate a data synchronization message for the given peer.
+     * This is the version 2 of the data synchronization protocol.
+     * @param peer the {@link MeshId} for the peer to send the sync message too
+     * @return a sync message that is filled with the data for that peer
+     */
+    @NonNull
+    public Sync.SyncMessage getSyncFor(MeshId peer) {
+
+        // get time last sent data
+        Sync.SyncMessage.Builder builder = Sync.SyncMessage.newBuilder();
+
+        Date timeLastSentData = db.getTimeLastSentData(peer.toString());
+
+        // get the list of comments and post hashes since the given time.
+        List<Pair<String, String>> mapping = db.dumpKnownPosts(timeLastSentData);
+
+        Set<String> hashes = new ArraySet<>();
+
+        for (Pair<String, String> pair: mapping) {
+            hashes.add(pair.first);
+            hashes.add(pair.second);
+
+            builder.addMappings(Sync.CommentMapping.newBuilder()
+                    .setPostHash(pair.first)
+                    .setCommentHash(pair.second)
+                    .build());
+        }
+        // remove the empty string from the empty comment hashes
+        hashes.remove("");
+
+        DhtProto.DhtWrapper wrapper;
+
+        for (String hash: hashes) {
+
+            // search for the comment or post
+            wrapper = hashTableStore.getPostOrComment(hash);
+
+            // insert into the list
+            if (wrapper != null) {
+                builder.addEntries(Sync.HashPair.newBuilder()
+                        .setHash(hash)
+                        .setEntry(wrapper)
+                        .build());
+            }
+        }
+
+        return builder.build();
+    }
+
+    /**
+     * This will insert the data sync message into the data store and the database.
+     * This is for the version 2 message.
+     *
+     * @param syncMessage the message from the remote peer to save.
+     */
+    public void insertSync(@Nullable Sync.SyncMessage syncMessage) {
+
+        if (syncMessage == null) {
+            return;
+        }
+
+        List<Sync.HashPair> entries = syncMessage.getEntriesList();
+
+        // insert all of the mappings
+        for (Sync.HashPair entry: entries) {
+            Log.d("PAIRS", "e: " + entry.getEntry().getType().getNumber() + " :: " + entry.getHash());
+            hashTableStore.insert (entry.getEntry(), entry.getHash());
+        }
+
+        List<Sync.CommentMapping> mapping = syncMessage.getMappingsList();
+        List<Pair<String, String>> knownPosts = db.dumpKnownPosts();
+
+        Log.d("MAPPING", "LEN: " + mapping.size());
+
+        // insert all of the mappings
+        for (Sync.CommentMapping entry: mapping) {
+
+            // TODO: 2018-07-11 improve the efficiency of this
+            // skip if we already have the entry
+            if (knownPosts.contains(new Pair<>(entry.getPostHash(), entry.getCommentHash()))) {
+                continue;
+            }
+
+            db.insertKnownPost(entry.getPostHash(), entry.getCommentHash());
+        }
+
+    }
 }

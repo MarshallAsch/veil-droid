@@ -9,7 +9,10 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme.Launcher">
+        android:theme="@style/AppTheme.Launcher" >
+        <service
+            android:name="ca.marshallasch.veil.services.VeilService"
+            android:exported="false"/>
         <activity
             android:name=".MainActivity"
             android:windowSoftInputMode="adjustResize">
