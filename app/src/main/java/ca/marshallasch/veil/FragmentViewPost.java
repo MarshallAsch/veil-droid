@@ -89,6 +89,10 @@ public class FragmentViewPost extends Fragment {
             viewAuthorName.setText(authorName);
         }
 
+        // mark this post as read
+        DataStore.getInstance(activity).markRead(postObject.getUuid(), true);
+
+
         //recycler view logic for displaying comments
         RecyclerView recyclerView = view.findViewById(R.id.comment_list);
         recyclerView.setHasFixedSize(true);

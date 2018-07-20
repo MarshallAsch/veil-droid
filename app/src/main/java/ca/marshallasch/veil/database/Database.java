@@ -51,7 +51,7 @@ import ca.marshallasch.veil.utilities.Util;
 public class Database extends SQLiteOpenHelper
 {
     private static String DATABASE_NAME = "contentDiscoveryTables";
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 8;
 
     // this is for the singleton
     private static Database instance = null;
@@ -157,6 +157,10 @@ public class Database extends SQLiteOpenHelper
 
         if (oldVersion < 7) {
             Migrations.upgradeV7(db);
+        }
+
+        if (oldVersion < 8) {
+            Migrations.upgradeV8(db);
         }
     }
 
@@ -722,17 +726,21 @@ public class Database extends SQLiteOpenHelper
         String selection = PeerListEntry.COLUMN_PEER_MESH_ID + " = ?";
         String[] selectionArgs = { peerID };
 
-        Cursor cursor = getReadableDatabase().query(
-                true,
-                PeerListEntry.TABLE_NAME,   // The table to query
-                projection,             // The array of columns to return (pass null to get all)
-                selection,              // The columns for the WHERE clause
-                selectionArgs,          // The values for the WHERE clause
-                null,          // don't group the rows
-                null,           // don't filter by row groups
-                null,           // don't sort
-                null                // no limit to the results
-        );
+        Cursor cursor;
+
+        synchronized (this) {
+            cursor = getReadableDatabase().query(
+                    true,
+                    PeerListEntry.TABLE_NAME,   // The table to query
+                    projection,             // The array of columns to return (pass null to get all)
+                    selection,              // The columns for the WHERE clause
+                    selectionArgs,          // The values for the WHERE clause
+                    null,          // don't group the rows
+                    null,           // don't filter by row groups
+                    null,           // don't sort
+                    null                // no limit to the results
+            );
+        }
 
         while(cursor.moveToNext()) {
             long millis = cursor.getLong(cursor.getColumnIndexOrThrow(PeerListEntry.COLUMN_TIME_LAST_SENT));
@@ -766,16 +774,23 @@ public class Database extends SQLiteOpenHelper
         values.put(PeerListEntry.COLUMN_PEER_MESH_ID, peerID);
         values.put(PeerListEntry.COLUMN_TIME_LAST_SENT, new Date().getTime());
 
-        int numUpdated = getWritableDatabase().update(
-                PeerListEntry.TABLE_NAME,   // The table to update
-                values,                  // The values to update
-                selection,              // The columns for the WHERE clause
-                selectionArgs          // The values for the WHERE clause
-        );
+        int numUpdated;
+
+        synchronized (this) {
+            numUpdated = getWritableDatabase().update(
+                    PeerListEntry.TABLE_NAME,   // The table to update
+                    values,                  // The values to update
+                    selection,              // The columns for the WHERE clause
+                    selectionArgs          // The values for the WHERE clause
+            );
+        }
 
         if (numUpdated != 1) {
             // note this is a potentially long running operation.
-            long id = getWritableDatabase().insert(PeerListEntry.TABLE_NAME, null, values);
+            long id;
+            synchronized (this) {
+                id = getWritableDatabase().insert(PeerListEntry.TABLE_NAME, null, values);
+            }
 
             return id != -1;
         }
@@ -899,15 +914,19 @@ public class Database extends SQLiteOpenHelper
         String selection = KnownPostsEntry.COLUMN_TIME_INSERTED + " >= ?";
         String[] selectionArgs = { String.valueOf(since.getTime()) };
 
-        Cursor cursor = getReadableDatabase().query(
-                KnownPostsEntry.TABLE_NAME,   // The table to query
-                projection,             // The array of columns to return (pass null to get all)
-                selection,              // The columns for the WHERE clause
-                selectionArgs,          // The values for the WHERE clause
-                null,          // don't group the rows
-                null,           // don't filter by row groups
-                null          // don't sort
-        );
+        Cursor cursor;
+
+        synchronized (this) {
+            cursor = getReadableDatabase().query(
+                    KnownPostsEntry.TABLE_NAME,   // The table to query
+                    projection,             // The array of columns to return (pass null to get all)
+                    selection,              // The columns for the WHERE clause
+                    selectionArgs,          // The values for the WHERE clause
+                    null,          // don't group the rows
+                    null,           // don't filter by row groups
+                    null          // don't sort
+            );
+        }
 
         String postHash;
         String commentHash;
@@ -923,6 +942,78 @@ public class Database extends SQLiteOpenHelper
         cursor.close();
 
         return hashes;
+    }
+
+    /**
+     * This will check if a post has been marked as being read.
+     * Since this calls {@link #getReadableDatabase()}, do not call this from the main thread
+     * @param postHash the post to check
+     * @return true if the read flag has been set, otherwise false
+     */
+    @WorkerThread
+    public boolean isRead(String postHash) {
+
+        String[] projection = { KnownPostsEntry.COLUMN_READ };
+
+        String selection = KnownPostsEntry.COLUMN_POST_HASH + " = ? AND " +
+                KnownPostsEntry.COLUMN_COMMENT_HASH + " == \"\" ";
+        String[] selectionArgs = { postHash };
+
+        Cursor cursor;
+        synchronized (this) {
+            cursor = getReadableDatabase().query(
+                    KnownPostsEntry.TABLE_NAME,   // The table to query
+                    projection,             // The array of columns to return (pass null to get all)
+                    selection,              // The columns for the WHERE clause
+                    selectionArgs,          // The values for the WHERE clause
+                    null,          // don't group the rows
+                    null,           // don't filter by row groups
+                    null          // don't sort
+            );
+        }
+
+        int read = 0;
+
+        // get each post hash that is in the list
+        while(cursor.moveToNext()) {
+            read = cursor.getInt(cursor.getColumnIndexOrThrow(KnownPostsEntry.COLUMN_READ));
+        }
+        cursor.close();
+
+        return read == 1;
+    }
+
+    /**
+     * This will mark the post as being read or unread
+     * Since this calls {@link #getWritableDatabase()}, do not call this from the main thread
+     * @param postHash the post to check
+     * @param read if the post is being marked as read or unread
+     * @return true if it was successful false otherwise
+     */
+    @WorkerThread
+    public boolean markRead(String postHash, boolean read) {
+
+        String[] projection = { KnownPostsEntry.COLUMN_READ };
+
+        String selection = KnownPostsEntry.COLUMN_POST_HASH + " = ? AND " +
+                KnownPostsEntry.COLUMN_COMMENT_HASH + " == \"\" ";
+        String[] selectionArgs = { postHash };
+
+        ContentValues values = new ContentValues();
+        values.put(KnownPostsEntry.COLUMN_READ, read ? 1 : 0);
+
+        int numUpdated;
+
+        synchronized (this) {
+            numUpdated = getWritableDatabase().update(
+                    KnownPostsEntry.TABLE_NAME,
+                    values,
+                    selection,
+                    selectionArgs
+            );
+        }
+
+        return  numUpdated == 1;
     }
 
     /**
