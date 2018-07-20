@@ -1,5 +1,6 @@
 package ca.marshallasch.veil;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -25,8 +26,6 @@ import ca.marshallasch.veil.utilities.Util;
  */
 public class FragmentSignUp extends Fragment
 {
-
-
     private EditText firstNameInput;
     private EditText lastNameInput;
     private EditText emailAddressInput;
@@ -39,7 +38,6 @@ public class FragmentSignUp extends Fragment
     public FragmentSignUp(){
         super();
     }
-
 
     @Nullable
     @Override
@@ -83,7 +81,6 @@ public class FragmentSignUp extends Fragment
         return view;
     }
 
-
     /**
      * This handles the account creation and input validation.
      */
@@ -120,16 +117,56 @@ public class FragmentSignUp extends Fragment
                 break;
         }
 
-        // create the user in the database
-        Database db = Database.getInstance(getActivity());
-        DhtProto.User user = db.createUser(firstName, lastName, email, password);
-        db.close();
+        new SignUpTask().execute(firstName, lastName, email, password);
+    }
 
-        if (user == null) {
-            Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.unknown_err, Snackbar.LENGTH_SHORT).show();
-        } else {
-            ((MainActivity) getActivity()).setCurrentUser(user);
-            ((MainActivity) getActivity()).navigateTo(new FragmentDashBoard(), false);
+    /**
+     * Use this AsyncTask to move the account creation work into a separate thread to offload some of
+     * the work from the main thread.
+     */
+    private class SignUpTask extends AsyncTask<String, Void, DhtProto.User>
+    {
+        /**
+         * This function gets called to do the work in a seperate thread. It MUST be given 4
+         * arguments:
+         * FirstName
+         * LastName
+         * Email
+         * Password
+         *
+         * @param strings list of strings to pass into the function
+         * @return The users that was just created.
+         */
+        @Override
+        protected DhtProto.User doInBackground(String... strings)
+        {
+            String firstName = strings[0];
+            String lastName = strings[1];
+            String email = strings[2];
+            String password = strings[3];
+
+            // create the user in the database
+            Database db = Database.getInstance(getActivity());
+            DhtProto.User user = db.createUser(firstName, lastName, email, password);
+            db.close();
+
+            return user;
+        }
+
+        /**
+         * Run this on the main thread to update the UI.
+         * This will display an error message or go to the dashboard screen.
+         * @param user the user that was just created
+         */
+        @Override
+        protected void onPostExecute(DhtProto.User user)
+        {
+            if (user == null) {
+                Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.unknown_err, Snackbar.LENGTH_SHORT).show();
+            } else {
+                ((MainActivity) getActivity()).setCurrentUser(user);
+                ((MainActivity) getActivity()).navigateTo(new FragmentDashBoard(), false);
+            }
         }
     }
 }

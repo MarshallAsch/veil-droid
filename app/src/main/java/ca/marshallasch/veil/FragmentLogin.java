@@ -1,6 +1,8 @@
 package ca.marshallasch.veil;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -31,6 +33,9 @@ public class FragmentLogin extends Fragment {
 
     private EditText emailAddressInput;
     private EditText passwordInput;
+    private CheckBox rememberMe;
+
+    private Activity activity;
 
     public FragmentLogin() {
         // Required empty public constructor
@@ -41,7 +46,7 @@ public class FragmentLogin extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)  {
 
-
+        activity = getActivity();
         View view = inflater.inflate(R.layout.fragment_login, container,false);
 
         ConstraintLayout layout = view.findViewById(R.id.login_layout);
@@ -61,26 +66,27 @@ public class FragmentLogin extends Fragment {
 
         //hides keyboard if white space is pressed
         layout.setOnTouchListener((view12, ev) -> {
-            Util.hideKeyboard(view12, getActivity());
+            Util.hideKeyboard(view12, activity);
             return false;
         });
 
         // buttons and event listeners
         MaterialButton login = view.findViewById(R.id.enter_btn);
         MaterialButton cancel = view.findViewById(R.id.back_btn);
-        CheckBox rememberMe = view.findViewById(R.id.remember_me);
+
 
         emailAddressInput = view.findViewById(R.id.username);
         passwordInput = view.findViewById(R.id.password);
+        rememberMe = view.findViewById(R.id.remember_me);
 
         // fill in the username if known
-        String knownUserName = Util.getKnownUsername(getActivity());
+        String knownUserName = Util.getKnownUsername(activity);
         if (knownUserName != null) {
             emailAddressInput.setText(knownUserName);
         }
 
         // fill in the password if known
-        String knownPassword = Util.getKnownPassword(getActivity());
+        String knownPassword = Util.getKnownPassword(activity);
         if (knownPassword != null) {
             passwordInput.setText(knownPassword);
         }
@@ -92,38 +98,75 @@ public class FragmentLogin extends Fragment {
 
         login.setOnClickListener(view1 -> {
             Log.i("Fragment Login", "enter button pressed");
-            Util.hideKeyboard(view1, getActivity());
+            Util.hideKeyboard(view1, activity);
 
             String username = emailAddressInput.getText().toString();
             String password = passwordInput.getText().toString();
-            // check the user account in the database
-            // NOTE that this will find the fist matching email + password combination on the
-            // device
-            Database db = Database.getInstance(getActivity());
-            DhtProto.User user = db.login(username, password);
-            db.close();
 
-            // check that a user was found
-            if (user == null) {
-                Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.username_pass_not_match, Snackbar.LENGTH_SHORT).show();
-                Util.clearKnownUser(getActivity());
-            } else {
+            // do the login action in the a async task
+            new LoginTask().execute(username, password);
 
-                if (rememberMe.isChecked()) {
-                    Util.rememberUserName(getActivity(), username, password);
-                }
-
-                ((MainActivity) getActivity()).setCurrentUser(user);
-                ((MainActivity) getActivity()).navigateTo(new FragmentDashBoard(), false);
-            }
         });
 
         cancel.setOnClickListener(view1 -> {
-            Util.hideKeyboard(view1, getActivity());
-            ((MainActivity) getActivity()).navigateTo(new FragmentLanding(), false);
+            Util.hideKeyboard(view1, activity);
+            ((MainActivity) activity).navigateTo(new FragmentLanding(), false);
 
         });
 
         return view;
+    }
+
+    /**
+     * Use this AsyncTask to move the login work into a separate thread to offload some of the
+     * work from the main thread.
+     */
+    private class LoginTask extends AsyncTask<String, Void, DhtProto.User> {
+
+        /**
+         * This will check if the user is valid. And it will be run on a separate thread.
+         * It takes 2 string arguments that MUST be given:
+         * userName
+         * password
+         * @param strings the strings that get passed into the function.
+         * @return the user that was successfully logged in or null if one was not found
+         */
+        @Override
+        protected DhtProto.User doInBackground(String... strings)
+        {
+            String username = strings[0];
+            String password = strings[1];
+
+            // check the user account in the database
+            // NOTE that this will find the fist matching email + password combination on the
+            // device
+            Database db = Database.getInstance(activity);
+            DhtProto.User user = db.login(username, password);
+            db.close();
+
+            if (user != null && rememberMe.isChecked()) {
+                Util.rememberUserName(activity, username, password);
+            }
+            return user;
+        }
+
+        /**
+         * Run this on the main thread to update the UI.
+         * This will display an error message or go to the dashboard screen.
+         * @param user the user that was just logged in or null if none was found
+         */
+        @Override
+        protected void onPostExecute(DhtProto.User user)
+        {
+            // check that a user was found
+            if (user == null) {
+                Snackbar.make(activity.findViewById(R.id.top_view), R.string.username_pass_not_match, Snackbar.LENGTH_SHORT).show();
+                Util.clearKnownUser(activity);
+            } else {
+
+                ((MainActivity) activity).setCurrentUser(user);
+                ((MainActivity) activity).navigateTo(new FragmentDashBoard(), false);
+            }
+        }
     }
 }
