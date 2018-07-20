@@ -34,25 +34,23 @@ import static io.left.rightmesh.mesh.MeshManager.REMOVED;
  *
  * @author Weihan Li
  * @version 1.0
- * @created on 2018-07-09
- * @name veil-droid
+ * @since 2018-07-09
  */
-
 public class RightMeshController implements MeshStateListener{
     //Broadcast public strings
     public static final String NEW_DATA_BROADCAST = "ca.marshallasch.veil.controllers.NEW_DATA_BROADCAST";
     public static final String GET_PEERS_BROADCAST = "ca.marshallasch.veil.controllers.GET_PEERS_BROADCAST";
 
-    //intent filter public strings
-    public static final String PEERS_LIST = "ca.marshallasch.veil.controllers.PEERS_LIST";
+    //the key for access the list of peers in the broadcasted message
+    public static final String EXTRA_PEERS_LIST = "ca.marshallasch.veil.controllers.EXTRA_PEERS_LIST";
+
+    private static final int DATA_PORT = 9182;
 
     // MeshManager instance - interface to the mesh network.
-    AndroidMeshManager meshManager = null;
-    Context serviceContext = null;
-    public static final int DATA_PORT = 9182;
+    private AndroidMeshManager meshManager = null;
+    private Context serviceContext = null;
 
-    //MemoryStore instance - for storing data in local HashTable
-    DataStore dataStore = null;
+    private DataStore dataStore = null;
 
     /**
      * Get a {@link AndroidMeshManager} instance and/or start RightMesh if it isn't already
@@ -74,7 +72,7 @@ public class RightMeshController implements MeshStateListener{
                 meshManager.stop();
             }
         } catch (RightMeshException e){
-            Log.e("RightmeshContoller", "MeshManager Disconnect Failure.");
+            Log.e("RightmeshController", "MeshManager Disconnect Failure.");
             e.printStackTrace();
         }
     }
@@ -112,7 +110,7 @@ public class RightMeshController implements MeshStateListener{
             LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
         } else if (type == Sync.SyncMessageType.REQUEST_DATA_V1) {
 
-            Log.d("DATA_REQUEST", "recived request for data");
+            Log.d("DATA_REQUEST", "received request for data");
             // if someone sent a message asking for data send a responce with everything
 
             Sync.HashData hashData = dataStore.getDataStore();
@@ -208,7 +206,7 @@ public class RightMeshController implements MeshStateListener{
                     Toast.makeText(serviceContext, status, Toast.LENGTH_SHORT).show();
                     return;
                 }
-                Log.d("MESH", "initilized");
+                Log.d("MESH", "initialized");
             case FAILURE:  // Mesh connection unavailable,
             case DISABLED: // time for Plan B.
                 break;
@@ -257,7 +255,7 @@ public class RightMeshController implements MeshStateListener{
     public void manualRefresh(){
         try {
             MeshManager manager = this.meshManager;
-            Set<MeshId> peers = manager.getPeers(this.DATA_PORT);
+            Set<MeshId> peers = manager.getPeers(DATA_PORT);
 
             Sync.Message dataRequest = Sync.Message.newBuilder().setType(Sync.SyncMessageType.REQUEST_DATA_V2).build();
 
@@ -268,7 +266,7 @@ public class RightMeshController implements MeshStateListener{
                 if (peer.equals(manager.getUuid())) {
                     continue;
                 }
-                manager.sendDataReliable(peer, this.DATA_PORT, dataRequest.toByteArray());
+                manager.sendDataReliable(peer, DATA_PORT, dataRequest.toByteArray());
             }
 
         }
@@ -332,10 +330,10 @@ public class RightMeshController implements MeshStateListener{
             e.printStackTrace();
         }
 
-        Intent intent = new Intent(this.GET_PEERS_BROADCAST);
+        Intent intent = new Intent(GET_PEERS_BROADCAST);
         //MeshId is serializable
         //Ref: https://developer.rightmesh.io/api/latest/reference/io/left/rightmesh/id/MeshID.php
-        intent.putExtra(this.PEERS_LIST, (Serializable) peers);
+        intent.putExtra(EXTRA_PEERS_LIST, (Serializable) peers);
         LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
 
     }
