@@ -126,6 +126,17 @@ public class FragmentSignUp extends Fragment
      */
     private class SignUpTask extends AsyncTask<String, Void, DhtProto.User>
     {
+        /**
+         * This function gets called to do the work in a seperate thread. It MUST be given 4
+         * arguments:
+         * FirstName
+         * LastName
+         * Email
+         * Password
+         *
+         * @param strings list of strings to pass into the function
+         * @return The users that was just created.
+         */
         @Override
         protected DhtProto.User doInBackground(String... strings)
         {
@@ -142,6 +153,11 @@ public class FragmentSignUp extends Fragment
             return user;
         }
 
+        /**
+         * Run this on the main thread to update the UI.
+         * This will display an error message or go to the dashboard screen.
+         * @param user the user that was just created
+         */
         @Override
         protected void onPostExecute(DhtProto.User user)
         {

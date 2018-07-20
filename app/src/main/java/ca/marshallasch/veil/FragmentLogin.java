@@ -123,6 +123,14 @@ public class FragmentLogin extends Fragment {
      */
     private class LoginTask extends AsyncTask<String, Void, DhtProto.User> {
 
+        /**
+         * This will check if the user is valid. And it will be run on a separate thread.
+         * It takes 2 string arguments that MUST be given:
+         * userName
+         * password
+         * @param strings the strings that get passed into the function.
+         * @return the user that was successfully logged in or null if one was not found
+         */
         @Override
         protected DhtProto.User doInBackground(String... strings)
         {
@@ -142,6 +150,11 @@ public class FragmentLogin extends Fragment {
             return user;
         }
 
+        /**
+         * Run this on the main thread to update the UI.
+         * This will display an error message or go to the dashboard screen.
+         * @param user the user that was just logged in or null if none was found
+         */
         @Override
         protected void onPostExecute(DhtProto.User user)
         {
