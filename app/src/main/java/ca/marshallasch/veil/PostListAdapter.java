@@ -8,6 +8,7 @@ import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
@@ -38,6 +39,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
         private TextView commentCount;
         private TextView authorName;
         private TextView timeStamp;
+        private ImageView readMarker;
 
         /**
          * constructor for the ViewHolder class
@@ -50,6 +52,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
             commentCount = itemsView.findViewById(R.id.comments);
             authorName = itemsView.findViewById(R.id.author_name);
             timeStamp = itemsView.findViewById(R.id.time_stamp);
+            readMarker = itemsView.findViewById(R.id.unread_marker);
         }
     }
 
@@ -97,11 +100,15 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
         DhtProto.Post post = posts.get(position);
 
         int numComments = DataStore.getInstance(activity).getNumCommentsFor(post.getUuid());
+        boolean read = DataStore.getInstance(activity).isRead(post.getUuid());
 
         viewHolder.title.setText(post.getTitle());
         viewHolder.contentPreview.setText(post.getMessage());
         viewHolder.commentCount.setText(activity.getString(R.string.num_comments, numComments));
         viewHolder.authorName.setText(post.getAuthorName());
+
+        // show or hide the read marker
+        viewHolder.readMarker.setVisibility(read ? View.INVISIBLE : View.VISIBLE);
 
         // generate a string that describes the age of the post, 1s, 4 min, 5 hours, etc.
         CharSequence dateString = DateUtils.getRelativeTimeSpanString(
