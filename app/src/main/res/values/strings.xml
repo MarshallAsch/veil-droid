@@ -102,7 +102,9 @@
     <!-- Settings Page Strings -->
     <string name="toggle_dark_mode">Toggle dark theme</string>
     <string name="dark_theme_option_description">Join the dark side</string>
-
+    <string name="dialog_alert_message">Changing the theme will log you out. Do you still wish to continue?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
     <string name="num_comments">Comments: %d</string>
 
 

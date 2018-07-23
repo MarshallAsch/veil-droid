@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Message;
@@ -14,7 +15,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.AppCompatDelegate;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -24,9 +24,8 @@ import ca.marshallasch.veil.services.VeilService;
 import io.left.rightmesh.android.AndroidMeshManager;
 
 public class MainActivity extends AppCompatActivity {
-    // This port will be used for the DHT to keep all of that traffic separate
-    // private static final int DISCOVERY_PORT = 9183;
-
+    //System pref name string
+    public static final String SYSTEM_PREF = "SYSTEM_PREF";
     //MemoryStore instance - for storing data in local hashtable
     DataStore dataStore = null;
 
@@ -66,7 +65,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if(AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES) {
+        SharedPreferences preferences = getSharedPreferences(SYSTEM_PREF, MODE_PRIVATE);
+
+        if(preferences.getBoolean(FragmentSettings.IS_DARK_THEME_TOGGLED, false)) {
             setTheme(R.style.AppTheme_Dark);
         }
         else{
@@ -80,9 +81,7 @@ public class MainActivity extends AppCompatActivity {
         //starts RightMesh Service
         Intent intent = new Intent(this, VeilService.class);
         startService(intent);
-
         navigateTo(new FragmentLanding(), false);
-
     }
 
     /**
