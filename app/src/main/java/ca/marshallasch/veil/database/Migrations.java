@@ -156,7 +156,7 @@ final class Migrations
 
 
         Cursor cursor = db.query(
-                KnownPostsContract.SQL_CREATE_KNOWN_POSTS,   // The table to query
+                KnownPostsContract.KnownPostsEntry.TABLE_NAME,   // The table to query
                 projection,             // The array of columns to return (pass null to get all)
                 null,              // The columns for the WHERE clause
                 null,          // The values for the WHERE clause

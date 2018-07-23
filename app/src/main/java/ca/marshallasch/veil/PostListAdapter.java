@@ -11,8 +11,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.Collections;
 import java.util.List;
 
+import ca.marshallasch.veil.comparators.PostAgeComparator;
+import ca.marshallasch.veil.comparators.PostAuthorComparator;
+import ca.marshallasch.veil.comparators.PostTitleComparator;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.utilities.Util;
 
@@ -29,6 +33,16 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
 
     private List<DhtProto.Post> posts;
     private Activity activity;
+
+
+    enum SortOption {
+        ALPHA_TITLE_ASC,
+        ALPHA_TITLE_DESC,
+        ALPHA_AUTH_ASC,
+        ALPHA_AUTH_DESC,
+        AGE_ASC,
+        AGE_DESC
+    }
 
     /**
      * This is the cell for each post in the list.
@@ -130,6 +144,41 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
             ((MainActivity) activity).navigateTo(fragViewPost, true);
         });
     }
+
+
+
+    public void sort(SortOption option) {
+
+        switch (option) {
+            case ALPHA_TITLE_ASC:
+                Collections.sort(posts, new PostTitleComparator());
+                break;
+            case ALPHA_TITLE_DESC:
+                Collections.sort(posts, new PostTitleComparator());
+                Collections.reverse(posts);
+                break;
+            case ALPHA_AUTH_ASC:
+                Collections.sort(posts, new PostAuthorComparator());
+                break;
+            case ALPHA_AUTH_DESC:
+                Collections.sort(posts, new PostAuthorComparator());
+                Collections.reverse(posts);
+                break;
+            case AGE_ASC:
+                Collections.sort(posts, new PostAgeComparator());
+                break;
+            case AGE_DESC:
+                Collections.sort(posts, new PostAgeComparator());
+                Collections.reverse(posts);
+                break;
+            default:
+        }
+
+        notifyDataSetChanged();
+
+    }
+
+
 
     /**
      * Returns the total number of items in the data set held by this adapter.

@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.button.MaterialButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -15,8 +16,10 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.PopupMenu;
 
 import java.util.List;
 
@@ -34,7 +37,7 @@ import ca.marshallasch.veil.services.VeilService;
  * @version 1.0
  * @since 2018-05-31
  */
-public class FragmentDiscoverForums extends Fragment implements  SwipeRefreshLayout.OnRefreshListener {
+public class FragmentDiscoverForums extends Fragment implements SwipeRefreshLayout.OnRefreshListener, PopupMenu.OnMenuItemClickListener {
 
 
     private PostListAdapter postListAdapter;
@@ -55,6 +58,20 @@ public class FragmentDiscoverForums extends Fragment implements  SwipeRefreshLay
         RecyclerView recyclerView = view.findViewById(R.id.list_view);
         recyclerView.setHasFixedSize(true);
 
+        MaterialButton sort = view.findViewById(R.id.sort);
+
+        sort.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                PopupMenu popupMenu = new PopupMenu(view.getContext(), view);
+                popupMenu.inflate(R.menu.sort_menu);
+                popupMenu.show();
+
+
+                popupMenu.setOnMenuItemClickListener(FragmentDiscoverForums.this);
+            }
+        });
 
         ActionBar actionBar = ((MainActivity) activity).getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -91,6 +108,35 @@ public class FragmentDiscoverForums extends Fragment implements  SwipeRefreshLay
     @Override
     public void onRefresh() {
         ((MainActivity) getActivity()).sendServiceMessage(VeilService.ACTION_MAIN_REFRESH_FORUMS_LIST, null);
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem menuItem)
+    {
+        switch (menuItem.getItemId()){
+            case R.id.age_asc:
+                postListAdapter.sort(PostListAdapter.SortOption.AGE_ASC);
+                break;
+            case R.id.age_desc:
+                postListAdapter.sort(PostListAdapter.SortOption.AGE_DESC);
+                break;
+            case R.id.auth_asc:
+                postListAdapter.sort(PostListAdapter.SortOption.ALPHA_AUTH_ASC);
+                break;
+            case R.id.auth_desc:
+                postListAdapter.sort(PostListAdapter.SortOption.ALPHA_AUTH_DESC);
+                break;
+            case R.id.title_asc:
+                postListAdapter.sort(PostListAdapter.SortOption.ALPHA_TITLE_ASC);
+                break;
+            case R.id.title_desc:
+                postListAdapter.sort(PostListAdapter.SortOption.ALPHA_TITLE_DESC);
+                break;
+
+        }
+
+
+        return false;
     }
 
     private final  BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {

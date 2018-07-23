@@ -71,7 +71,7 @@ public class FragmentLogin extends Fragment {
         });
 
         // buttons and event listeners
-        MaterialButton login = view.findViewById(R.id.enter_btn);
+        MaterialButton login = view.findViewById(R.id.sort);
         MaterialButton cancel = view.findViewById(R.id.back_btn);
 
 
