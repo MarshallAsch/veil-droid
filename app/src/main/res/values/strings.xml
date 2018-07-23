@@ -5,7 +5,6 @@
     <string name="app_settings">App Settings</string>
     <string name="rightmesh_settings">RightMesh Settings</string>
     <string name="connected_peers">Connected Peers</string>
-    <string name="display_settings">Display Settings</string>
 
     <!-- menu bar items-->
     <string name="login_menu_title">Login</string>
@@ -100,6 +99,8 @@
     <string name="edit">Edit</string>
 
     <!-- Settings Page Strings -->
+    <string name="display_settings">Display Settings</string>
+    <string name="notification_settings_header">Notification Settings</string>
     <string name="toggle_dark_mode">Toggle dark theme</string>
     <string name="dark_theme_option_description">Join the dark side</string>
     <string name="dialog_alert_message">Changing the theme will log you out. Do you still wish to continue?</string>

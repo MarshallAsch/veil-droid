@@ -7,6 +7,17 @@
     android:layout_height="match_parent"
     tools:context=".FragmentSettings">
 
+    <TextView
+        android:id="@+id/notification_settings_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/notification_settings_header"
+        android:textColor="@color/colorPrimary"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="111dp" />
+
     <Switch
         android:id="@+id/toggle_dark_theme"
         android:layout_width="0dp"

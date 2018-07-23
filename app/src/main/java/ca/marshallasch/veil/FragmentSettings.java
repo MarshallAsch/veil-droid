@@ -19,6 +19,7 @@ import android.widget.Switch;
 public class FragmentSettings extends Fragment {
 
     public static final String IS_DARK_THEME_TOGGLED = "IS_DARK_THEME_TOGGLED";
+    private boolean isDialogAccept = false;
     public FragmentSettings() {
         // Required empty public constructor
     }
@@ -30,28 +31,39 @@ public class FragmentSettings extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
+        //set dark theme toggle to save preference
         Switch darkThemeToggle = view.findViewById(R.id.toggle_dark_theme);
         SharedPreferences preferences = getActivity().
                 getSharedPreferences(MainActivity.SYSTEM_PREF, getActivity().MODE_PRIVATE);
         darkThemeToggle.setChecked(preferences.getBoolean(IS_DARK_THEME_TOGGLED, false));
-        darkThemeToggle.setOnCheckedChangeListener((compoundButton, isToggled) -> {
-            AlertDialog.Builder builder1 = new AlertDialog.Builder(getActivity());
-            builder1.setMessage(R.string.dialog_alert_message);
-            builder1.setCancelable(true);
 
-            builder1.setPositiveButton(
+        //on click listener so allows for toggle to reset itself
+        darkThemeToggle.setOnClickListener(view1 -> {
+            //alert dialog for changing the theme settings
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setMessage(R.string.dialog_alert_message);
+            builder.setCancelable(true);
+
+            //closes the dialog and sets the dialog's boolean to true
+            builder.setPositiveButton(
                     R.string.yes,
                     (dialog, id) -> {
-                        toggleDarkTheme(isToggled);
+                        toggleDarkTheme(darkThemeToggle.isChecked());
+                        isDialogAccept = true;
                         dialog.cancel();
                     });
 
-            builder1.setNegativeButton(
+            //close dialog if they click no and set the dialog's boolean to false
+            builder.setNegativeButton(
                     R.string.no,
-                    (dialog, id) -> dialog.cancel());
+                    (dialog, id) -> {
+                        isDialogAccept = false;
+                        darkThemeToggle.setChecked(preferences.getBoolean(IS_DARK_THEME_TOGGLED, false));
+                        dialog.cancel();
+                    });
 
-            AlertDialog alert11 = builder1.create();
-            alert11.show();
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
         });
 
         // Inflate the layout for this fragment
