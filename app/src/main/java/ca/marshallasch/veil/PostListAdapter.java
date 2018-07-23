@@ -3,6 +3,7 @@ package ca.marshallasch.veil;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.UiThread;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
@@ -34,8 +35,10 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
     private List<DhtProto.Post> posts;
     private Activity activity;
 
-
-    enum SortOption {
+    /**
+     * Sort options.
+     */
+    public enum SortOption {
         ALPHA_TITLE_ASC,
         ALPHA_TITLE_DESC,
         ALPHA_AUTH_ASC,
@@ -145,8 +148,12 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
         });
     }
 
-
-
+    /**
+     * This function will sort the list of posts and will update the UI. Because this will update
+     * the UI it <b>MUST</b> be run on the UI thread
+     * @param option the way that the list should be sorted
+     */
+    @UiThread
     public void sort(SortOption option) {
 
         switch (option) {
@@ -175,10 +182,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
         }
 
         notifyDataSetChanged();
-
     }
-
-
 
     /**
      * Returns the total number of items in the data set held by this adapter.

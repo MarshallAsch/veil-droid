@@ -105,11 +105,19 @@ public class FragmentDiscoverForums extends Fragment implements SwipeRefreshLayo
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(broadcastReceiver);
     }
 
+    /**
+     * This is called when the list of posts is refreshed.
+     */
     @Override
     public void onRefresh() {
         ((MainActivity) getActivity()).sendServiceMessage(VeilService.ACTION_MAIN_REFRESH_FORUMS_LIST, null);
     }
 
+    /**
+     * Will be called when one of the popup menu options is clicked.
+     * @param menuItem the menu item that was selected
+     * @return false so other event handlers can act on this event.
+     */
     @Override
     public boolean onMenuItemClick(MenuItem menuItem)
     {
@@ -132,9 +140,7 @@ public class FragmentDiscoverForums extends Fragment implements SwipeRefreshLayo
             case R.id.title_desc:
                 postListAdapter.sort(PostListAdapter.SortOption.ALPHA_TITLE_DESC);
                 break;
-
         }
-
 
         return false;
     }
