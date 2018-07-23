@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 
 import ca.marshallasch.veil.database.Database;
 import ca.marshallasch.veil.proto.DhtProto;
@@ -124,6 +125,19 @@ public class FragmentLogin extends Fragment {
     private class LoginTask extends AsyncTask<String, Void, DhtProto.User> {
 
         /**
+         * This will run on the UI thread before the task executes.
+         * This will show the loading spinner
+         */
+        @Override
+        protected void onPreExecute()
+        {
+            super.onPreExecute();
+
+            ProgressBar loadingBar =  activity.findViewById(R.id.loadingbar);
+            loadingBar.setVisibility(View.VISIBLE);
+        }
+
+        /**
          * This will check if the user is valid. And it will be run on a separate thread.
          * It takes 2 string arguments that MUST be given:
          * userName
@@ -158,6 +172,10 @@ public class FragmentLogin extends Fragment {
         @Override
         protected void onPostExecute(DhtProto.User user)
         {
+
+            ProgressBar loadingBar =  activity.findViewById(R.id.loadingbar);
+            loadingBar.setVisibility(View.INVISIBLE);
+
             // check that a user was found
             if (user == null) {
                 Snackbar.make(activity.findViewById(R.id.top_view), R.string.username_pass_not_match, Snackbar.LENGTH_SHORT).show();
