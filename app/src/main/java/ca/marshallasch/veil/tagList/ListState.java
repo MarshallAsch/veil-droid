@@ -16,6 +16,22 @@ public class ListState
     private String title;
     private boolean checked;
 
+
+    /**
+     * Default constructor set the title to the empty string, and checked to false.
+     */
+    public ListState()
+    {
+        title = "";
+        checked = false;
+    }
+
+    public ListState(String title, boolean checked)
+    {
+        this.title = title;
+        this.checked = checked;
+    }
+
     public String getTitle()
     {
         return title;

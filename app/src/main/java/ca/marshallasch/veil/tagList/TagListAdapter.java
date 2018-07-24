@@ -46,17 +46,12 @@ public class TagListAdapter extends ArrayAdapter<ListState>
         super(context, 0);
         this.context = context;
 
-        final String[] tagOptions = {
-                "Select Tags", "Health", "Emergency", "Food", "Dogs",
-                "Cats", "Tech"};
+        final String[] tagOptions = context.getResources().getStringArray(R.array.tag_list);
 
         tagList = new ArrayList<>();
 
-        for (int i = 0; i < tagOptions.length; i++) {
-            ListState item = new ListState();
-            item.setTitle(tagOptions[i]);
-            item.setChecked(false);
-            tagList.add(item);
+        for (String tagOption : tagOptions) {
+            tagList.add(new ListState(tagOption, false));
         }
 
         addAll(tagList);
@@ -111,7 +106,6 @@ public class TagListAdapter extends ArrayAdapter<ListState>
             holder = (ViewHolder) convertView.getTag();
         }
 
-
         holder.textView.setText(data.getTitle());
         isFromView  = true;
         holder.checkBox.setChecked(data.isChecked());
@@ -134,7 +128,8 @@ public class TagListAdapter extends ArrayAdapter<ListState>
             if (!isFromView) {
                 tagList.get(getPosition).setChecked(isChecked);
 
-                tagList.get(0).setTitle(getFirst());
+                // update the list of selected tags
+                tagList.get(0).setTitle(getTagsTitle());
                 notifyDataSetChanged();
             }
         });
@@ -159,21 +154,26 @@ public class TagListAdapter extends ArrayAdapter<ListState>
         return tags;
     }
 
-    public String getFirst() {
+    /**
+     * This function will generate a string list of the selected tags to be used as the first line
+     * of the spinner to show all the selected items at a glance.
+     * @return string of selected tags or prompt string
+     */
+    private String getTagsTitle() {
 
-        String tags = "";
+        StringBuilder tags = new StringBuilder();
 
         // check which of the tags are selected
         for (ListState item: tagList) {
             if (item.isChecked()) {
-                tags += item.getTitle() + ": ";
+                tags.append(item.getTitle()).append(": ");
             }
         }
 
         if (tags.length() == 0) {
-            tags = "Select Tags";
+            tags = new StringBuilder(context.getString(R.string.tags_hint));
         }
 
-        return tags;
+        return tags.toString();
     }
 }
