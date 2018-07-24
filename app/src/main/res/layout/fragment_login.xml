@@ -22,13 +22,15 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.23000002">
+        app:layout_constraintVertical_bias="0.23000002"
+        android:textColorHint="?themeAccent">
 
         <EditText
             android:id="@+id/username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/colorPrimaryDark"
+            android:backgroundTint="?themePrimary"
+            android:textColor="?themeAccent"
             android:hint="@string/email_title"
             android:inputType="textEmailAddress" />
 
@@ -47,13 +49,15 @@
         android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/username_input">
+        app:layout_constraintTop_toBottomOf="@+id/username_input"
+        android:textColorHint="?themeAccent">
 
         <EditText
             android:id="@+id/password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/colorPrimaryDark"
+            android:backgroundTint="?themePrimary"
+            android:textColor="?themeAccent"
             android:hint="@string/password_title"
             android:inputType="textPassword"/>
 
@@ -70,9 +74,9 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:background="@color/colorPrimary"
+        android:background="?themePrimary"
         android:text="@string/enter"
-        app:backgroundTint="@color/colorPrimary"
+        app:backgroundTint="?themePrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/passwordWrapper"
         app:layout_constraintStart_toStartOf="@+id/passwordWrapper"
@@ -87,7 +91,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:text="@string/back"
-        app:backgroundTint="@color/colorPrimaryDark"
+        app:backgroundTint="?themePrimaryDark"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/enter_btn"
@@ -98,14 +102,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
         android:text="@string/remember_me_label"
+        android:buttonTint="?themeAccent"
+        android:textColor="?themeAccent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/passwordWrapper"/>
+        app:layout_constraintTop_toBottomOf="@+id/passwordWrapper" />
 
 
 </android.support.constraint.ConstraintLayout>
