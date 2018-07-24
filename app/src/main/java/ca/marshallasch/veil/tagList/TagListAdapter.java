@@ -58,6 +58,8 @@ public class TagListAdapter extends ArrayAdapter<ListState>
             item.setChecked(false);
             tagList.add(item);
         }
+
+        addAll(tagList);
     }
 
     /**
@@ -131,6 +133,8 @@ public class TagListAdapter extends ArrayAdapter<ListState>
 
             if (!isFromView) {
                 tagList.get(getPosition).setChecked(isChecked);
+
+                tagList.get(0).setTitle(getFirst());
                 notifyDataSetChanged();
             }
         });
@@ -150,6 +154,24 @@ public class TagListAdapter extends ArrayAdapter<ListState>
             if (item.isChecked()) {
                 tags.add(item.getTitle());
             }
+        }
+
+        return tags;
+    }
+
+    public String getFirst() {
+
+        String tags = "";
+
+        // check which of the tags are selected
+        for (ListState item: tagList) {
+            if (item.isChecked()) {
+                tags += item.getTitle() + ": ";
+            }
+        }
+
+        if (tags.length() == 0) {
+            tags = "Select Tags";
         }
 
         return tags;
