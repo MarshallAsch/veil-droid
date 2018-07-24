@@ -13,7 +13,7 @@ import ca.marshallasch.veil.utilities.Util;
  * @version 1.0
  * @since 2018-06-13
  */
-public class PostComparator implements Comparator<DhtProto.Post>
+public class PostAgeComparator implements Comparator<DhtProto.Post>
 {
     @Override
     public int compare(DhtProto.Post a, DhtProto.Post b)

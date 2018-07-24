@@ -3,6 +3,7 @@ package ca.marshallasch.veil;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.UiThread;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
@@ -11,8 +12,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.Collections;
 import java.util.List;
 
+import ca.marshallasch.veil.comparators.PostAgeComparator;
+import ca.marshallasch.veil.comparators.PostAuthorComparator;
+import ca.marshallasch.veil.comparators.PostTitleComparator;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.utilities.Util;
 
@@ -29,6 +34,18 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
 
     private List<DhtProto.Post> posts;
     private Activity activity;
+
+    /**
+     * Sort options.
+     */
+    public enum SortOption {
+        ALPHA_TITLE_ASC,
+        ALPHA_TITLE_DESC,
+        ALPHA_AUTH_ASC,
+        ALPHA_AUTH_DESC,
+        AGE_ASC,
+        AGE_DESC
+    }
 
     /**
      * This is the cell for each post in the list.
@@ -129,6 +146,42 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
             fragViewPost.setArguments(bundle);
             ((MainActivity) activity).navigateTo(fragViewPost, true);
         });
+    }
+
+    /**
+     * This function will sort the list of posts and will update the UI. Because this will update
+     * the UI it <b>MUST</b> be run on the UI thread
+     * @param option the way that the list should be sorted
+     */
+    @UiThread
+    public void sort(SortOption option) {
+
+        switch (option) {
+            case ALPHA_TITLE_ASC:
+                Collections.sort(posts, new PostTitleComparator());
+                break;
+            case ALPHA_TITLE_DESC:
+                Collections.sort(posts, new PostTitleComparator());
+                Collections.reverse(posts);
+                break;
+            case ALPHA_AUTH_ASC:
+                Collections.sort(posts, new PostAuthorComparator());
+                break;
+            case ALPHA_AUTH_DESC:
+                Collections.sort(posts, new PostAuthorComparator());
+                Collections.reverse(posts);
+                break;
+            case AGE_ASC:
+                Collections.sort(posts, new PostAgeComparator());
+                break;
+            case AGE_DESC:
+                Collections.sort(posts, new PostAgeComparator());
+                Collections.reverse(posts);
+                break;
+            default:
+        }
+
+        notifyDataSetChanged();
     }
 
     /**
