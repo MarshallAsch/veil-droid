@@ -39,7 +39,7 @@ public class TagListAdapter extends ArrayAdapter<ListState>
 
     /**
      * Constructor with the default list of tags.
-     * @param context the application context
+     * @param context the activities context
      */
     public TagListAdapter(@NonNull Context context)
     {
@@ -59,7 +59,7 @@ public class TagListAdapter extends ArrayAdapter<ListState>
 
     /**
      * Pass in the list of tags to use
-     * @param context the application context
+     * @param context the activities context
      * @param objects the list of tags
      */
     public TagListAdapter(@NonNull Context context, @NonNull ArrayList<ListState> objects)
