@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
             setTheme(R.style.AppTheme_Dark);
         }
         else{
-            setTheme(R.style.AppTheme);
+            setTheme(R.style.AppTheme_Light);
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
