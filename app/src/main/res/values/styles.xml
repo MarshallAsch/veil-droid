@@ -8,7 +8,6 @@
         <item name="colorPrimary">?themePrimary</item>
         <item name="colorPrimaryDark">?themePrimaryDark</item>
         <item name="colorAccent">?themeAccent</item>
-        <item name="imageLogo">@drawable/logo_landing</item>
         <item name="android:colorBackground">?themeBackgroundColour</item>
         <item name="android:windowAnimationStyle">@style/WindowAnimationTransition</item>
     </style>
@@ -22,6 +21,8 @@
         <item name="themeActionBar">@color/darkPrimaryDark</item>
         <item name="imageLogo">@drawable/logo_dark_theme</item>
         <item name="imageName">@drawable/veil_dark</item>
+        <item name="imageBackground">@drawable/background_dark</item>
+        <item name="imageEditIcon">@drawable/edit_icon_dark</item>
         <item name="android:windowAnimationStyle">@style/WindowAnimationTransition</item>
     </style>
 
@@ -34,6 +35,8 @@
         <item name="themeActionBar">@color/colorPrimary</item>
         <item name="imageLogo">@drawable/logo_landing</item>
         <item name="imageName">@drawable/veil</item>
+        <item name="imageBackground">@drawable/background</item>
+        <item name="imageEditIcon">@drawable/edit_icon</item>
         <item name="android:windowAnimationStyle">@style/WindowAnimationTransition</item>
     </style>
 }
