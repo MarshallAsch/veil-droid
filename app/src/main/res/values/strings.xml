@@ -111,7 +111,6 @@
 
     <string name="num_comments">Comments: %d</string>
 
-
     <string-array name="tag_list">
         <item>Select Tags</item>
         <item>Health</item>
@@ -122,5 +121,12 @@
         <item>Tech</item>
     </string-array>
 
+    <string name="menu_sort_age_asc">new -> old</string>
+    <string name="menu_sort_age_desc">old -> new</string>
+    <string name="menu_sort_title_asc">title A -> Z</string>
+    <string name="menu_sort_title_desc">title Z -> A</string>
+    <string name="menu_sort_author_asc">author A -> Z</string>
+    <string name="menu_sort_author_desc">author Z -> A</string>
+    <string name="sort">Sort</string>
 
 </resources>
