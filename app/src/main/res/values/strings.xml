@@ -103,6 +103,13 @@
     <string name="notification_settings_header">Notification Settings</string>
     <string name="toggle_dark_mode">Toggle dark theme</string>
     <string name="dark_theme_option_description">Join the dark side</string>
+    <string name="toggle_post_alerts">Toggle post alerts</string>
+    <string name="toggle_post_alerts_description">Alert me if there are new posts</string>
+    <string name="toggle_comment_alerts">Toggle Comment Alerts</string>
+    <string name="toggle_comment_alerts_description">Alert me if there are new comments</string>
+    <string name="system_settings_header">System Settings</string>
+    <string name="toggle_memory_save">Memory Saver</string>
+    <string name="toggle_memory_save_description">This mode removes older/inactive posts automatically to save disk space on your device. (Warning once a post is removed from your device you might not be able to get it back again.)</string>
     <string name="dialog_alert_message">Changing the theme will log you out. Do you still wish to continue?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>

@@ -44,7 +44,7 @@ public class FragmentSettings extends Fragment {
             builder.setMessage(R.string.dialog_alert_message);
             builder.setCancelable(true);
 
-            //closes the dialog and sets the dialog's boolean to true
+            //closes the dialog and sets the dialog to the current checked state of the toggle
             builder.setPositiveButton(
                     R.string.yes,
                     (dialog, id) -> {
@@ -53,7 +53,7 @@ public class FragmentSettings extends Fragment {
                         dialog.cancel();
                     });
 
-            //close dialog if they click no and set the dialog's boolean to false
+            //close dialog resets the toggle to saved shared prefs
             builder.setNegativeButton(
                     R.string.no,
                     (dialog, id) -> {
