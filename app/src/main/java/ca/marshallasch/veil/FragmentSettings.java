@@ -19,7 +19,6 @@ import android.widget.Switch;
 public class FragmentSettings extends Fragment {
 
     public static final String IS_DARK_THEME_TOGGLED = "IS_DARK_THEME_TOGGLED";
-    private boolean isDialogAccept = false;
     public FragmentSettings() {
         // Required empty public constructor
     }
@@ -49,7 +48,6 @@ public class FragmentSettings extends Fragment {
                     R.string.yes,
                     (dialog, id) -> {
                         toggleDarkTheme(darkThemeToggle.isChecked());
-                        isDialogAccept = true;
                         dialog.cancel();
                     });
 
@@ -57,7 +55,6 @@ public class FragmentSettings extends Fragment {
             builder.setNegativeButton(
                     R.string.no,
                     (dialog, id) -> {
-                        isDialogAccept = false;
                         darkThemeToggle.setChecked(preferences.getBoolean(IS_DARK_THEME_TOGGLED, false));
                         dialog.cancel();
                     });
