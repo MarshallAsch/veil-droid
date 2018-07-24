@@ -57,18 +57,6 @@ public class TagListAdapter extends ArrayAdapter<ListState>
         addAll(tagList);
     }
 
-    /**
-     * Pass in the list of tags to use
-     * @param context the activities context
-     * @param objects the list of tags
-     */
-    public TagListAdapter(@NonNull Context context, @NonNull ArrayList<ListState> objects)
-    {
-        super(context, 0, objects);
-        this.context = context;
-        this.tagList = objects;
-    }
-
     @Override
     public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent)
     {
