@@ -144,7 +144,7 @@ public class MainUITest {
                 allOf(withId(R.id.tags_text_edit),
                         childAtPosition(
                                 childAtPosition(
-                                        withId(R.id.tags_text_input),
+                                        withId(R.id.tags_input),
                                         0),
                                 0)));
         textInputEditText8.perform(scrollTo(), replaceText("test,john"), closeSoftKeyboard());

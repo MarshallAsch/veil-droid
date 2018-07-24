@@ -27,7 +27,7 @@
     <string name="title_title">Title</string>
     <string name="title_hint">A short title for your question.</string>
     <string name="tags_title">Tags</string>
-    <string name="tags_hint">A comma separated list of tag words</string>
+    <string name="tags_hint">Select Tags</string>
     <string name="message_hint">Some more details about the question you wish to ask.</string>
 
 
@@ -111,6 +111,15 @@
 
     <string name="num_comments">Comments: %d</string>
 
+    <string-array name="tag_list">
+        <item>Select Tags</item>
+        <item>Health</item>
+        <item>Emergency</item>
+        <item>Food</item>
+        <item>Dog</item>
+        <item>Cats</item>
+        <item>Tech</item>
+    </string-array>
 
     <string name="menu_sort_age_asc">new -> old</string>
     <string name="menu_sort_age_desc">old -> new</string>
@@ -119,7 +128,5 @@
     <string name="menu_sort_author_asc">author A -> Z</string>
     <string name="menu_sort_author_desc">author Z -> A</string>
     <string name="sort">Sort</string>
-
-
 
 </resources>
