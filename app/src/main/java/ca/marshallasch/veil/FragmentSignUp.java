@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 
 import ca.marshallasch.veil.database.Database;
 import ca.marshallasch.veil.proto.DhtProto;
@@ -126,6 +127,21 @@ public class FragmentSignUp extends Fragment
      */
     private class SignUpTask extends AsyncTask<String, Void, DhtProto.User>
     {
+
+        /**
+         * This will run on the UI thread before the task executes.
+         * This will show the loading spinner
+         */
+        @Override
+        protected void onPreExecute()
+        {
+            super.onPreExecute();
+
+            ProgressBar loadingBar =  getActivity().findViewById(R.id.loadingbar);
+            loadingBar.setVisibility(View.VISIBLE);
+        }
+
+
         /**
          * This function gets called to do the work in a seperate thread. It MUST be given 4
          * arguments:
@@ -161,6 +177,9 @@ public class FragmentSignUp extends Fragment
         @Override
         protected void onPostExecute(DhtProto.User user)
         {
+            ProgressBar loadingBar =  getActivity().findViewById(R.id.loadingbar);
+            loadingBar.setVisibility(View.INVISIBLE);
+
             if (user == null) {
                 Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.unknown_err, Snackbar.LENGTH_SHORT).show();
             } else {

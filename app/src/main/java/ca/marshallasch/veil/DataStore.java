@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ca.marshallasch.veil.comparators.CommentComparator;
-import ca.marshallasch.veil.comparators.PostComparator;
+import ca.marshallasch.veil.comparators.PostAgeComparator;
 import ca.marshallasch.veil.database.Database;
 import ca.marshallasch.veil.database.KnownPostsContract;
 import ca.marshallasch.veil.exceptions.TooManyResultsException;
@@ -116,7 +116,7 @@ public class DataStore
         }
 
         // make sure the list of posts are in chronological order
-        Collections.sort(posts, new PostComparator());
+        Collections.sort(posts, new PostAgeComparator());
 
         return posts;
     }

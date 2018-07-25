@@ -14,12 +14,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.Spinner;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.services.VeilService;
+import ca.marshallasch.veil.tagList.TagListAdapter;
 import ca.marshallasch.veil.utilities.Util;
 
 /**
@@ -32,12 +33,13 @@ public class FragmentCreatePost extends Fragment
 {
     private EditText titleInput;
     private EditText messageInput;
-    private EditText tagsInput;
     private CheckBox anonymousInput;
 
     private DhtProto.User currentUser;
 
     private Activity activity;
+
+    private TagListAdapter tagListAdapter;
 
     public FragmentCreatePost() {
         // Required empty public constructor
@@ -55,11 +57,14 @@ public class FragmentCreatePost extends Fragment
 
         titleInput = view.findViewById(R.id.title_text_edit);
         messageInput = view.findViewById(R.id.post_message);
-        tagsInput = view.findViewById(R.id.tags_text_edit);
         anonymousInput = view.findViewById(R.id.anonymous);
 
         MaterialButton submit = view.findViewById(R.id.save);
         MaterialButton cancel = view.findViewById(R.id.cancel_button);
+        Spinner spinner = view.findViewById(R.id.tags_input);
+
+        tagListAdapter = new TagListAdapter(activity);
+        spinner.setAdapter(tagListAdapter);
 
         // get the current logged in user
         currentUser = ((MainActivity) activity).getCurrentUser();
@@ -89,7 +94,6 @@ public class FragmentCreatePost extends Fragment
     private boolean submitPost() {
 
         // get all the values for the post
-        String tags = tagsInput.getText().toString();
         String title = titleInput.getText().toString();
         String message = messageInput.getText().toString();
         boolean anonymous = anonymousInput.isChecked();
@@ -99,7 +103,7 @@ public class FragmentCreatePost extends Fragment
             return false;
         }
 
-        ArrayList<String> tagList = new ArrayList<>(Arrays.asList(tags.split(",")));
+        ArrayList<String> tagList = tagListAdapter.getSelectedTags();
 
         DhtProto.Post post = Util.createPost(title, message, currentUser, tagList, anonymous);
 
