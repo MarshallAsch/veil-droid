@@ -10,7 +10,6 @@
     <string name="login_menu_title">Login</string>
     <string name="signup_menu_title">Signup</string>
     <string name="landing_menu_title">Landing Page</string>
-    <string name="setup_right_mesh">RightMesh Settings</string>
 
     <!-- Sign up page titles-->
     <string name="email_title">Email Address</string>
@@ -110,7 +109,6 @@
     <string name="system_settings_header">System Settings</string>
     <string name="toggle_memory_save">Memory Saver</string>
     <string name="toggle_memory_save_description">This mode removes older/inactive posts automatically to save disk space on your device. (Warning once a post is removed from your device you might not be able to get it back again.)</string>
-    <string name="dialog_alert_message">Changing the theme will log you out. Do you still wish to continue?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="num_comments">Comments: %d</string>

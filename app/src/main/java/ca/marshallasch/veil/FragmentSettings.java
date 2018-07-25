@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,29 +45,8 @@ public class FragmentSettings extends Fragment {
 
         //on click listener so allows for toggle to reset itself
         darkThemeToggle.setOnClickListener(view1 -> {
-            //alert dialog for changing the theme settings
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setMessage(R.string.dialog_alert_message);
-            builder.setCancelable(true);
 
-            //closes the dialog and sets the dialog to the current checked state of the toggle
-            builder.setPositiveButton(
-                    R.string.yes,
-                    (dialog, id) -> {
-                        toggleDarkTheme(darkThemeToggle.isChecked());
-                        dialog.cancel();
-                    });
-
-            //close dialog resets the toggle to saved shared prefs
-            builder.setNegativeButton(
-                    R.string.no,
-                    (dialog, id) -> {
-                        darkThemeToggle.setChecked(preferences.getBoolean(PREF_DARK_THEME, false));
-                        dialog.cancel();
-                    });
-
-            // show the dialog
-            builder.create().show();
+            toggleDarkTheme(darkThemeToggle.isChecked());
         });
 
         // Inflate the layout for this fragment
