@@ -507,6 +507,75 @@ public class Database extends SQLiteOpenHelper
 
 
     /**
+     * This function is called when a userID was sent in the intent to start the activity.
+     * This will login the user without the username and password and is only called when the app
+     * restarts itself.
+     *
+     * Since this calls {@link #getReadableDatabase()}, do not call this from the main thread
+     * @param uuid the id of the user to loggin
+     * @return {@link DhtProto.User} object that contains all the account information for the user.
+     */
+    @Nullable
+    @WorkerThread
+    public DhtProto.User getUser(@Nullable String uuid) {
+
+        if (uuid == null) {
+            return null;
+        }
+
+        String[] projection = {
+                UserEntry.COLUMN_ID,
+                UserEntry.COLUMN_EMAIL_ADDRESS,
+                UserEntry.COLUMN_FIRST_NAME,
+                UserEntry.COLUMN_LAST_NAME,
+                UserEntry.COLUMN_TIMESTAMP
+        };
+
+        // Filter results WHERE "UUID" = 'My uuid'
+        String selection = UserEntry.COLUMN_ID + " = ?";
+        String[] selectionArgs = { uuid };
+
+        Cursor cursor;
+        synchronized (this) {
+            cursor = getReadableDatabase().query(
+                    UserEntry.TABLE_NAME,   // The table to query
+                    projection,             // The array of columns to return (pass null to get all)
+                    selection,              // The columns for the WHERE clause
+                    selectionArgs,          // The values for the WHERE clause
+                    null,          // don't group the rows
+                    null,           // don't filter by row groups
+                    null           // don't sort the rows
+            );
+        }
+
+        DhtProto.User user = null;
+
+        // check each of the accounts that have the same email address.
+        while(cursor.moveToNext()) {
+            String userID = cursor.getString(cursor.getColumnIndexOrThrow(UserEntry.COLUMN_ID));
+            String email = cursor.getString(cursor.getColumnIndexOrThrow(UserEntry.COLUMN_EMAIL_ADDRESS));
+            String firstName = cursor.getString(cursor.getColumnIndexOrThrow(UserEntry.COLUMN_FIRST_NAME));
+            String lastName = cursor.getString(cursor.getColumnIndexOrThrow(UserEntry.COLUMN_LAST_NAME));
+
+            long millis = cursor.getLong(cursor.getColumnIndexOrThrow(UserEntry.COLUMN_TIMESTAMP));
+            com.google.protobuf.Timestamp time = Util.millisToTimestamp(millis);
+
+            user = DhtProto.User.newBuilder()
+                    .setEmail(email)
+                    .setFirstName(firstName)
+                    .setLastName(lastName)
+                    .setUuid(userID)
+                    .setTimestamp(time)
+                    .build();
+        }
+
+        cursor.close();
+
+        return user;
+    }
+
+
+    /**
      * This function will find the user with the username and password then update the password.
      *
      * Since this calls {@link #getWritableDatabase()}, do not call this from the main thread
