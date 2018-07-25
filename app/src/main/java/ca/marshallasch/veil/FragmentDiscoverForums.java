@@ -20,12 +20,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupMenu;
+import android.widget.Spinner;
 
 import java.util.List;
 
 import ca.marshallasch.veil.controllers.RightMeshController;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.services.VeilService;
+import ca.marshallasch.veil.tagList.TagListAdapter;
 
 /**
  *
@@ -86,6 +88,11 @@ public class FragmentDiscoverForums extends Fragment implements SwipeRefreshLayo
 
 
         refreshLayout = view.findViewById(R.id.swiperefresh);
+
+        Spinner spinner = view.findViewById(R.id.filter);
+        TagListAdapter tagListAdapter = new TagListAdapter(activity);
+        spinner.setAdapter(tagListAdapter);
+
 
         refreshLayout.setOnRefreshListener(this);
 

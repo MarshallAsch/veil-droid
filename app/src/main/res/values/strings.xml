@@ -128,5 +128,6 @@
     <string name="menu_sort_author_asc">author A -> Z</string>
     <string name="menu_sort_author_desc">author Z -> A</string>
     <string name="sort">Sort</string>
+    <string name="filter">Filter</string>
 
 </resources>
