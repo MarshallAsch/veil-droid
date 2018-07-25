@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import com.google.protobuf.Timestamp;
@@ -56,7 +55,6 @@ public class Util
         return seconds * 1000 + (nanos / 1000000);
     }
 
-
     /**
      * Creates a {@link Date} item from the {@link Timestamp} object.
      * @param timestamp the timestamp to convert
@@ -75,7 +73,7 @@ public class Util
     /**
      * Hides Android's soft keyboard.
      *
-     * @param view referring to the root view of the layout
+     * @param activity the main activity of the app
      */
     public static void hideKeyboard(@NonNull  Activity activity) {
         InputMethodManager in = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -118,7 +116,6 @@ public class Util
 
         return  hashStr.toString();
     }
-
 
     /**
      * This will create a new post object with the <code>UUID</code> field set to the hash of the
@@ -311,7 +308,6 @@ public class Util
 
         return comment;
     }
-
 
     /**
      * This checks that the passwords that have been entered match and meet the
