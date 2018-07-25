@@ -70,12 +70,12 @@ public class FragmentChangePassword extends Fragment
 
         cancel.setOnClickListener(v -> {
             getActivity().getSupportFragmentManager().popBackStack();
-            Util.hideKeyboard(v, getActivity());
+            Util.hideKeyboard(getActivity());
         });
 
         done.setOnClickListener(v ->{
             //go to previous screen when done.
-            Util.hideKeyboard(v, getActivity());
+            Util.hideKeyboard(getActivity());
             this.onDoneClicked();
         });
 

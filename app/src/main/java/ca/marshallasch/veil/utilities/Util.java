@@ -77,10 +77,10 @@ public class Util
      *
      * @param view referring to the root view of the layout
      */
-    public static void hideKeyboard(View view, @NonNull  Activity activity) {
+    public static void hideKeyboard(@NonNull  Activity activity) {
         InputMethodManager in = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
         if(in != null){
-            in.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+            in.hideSoftInputFromWindow(activity.findViewById(android.R.id.content).getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
     }
 

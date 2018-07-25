@@ -70,12 +70,12 @@ public class FragmentCreatePost extends Fragment
         currentUser = ((MainActivity) activity).getCurrentUser();
 
         cancel.setOnClickListener(view1 -> {
-            Util.hideKeyboard(view1, activity);
+            Util.hideKeyboard(activity);
             getFragmentManager().popBackStack();
         });
 
         submit.setOnClickListener(view1 -> {
-            Util.hideKeyboard(view1, activity);
+            Util.hideKeyboard(activity);
             boolean status = submitPost();
 
             // if it was successful then go to the dashboard

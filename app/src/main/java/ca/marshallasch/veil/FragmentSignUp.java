@@ -70,12 +70,12 @@ public class FragmentSignUp extends Fragment
 
         cancel.setOnClickListener(v -> {
             ((MainActivity) getActivity()).navigateTo(new FragmentLanding(), false);
-            Util.hideKeyboard(v, getActivity());
+            Util.hideKeyboard(getActivity());
         });
 
         done.setOnClickListener(v ->{
             //route to login after sign up
-            Util.hideKeyboard(v, getActivity());
+            Util.hideKeyboard(getActivity());
             this.onDoneClicked();
         });
 
