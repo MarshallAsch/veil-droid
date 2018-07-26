@@ -73,10 +73,19 @@ public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         this.context = context;
     }
 
+    /**
+     * This will refresh the comments that are in the list.
+     * @param comments the new list of comments to display.
+     */
     public void update(List<DhtProto.Comment> comments) {
         this.commentList = comments;
     }
 
+    /**
+     * This will check what type of view to generate depending on the number of items in the list.
+     * @param position the position of the cell to check the type for
+     * @return 0 for the no comment type, 1 otherwise
+     */
     @Override
     public int getItemViewType(int position)
     {

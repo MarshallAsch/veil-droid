@@ -110,7 +110,7 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     /**
      * This will check what type of view to generate depending on the number of items in the list.
      * @param position the position of the cell to check the type for
-     * @return
+     * @return 0 for the no post type, 1 otherwise
      */
     @Override
     public int getItemViewType(int position)

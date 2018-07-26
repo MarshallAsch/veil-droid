@@ -129,4 +129,8 @@
     <string name="menu_sort_author_desc">author Z -> A</string>
     <string name="sort">Sort</string>
 
+
+    <string name="no_posts">No Posts</string>
+    <string name="no_comments">No Comments</string>
+
 </resources>
