@@ -19,13 +19,21 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import ca.marshallasch.veil.database.Database;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.services.VeilService;
 import io.left.rightmesh.android.AndroidMeshManager;
 
 public class MainActivity extends AppCompatActivity {
+
     //System pref name string
     public static final String SYSTEM_PREF = "SYSTEM_PREF";
+
+    public static final String EXTRA_LOGGED_IN_USER_ID = "ca.marshallasch.veil.EXTRA_LOGGED_IN_USER_ID";
+    public static final String EXTRA_LOGGED_IN_RAND = "ca.marshallasch.veil.EXTRA_LOGGED_IN_RAND";
+
+
+
     //MemoryStore instance - for storing data in local hashtable
     DataStore dataStore = null;
 
@@ -62,17 +70,33 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         SharedPreferences preferences = getSharedPreferences(SYSTEM_PREF, MODE_PRIVATE);
 
-        if(preferences.getBoolean(FragmentSettings.IS_DARK_THEME_TOGGLED, false)) {
-            setTheme(R.style.AppTheme_Dark);
+        Intent startedIntent = getIntent();
+
+        int randSent = startedIntent.getIntExtra(EXTRA_LOGGED_IN_RAND, -1);
+        String userID = startedIntent.getStringExtra(EXTRA_LOGGED_IN_USER_ID);
+        int randCheck = preferences.getInt(FragmentSettings.PREF_LOGIN_RAND_VAL, 0);
+
+        // remove the random value to protect against a replay attack incase the intent gets duplicated
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.remove(FragmentSettings.PREF_LOGIN_RAND_VAL);
+        editor.apply();
+
+        // then this activity was started by a theme change, keep logged in
+        if (randCheck == randSent) {
+            currentUser = Database.getInstance(this).getUser(userID);
         }
-        else{
+
+        // check if it should load dark or light theme
+        if(preferences.getBoolean(FragmentSettings.PREF_DARK_THEME, false)) {
+            setTheme(R.style.AppTheme_Dark);
+        } else{
             setTheme(R.style.AppTheme_Light);
         }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -81,7 +105,9 @@ public class MainActivity extends AppCompatActivity {
         //starts RightMesh Service
         Intent intent = new Intent(this, VeilService.class);
         startService(intent);
-        navigateTo(new FragmentLanding(), false);
+
+        // if the user is logged in then go to the dash otherwise go to landing page.
+        navigateTo(currentUser != null ? new FragmentDashBoard() : new FragmentLanding(), false);
     }
 
     /**

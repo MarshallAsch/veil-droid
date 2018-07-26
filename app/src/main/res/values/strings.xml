@@ -10,7 +10,6 @@
     <string name="login_menu_title">Login</string>
     <string name="signup_menu_title">Signup</string>
     <string name="landing_menu_title">Landing Page</string>
-    <string name="setup_right_mesh">RightMesh Settings</string>
 
     <!-- Sign up page titles-->
     <string name="email_title">Email Address</string>
@@ -28,7 +27,7 @@
     <string name="title_title">Title</string>
     <string name="title_hint">A short title for your question.</string>
     <string name="tags_title">Tags</string>
-    <string name="tags_hint">A comma separated list of tag words</string>
+    <string name="tags_hint">Select Tags</string>
     <string name="message_hint">Some more details about the question you wish to ask.</string>
 
 
@@ -110,12 +109,26 @@
     <string name="system_settings_header">System Settings</string>
     <string name="toggle_memory_save">Memory Saver</string>
     <string name="toggle_memory_save_description">This mode removes older/inactive posts automatically to save disk space on your device. (Warning once a post is removed from your device you might not be able to get it back again.)</string>
-    <string name="dialog_alert_message">Changing the theme will log you out. Do you still wish to continue?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="num_comments">Comments: %d</string>
 
+    <string-array name="tag_list">
+        <item>Select Tags</item>
+        <item>Health</item>
+        <item>Emergency</item>
+        <item>Food</item>
+        <item>Dog</item>
+        <item>Cats</item>
+        <item>Tech</item>
+    </string-array>
 
-
+    <string name="menu_sort_age_asc">new -> old</string>
+    <string name="menu_sort_age_desc">old -> new</string>
+    <string name="menu_sort_title_asc">title A -> Z</string>
+    <string name="menu_sort_title_desc">title Z -> A</string>
+    <string name="menu_sort_author_asc">author A -> Z</string>
+    <string name="menu_sort_author_desc">author Z -> A</string>
+    <string name="sort">Sort</string>
 
 </resources>

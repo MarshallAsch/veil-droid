@@ -11,7 +11,7 @@ import ca.marshallasch.veil.utilities.Util;
  * @version 1.0
  * @since 2018-06-29
  */
-public class PostComparatorTest
+public class PostAgeComparatorTest
 {
 
     @Test
@@ -32,7 +32,7 @@ public class PostComparatorTest
                 .build();
 
 
-        PostComparator comparator = new PostComparator();
+        PostAgeComparator comparator = new PostAgeComparator();
 
         Assert.assertEquals(0, comparator.compare(a, b));
         Assert.assertEquals(-10, comparator.compare(a, c));
