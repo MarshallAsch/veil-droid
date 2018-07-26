@@ -181,7 +181,8 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    /** Navigate to the given fragment.
+    /**
+     * Navigate to the given fragment.
      *
      * @param fragment       Fragment to navigate to.
      * @param addToBackStack Whether or not the current fragment should be added to the back stack.
