@@ -85,7 +85,7 @@ public class FragmentAddComment extends android.support.v4.app.Fragment {
 
         //Handle cancel button
         cancelBtn.setOnClickListener(view1 -> {
-            Util.hideKeyboard(view1, activity);
+            Util.hideKeyboard(activity);
             getFragmentManager().popBackStack();
         });
 
@@ -114,14 +114,19 @@ public class FragmentAddComment extends android.support.v4.app.Fragment {
 
 
             // go back to the post view screen
-            Util.hideKeyboard(view1, activity);
+            Util.hideKeyboard(activity);
             getFragmentManager().popBackStack();
 
         });
 
         // Inflate the layout for this fragment
         return view;
-
     }
 
+    @Override
+    public void onStop()
+    {
+        super.onStop();
+        Util.hideKeyboard(getActivity());
+    }
 }

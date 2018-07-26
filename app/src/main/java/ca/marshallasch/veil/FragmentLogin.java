@@ -67,7 +67,7 @@ public class FragmentLogin extends Fragment {
 
         //hides keyboard if white space is pressed
         layout.setOnTouchListener((view12, ev) -> {
-            Util.hideKeyboard(view12, activity);
+            Util.hideKeyboard( activity);
             return false;
         });
 
@@ -99,7 +99,7 @@ public class FragmentLogin extends Fragment {
 
         login.setOnClickListener(view1 -> {
             Log.i("Fragment Login", "enter button pressed");
-            Util.hideKeyboard(view1, activity);
+            Util.hideKeyboard(activity);
 
             String username = emailAddressInput.getText().toString();
             String password = passwordInput.getText().toString();
@@ -110,7 +110,7 @@ public class FragmentLogin extends Fragment {
         });
 
         cancel.setOnClickListener(view1 -> {
-            Util.hideKeyboard(view1, activity);
+            Util.hideKeyboard(activity);
             ((MainActivity) activity).navigateTo(new FragmentLanding(), false);
 
         });
