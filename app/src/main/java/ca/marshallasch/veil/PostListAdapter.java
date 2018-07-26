@@ -226,7 +226,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
                         tagList.add(tag.trim());
                     }
 
-                    // make sure the post contains all the tags
+                    // Check if post contains all specified tags
                     for (DhtProto.Post post: posts) {
                         if (post.getTagsList().containsAll(tagList)) {
                             filteredList.add(post);
