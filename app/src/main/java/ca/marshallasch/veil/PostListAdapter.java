@@ -30,7 +30,7 @@ import ca.marshallasch.veil.utilities.Util;
  * @version 1.0
  * @since 2018-06-04
  */
-public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHolder> {
+public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<DhtProto.Post> posts;
     private Activity activity;
@@ -48,9 +48,23 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
     }
 
     /**
+     * This is the cell for if there are no posts in the list
+     */
+     static class ViewHolder0 extends RecyclerView.ViewHolder {
+
+        /**
+         * constructor for the ViewHolder class
+         * @param itemsView the XML layout for the cell. Currently is a post_list_cell.xmll.xml
+         */
+        ViewHolder0(View itemsView){
+            super(itemsView);
+        }
+    }
+
+    /**
      * This is the cell for each post in the list.
      */
-     static class ViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder1 extends RecyclerView.ViewHolder {
         private TextView title;
         private TextView contentPreview;
         private TextView commentCount;
@@ -62,7 +76,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
          * constructor for the ViewHolder class
          * @param itemsView the XML layout for the cell. Currently is a post_list_cell.xmll.xml
          */
-        ViewHolder(View itemsView){
+        ViewHolder1(View itemsView){
             super(itemsView);
             title = itemsView.findViewById(R.id.title);
             contentPreview = itemsView.findViewById(R.id.content_preview);
@@ -92,6 +106,18 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
         this.posts = posts;
     }
 
+
+    /**
+     * This will check what type of view to generate depending on the number of items in the list.
+     * @param position the position of the cell to check the type for
+     * @return
+     */
+    @Override
+    public int getItemViewType(int position)
+    {
+        return posts.size() == 0 ? 0 : 1;
+    }
+
     /**
      * Creates the cell view if there is no existing cells available for recycler view can reuse.
      * @param parent the list that it belongs to
@@ -100,19 +126,36 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
      */
     @NonNull
     @Override
-    public PostListAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.post_list_cell, parent, false);
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view;
 
-        return new ViewHolder(view);
+        if (viewType == 0) {
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.no_posts_cell, parent, false);
+
+            return  new ViewHolder0(view);
+        } else {
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.post_list_cell, parent, false);
+            return  new ViewHolder1(view);
+
+        }
     }
 
     /**
      * Binds new information to the cell of the list based on position.
-     * @param viewHolder the UI cell item that is going to hold the data
+     * @param holder the UI cell item that is going to hold the data
      * @param position the position in the list that the cell is for.
      */
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder viewHolder, final int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
+
+        ViewHolder1 viewHolder;
+
+        if (holder.getItemViewType() == 0) {
+            return;
+        } else {
+            viewHolder = (ViewHolder1) holder;
+        }
+
         // Going to need to trim the content before it gets added here.
         DhtProto.Post post = posts.get(position);
 
@@ -190,6 +233,6 @@ public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.ViewHo
      */
     @Override
     public int getItemCount() {
-        return posts.size();
+        return posts.size() == 0 ? 1 : posts.size();
     }
 }
