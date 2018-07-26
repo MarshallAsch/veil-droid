@@ -50,7 +50,7 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     /**
      * This is the cell for if there are no posts in the list
      */
-     static class ViewHolder0 extends RecyclerView.ViewHolder {
+     private static class ViewHolder0 extends RecyclerView.ViewHolder {
 
         /**
          * constructor for the ViewHolder class
@@ -64,7 +64,7 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     /**
      * This is the cell for each post in the list.
      */
-    static class ViewHolder1 extends RecyclerView.ViewHolder {
+    private static class ViewHolder1 extends RecyclerView.ViewHolder {
         private TextView title;
         private TextView contentPreview;
         private TextView commentCount;
@@ -136,7 +136,6 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         } else {
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.post_list_cell, parent, false);
             return  new ViewHolder1(view);
-
         }
     }
 
@@ -148,13 +147,11 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
 
-        ViewHolder1 viewHolder;
-
         if (holder.getItemViewType() == 0) {
             return;
-        } else {
-            viewHolder = (ViewHolder1) holder;
         }
+
+        ViewHolder1 viewHolder = (ViewHolder1) holder;
 
         // Going to need to trim the content before it gets added here.
         DhtProto.Post post = posts.get(position);
