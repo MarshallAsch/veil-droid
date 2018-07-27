@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,8 +40,7 @@ public class FragmentSettings extends Fragment {
 
         //set dark theme toggle to save preference
         Switch darkThemeToggle = view.findViewById(R.id.toggle_dark_theme);
-        SharedPreferences preferences = getActivity().
-                getSharedPreferences(MainActivity.SYSTEM_PREF, Context.MODE_PRIVATE);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         darkThemeToggle.setChecked(preferences.getBoolean(PREF_DARK_THEME, false));
 
         //on click listener so allows for toggle to reset itself
@@ -54,8 +54,7 @@ public class FragmentSettings extends Fragment {
     }
 
     private void toggleDarkTheme(boolean isDarkTheme){
-        SharedPreferences preferences = getActivity().
-                getSharedPreferences(MainActivity.SYSTEM_PREF, Context.MODE_PRIVATE);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         int random = new Random().nextInt();
 

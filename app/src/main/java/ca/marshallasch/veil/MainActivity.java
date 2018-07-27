@@ -10,6 +10,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -25,9 +26,6 @@ import ca.marshallasch.veil.services.VeilService;
 import io.left.rightmesh.android.AndroidMeshManager;
 
 public class MainActivity extends AppCompatActivity {
-
-    //System pref name string
-    public static final String SYSTEM_PREF = "SYSTEM_PREF";
 
     public static final String EXTRA_LOGGED_IN_USER_ID = "ca.marshallasch.veil.EXTRA_LOGGED_IN_USER_ID";
     public static final String EXTRA_LOGGED_IN_RAND = "ca.marshallasch.veil.EXTRA_LOGGED_IN_RAND";
@@ -72,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        SharedPreferences preferences = getSharedPreferences(SYSTEM_PREF, MODE_PRIVATE);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         Intent startedIntent = getIntent();
 
