@@ -4,11 +4,13 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -18,13 +20,17 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import ca.marshallasch.veil.database.Database;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.services.VeilService;
 import io.left.rightmesh.android.AndroidMeshManager;
 
 public class MainActivity extends AppCompatActivity {
-    // This port will be used for the DHT to keep all of that traffic separate
-    // private static final int DISCOVERY_PORT = 9183;
+
+    public static final String EXTRA_LOGGED_IN_USER_ID = "ca.marshallasch.veil.EXTRA_LOGGED_IN_USER_ID";
+    public static final String EXTRA_LOGGED_IN_RAND = "ca.marshallasch.veil.EXTRA_LOGGED_IN_RAND";
+
+
 
     //MemoryStore instance - for storing data in local hashtable
     DataStore dataStore = null;
@@ -62,11 +68,33 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(R.style.AppTheme);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        Intent startedIntent = getIntent();
+
+        int randSent = startedIntent.getIntExtra(EXTRA_LOGGED_IN_RAND, -1);
+        String userID = startedIntent.getStringExtra(EXTRA_LOGGED_IN_USER_ID);
+        int randCheck = preferences.getInt(FragmentSettings.PREF_LOGIN_RAND_VAL, 0);
+
+        // remove the random value to protect against a replay attack incase the intent gets duplicated
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.remove(FragmentSettings.PREF_LOGIN_RAND_VAL);
+        editor.apply();
+
+        // then this activity was started by a theme change, keep logged in
+        if (randCheck == randSent) {
+            currentUser = Database.getInstance(this).getUser(userID);
+        }
+
+        // check if it should load dark or light theme
+        if(preferences.getBoolean(FragmentSettings.PREF_DARK_THEME, false)) {
+            setTheme(R.style.AppTheme_Dark);
+        } else{
+            setTheme(R.style.AppTheme_Light);
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -76,8 +104,8 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, VeilService.class);
         startService(intent);
 
-        navigateTo(new FragmentLanding(), false);
-
+        // if the user is logged in then go to the dash otherwise go to landing page.
+        navigateTo(currentUser != null ? new FragmentDashBoard() : new FragmentLanding(), false);
     }
 
     /**
@@ -158,6 +186,9 @@ public class MainActivity extends AppCompatActivity {
             case android.R.id.home:
                 getSupportFragmentManager().popBackStack();
                 return true;
+            case R.id.app_settings:
+                frag = new FragmentSettings();
+                break;
             case R.id.connected_peers:
                 frag = new FragmentPeerList();
                 break;

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- theme colours -->
+    <attr name="themePrimary" format="reference"/>
+    <attr name="themePrimaryDark" format="reference"/>
+    <attr name="themeAccent" format="reference"/>
+    <attr name="themeActionBar" format="reference"/>
+    <attr name="themeAccentFade" format="reference"/>
+    <attr name="themeBackgroundColour" format="reference"/>
+
+    <!-- drawables -->
+    <attr name="imageLogo" format="reference"/>
+    <attr name="imageName" format="reference"/>
+    <attr name="imageBackground" format="reference"/>
+    <attr name="imageEditIcon" format="reference"/>
+    <attr name="imageCommentBar" format="reference"/>
+</resources>
