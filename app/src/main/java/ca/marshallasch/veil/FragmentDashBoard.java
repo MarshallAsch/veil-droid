@@ -37,8 +37,8 @@ public class FragmentDashBoard extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)  {
-
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
+    {
         // return the action bar.
         ((MainActivity) getActivity()).getSupportActionBar().show();
 
@@ -63,7 +63,6 @@ public class FragmentDashBoard extends Fragment {
         if (currentUser != null) {
             emailAddress.setText(currentUser.getEmail());
             name.setText(getString(R.string.full_name_placeholder, currentUser.getFirstName(), currentUser.getLastName()));
-
         }
 
         manageAccount.setOnClickListener(view1 -> {
@@ -97,6 +96,4 @@ public class FragmentDashBoard extends Fragment {
 
         return view;
     }
-
-
 }

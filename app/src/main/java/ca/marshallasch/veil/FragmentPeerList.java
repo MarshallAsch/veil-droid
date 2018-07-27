@@ -33,13 +33,11 @@ import io.left.rightmesh.id.MeshId;
  */
 public class FragmentPeerList extends Fragment
 {
-
     private TextView peerList;
 
     public FragmentPeerList() {
         // Required empty public constructor
     }
-
 
     @Nullable
     @Override
@@ -90,7 +88,6 @@ public class FragmentPeerList extends Fragment
             }
         }
     };
-
 
     /**
      * Refresh the list of connected peers.

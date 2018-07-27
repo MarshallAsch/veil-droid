@@ -56,7 +56,6 @@ public class HashTableStore implements ForumStorage
     // Made package-private so that it can be accessed for testing.
     final HashMap<String, List<DhtProto.DhtWrapper>> hashMap;
 
-
     private static HashTableStore instance;
     private static final AtomicInteger openCounter = new AtomicInteger();
 
@@ -129,7 +128,6 @@ public class HashTableStore implements ForumStorage
             e.printStackTrace();
         }
     }
-
 
     /**
      * This function will insert the post object into the local hash table. This will also add
@@ -551,7 +549,6 @@ public class HashTableStore implements ForumStorage
         return false;
     }
 
-
     /**
      * This function will generate a keyword object used for indexing the objects in the table.
      * The keyword is normalized to lowercase to make future searches case insensitive.
@@ -617,7 +614,6 @@ public class HashTableStore implements ForumStorage
             hashMap.put(key, entries);
         }
     }
-
 
     /**
      * This is not a good way to do this, should probably make it better.

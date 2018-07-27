@@ -127,7 +127,6 @@ public class FragmentSignUp extends Fragment
      */
     private class SignUpTask extends AsyncTask<String, Void, DhtProto.User>
     {
-
         /**
          * This will run on the UI thread before the task executes.
          * This will show the loading spinner
@@ -140,7 +139,6 @@ public class FragmentSignUp extends Fragment
             ProgressBar loadingBar =  getActivity().findViewById(R.id.loadingbar);
             loadingBar.setVisibility(View.VISIBLE);
         }
-
 
         /**
          * This function gets called to do the work in a seperate thread. It MUST be given 4

@@ -31,7 +31,6 @@ import ca.marshallasch.veil.utilities.Util;
  */
 public class FragmentAddComment extends android.support.v4.app.Fragment {
 
-
     public FragmentAddComment() {
         // Required empty public constructor
     }

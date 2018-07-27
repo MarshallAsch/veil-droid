@@ -30,8 +30,6 @@ public class MainActivity extends AppCompatActivity {
     public static final String EXTRA_LOGGED_IN_USER_ID = "ca.marshallasch.veil.EXTRA_LOGGED_IN_USER_ID";
     public static final String EXTRA_LOGGED_IN_RAND = "ca.marshallasch.veil.EXTRA_LOGGED_IN_RAND";
 
-
-
     //MemoryStore instance - for storing data in local hashtable
     DataStore dataStore = null;
 
@@ -257,7 +255,6 @@ public class MainActivity extends AppCompatActivity {
         this.currentUser = currentUser;
     }
 
-
     /**
      * Sends messages to {@link VeilService} to do work with.
      * @param command non optional command int defined by static strings in {@link VeilService}
@@ -276,5 +273,4 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
-
 }

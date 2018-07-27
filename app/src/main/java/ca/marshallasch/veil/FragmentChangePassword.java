@@ -60,7 +60,6 @@ public class FragmentChangePassword extends Fragment
             e.printStackTrace();
         }
 
-
         oldPasswordInput = view.findViewById(R.id.password_current_text_edit);
         newPasswordInput = view.findViewById(R.id.password_text_edit);
         newPasswordConfInput = view.findViewById(R.id.password_conf_text_edit);
@@ -81,7 +80,6 @@ public class FragmentChangePassword extends Fragment
 
         return view;
     }
-
 
     /**
      * This handles the password change. will check that the password is valid and update the password.

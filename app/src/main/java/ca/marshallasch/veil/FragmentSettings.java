@@ -1,7 +1,5 @@
 package ca.marshallasch.veil;
 
-
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -25,8 +23,6 @@ public class FragmentSettings extends Fragment {
 
     public static final String PREF_DARK_THEME = "PREF_DARK_THEME";
     public static final String PREF_LOGIN_RAND_VAL = "PREF_LOGIN_RAND_VAL";
-
-
 
     public FragmentSettings() {
         // Required empty public constructor
@@ -72,7 +68,5 @@ public class FragmentSettings extends Fragment {
 
         getActivity().startActivity(intent);
         getActivity().finish();
-
     }
-
 }

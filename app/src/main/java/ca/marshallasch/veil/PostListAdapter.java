@@ -33,7 +33,6 @@ import ca.marshallasch.veil.utilities.Util;
  * @version 1.0
  * @since 2018-06-04
  */
-
 public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Filterable{
 
     private List<DhtProto.Post> posts;
@@ -112,7 +111,6 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void update(List<DhtProto.Post> posts) {
         this.posts = posts;
     }
-
 
     /**
      * This will check what type of view to generate depending on the number of items in the list.
@@ -239,7 +237,6 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public int getItemCount() {
         return postsFiltered.size() == 0 ? 1 : postsFiltered.size();
     }
-
 
     @Override
     public Filter getFilter()

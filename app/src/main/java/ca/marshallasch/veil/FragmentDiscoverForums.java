@@ -42,7 +42,6 @@ import ca.marshallasch.veil.tagList.TagListAdapter;
  */
 public class FragmentDiscoverForums extends Fragment implements SwipeRefreshLayout.OnRefreshListener, PopupMenu.OnMenuItemClickListener {
 
-
     private PostListAdapter postListAdapter;
     private SwipeRefreshLayout refreshLayout;
 
@@ -110,13 +109,11 @@ public class FragmentDiscoverForums extends Fragment implements SwipeRefreshLayo
             }
         });
 
-
         refreshLayout.setOnRefreshListener(this);
 
         // register receiver to be notified when the data changes
         LocalBroadcastManager.getInstance(activity).registerReceiver(
                 broadcastReceiver, new IntentFilter(RightMeshController.NEW_DATA_BROADCAST));
-
 
         return view;
     }
@@ -182,5 +179,4 @@ public class FragmentDiscoverForums extends Fragment implements SwipeRefreshLayo
             }
         }
     };
-
 }
