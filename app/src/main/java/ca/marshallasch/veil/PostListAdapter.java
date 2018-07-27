@@ -9,9 +9,12 @@ import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -30,9 +33,12 @@ import ca.marshallasch.veil.utilities.Util;
  * @version 1.0
  * @since 2018-06-04
  */
-public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Filterable{
 
     private List<DhtProto.Post> posts;
+    private List<DhtProto.Post> postsFiltered;
+
     private Activity activity;
 
     /**
@@ -95,6 +101,7 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public PostListAdapter(List<DhtProto.Post> posts, Activity activity) {
         this.activity = activity;
         this.posts = posts;
+        this.postsFiltered = posts;
     }
 
 
@@ -115,7 +122,7 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public int getItemViewType(int position)
     {
-        return posts.size() == 0 ? 0 : 1;
+        return postsFiltered.size() == 0 ? 0 : 1;
     }
 
     /**
@@ -154,7 +161,7 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         ViewHolder1 viewHolder = (ViewHolder1) holder;
 
         // Going to need to trim the content before it gets added here.
-        DhtProto.Post post = posts.get(position);
+        DhtProto.Post post = postsFiltered.get(position);
 
         int numComments = DataStore.getInstance(activity).getNumCommentsFor(post.getUuid());
         boolean read = DataStore.getInstance(activity).isRead(post.getUuid());
@@ -198,25 +205,25 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         switch (option) {
             case ALPHA_TITLE_ASC:
-                Collections.sort(posts, new PostTitleComparator());
+                Collections.sort(postsFiltered, new PostTitleComparator());
                 break;
             case ALPHA_TITLE_DESC:
-                Collections.sort(posts, new PostTitleComparator());
-                Collections.reverse(posts);
+                Collections.sort(postsFiltered, new PostTitleComparator());
+                Collections.reverse(postsFiltered);
                 break;
             case ALPHA_AUTH_ASC:
-                Collections.sort(posts, new PostAuthorComparator());
+                Collections.sort(postsFiltered, new PostAuthorComparator());
                 break;
             case ALPHA_AUTH_DESC:
-                Collections.sort(posts, new PostAuthorComparator());
-                Collections.reverse(posts);
+                Collections.sort(postsFiltered, new PostAuthorComparator());
+                Collections.reverse(postsFiltered);
                 break;
             case AGE_ASC:
-                Collections.sort(posts, new PostAgeComparator());
+                Collections.sort(postsFiltered, new PostAgeComparator());
                 break;
             case AGE_DESC:
-                Collections.sort(posts, new PostAgeComparator());
-                Collections.reverse(posts);
+                Collections.sort(postsFiltered, new PostAgeComparator());
+                Collections.reverse(postsFiltered);
                 break;
             default:
         }
@@ -230,6 +237,54 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
      */
     @Override
     public int getItemCount() {
-        return posts.size() == 0 ? 1 : posts.size();
+        return postsFiltered.size() == 0 ? 1 : postsFiltered.size();
+    }
+
+
+    @Override
+    public Filter getFilter()
+    {
+        /**
+         * This class is the tag filter. The CharSequence must be a list of tags that are
+         * denominated with a ':' character.
+         */
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence charSequence)
+            {
+
+                List<DhtProto.Post> filteredList = new ArrayList<>();
+
+                if (charSequence.length() == 0) {
+                    filteredList = posts;
+                } else {
+                    String[] tokens = charSequence.toString().split(":");
+
+                    List<String> tagList = new ArrayList<>();
+
+                    for (String tag: tokens){
+                        tagList.add(tag.trim());
+                    }
+
+                    // Check if post contains all specified tags
+                    for (DhtProto.Post post: posts) {
+                        if (post.getTagsList().containsAll(tagList)) {
+                            filteredList.add(post);
+                        }
+                    }
+                }
+
+                FilterResults filterResults = new FilterResults();
+                filterResults.values = filteredList;
+                return filterResults;
+            }
+
+            @Override
+            protected void publishResults(CharSequence charSequence, FilterResults filterResults)
+            {
+                postsFiltered = (ArrayList<DhtProto.Post>) filterResults.values;
+                notifyDataSetChanged();
+            }
+        };
     }
 }

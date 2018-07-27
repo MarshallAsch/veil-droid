@@ -1,11 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:actionBarStyle">?themeActionBar</item>
+        <item name="colorPrimary">?themePrimary</item>
+        <item name="colorPrimaryDark">?themePrimaryDark</item>
+        <item name="colorAccent">?themeAccent</item>
+        <item name="android:colorBackground">?themeBackgroundColour</item>
+        <item name="android:windowAnimationStyle">@style/WindowAnimationTransition</item>
+    </style>
+
+    <!-- Dark Theme -->
+    <style name="AppTheme.Dark">
+        <item name="themeBackgroundColour">@color/darkBackground</item>
+        <item name="themePrimary">@color/darkPrimaryLight</item>
+        <item name="themePrimaryDark">@color/darkPrimaryDark</item>
+        <item name="themeAccent">@color/darkAccent</item>
+        <item name="themeAccentFade">@color/darkAccentFade</item>
+        <item name="themeActionBar">@color/darkPrimaryDark</item>
+        <item name="imageLogo">@drawable/logo_dark_theme</item>
+        <item name="imageName">@drawable/veil_dark</item>
+        <item name="imageBackground">@drawable/background_dark</item>
+        <item name="imageEditIcon">@drawable/edit_icon_dark</item>
+        <item name="imageCommentBar">@drawable/commentbardark</item>
+        <item name="android:windowAnimationStyle">@style/WindowAnimationTransition</item>
+    </style>
+
+    <!-- Light Theme -->
+    <style name="AppTheme.Light">
+        <item name="themeBackgroundColour">@color/white</item>
+        <item name="themePrimary">@color/colorPrimary</item>
+        <item name="themePrimaryDark">@color/colorPrimaryDark</item>
+        <item name="themeAccent">@color/colorAccent</item>
+        <item name="themeAccentFade">@color/lightAccentFade</item>
+        <item name="themeActionBar">@color/colorPrimary</item>
+        <item name="imageLogo">@drawable/logo_landing</item>
+        <item name="imageName">@drawable/veil</item>
+        <item name="imageBackground">@drawable/background</item>
+        <item name="imageEditIcon">@drawable/edit_icon</item>
+        <item name="imageCommentBar">@drawable/commentbar</item>
+        <item name="android:windowAnimationStyle">@style/WindowAnimationTransition</item>
+    </style>
+
+    <!-- custom toggle button theme -->
+    <style name="SCBSwitch" parent="Theme.AppCompat.Light">
+        <!-- active thumb & track color (30% transparency) -->
+        <item name="colorControlActivated">#46bdbf</item>
+
+        <!-- inactive thumb color -->
+        <item name="colorSwitchThumbNormal">#f1f1f1</item>
+
     </style>
 
 
@@ -14,6 +60,12 @@
         <item name="android:windowBackground">@drawable/launch_screen</item>
         <!-- Optional, on Android 5+ you can modify the colorPrimaryDark color to match the windowBackground color for further branding-->
         <!-- <item name="colorPrimaryDark">@android:color/white</item> -->
+    </style>
+
+    <!-- This will set the fade in animation on all your activities by default -->
+    <style name="WindowAnimationTransition">
+        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
+        <item name="android:windowExitAnimation">@android:anim/fade_out</item>
     </style>
 
 </resources>
