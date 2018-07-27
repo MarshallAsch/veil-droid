@@ -24,7 +24,7 @@ import ca.marshallasch.veil.utilities.Util;
  * @version 1.0
  * @since 2018-06-18
  */
-public class CommentListAdapter extends RecyclerView.Adapter<CommentListAdapter.ViewHolder> {
+public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<DhtProto.Comment> commentList;
 
     private Context context;
@@ -32,20 +32,34 @@ public class CommentListAdapter extends RecyclerView.Adapter<CommentListAdapter.
     /**
      *  This is the cell for each comment in the comment list
      */
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    private static class ViewHolder1 extends RecyclerView.ViewHolder {
         private TextView content;
         private TextView authorName;
         private TextView date;
 
         /**
-         * constuctor for the ViewHolder Class
+         * constructor for the ViewHolder Class
          * @param itemsView the XML layout for the cell. Currently called comment_item.xml
          */
-        ViewHolder(View itemsView){
+        ViewHolder1(View itemsView){
             super(itemsView);
             authorName = itemsView.findViewById(R.id.author_name);
             date = itemsView.findViewById(R.id.date);
             content = itemsView.findViewById(R.id.comment_content);
+        }
+    }
+
+    /**
+     * This is the cell for when there are no comments in the list.
+     */
+    private static class ViewHolder0 extends RecyclerView.ViewHolder {
+
+        /**
+         * constructor for the ViewHolder Class
+         * @param itemsView the XML layout for the cell. Currently called comment_item.xml
+         */
+        ViewHolder0(View itemsView){
+            super(itemsView);
         }
     }
 
@@ -59,21 +73,43 @@ public class CommentListAdapter extends RecyclerView.Adapter<CommentListAdapter.
         this.context = context;
     }
 
+    /**
+     * This will refresh the comments that are in the list.
+     * @param comments the new list of comments to display.
+     */
     public void update(List<DhtProto.Comment> comments) {
         this.commentList = comments;
     }
 
     /**
+     * This will check what type of view to generate depending on the number of items in the list.
+     * @param position the position of the cell to check the type for
+     * @return 0 for the no comment type, 1 otherwise
+     */
+    @Override
+    public int getItemViewType(int position)
+    {
+        return commentList.size() == 0 ? 0 : 1;
+    }
+
+    /**
      * Creates the cell view if there is no exiting cells available for the recycler view to use
      * @param parent the list that this adapter belongs to
-     * @param viewType the type of view that is needed in case there is more than one type in the list
-     * @return veiwHolder
+     * @param viewType the type of view that is needed ether the normal comment view or the no comment message
+     * @return the viewHolder
      */
     @NonNull
     @Override
-    public CommentListAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.comment_item,parent, false);
-        return new ViewHolder(view);
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view;
+
+        if (viewType == 0) {
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.no_comment_cell, parent, false);
+            return new ViewHolder0(view);
+        } else {
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.comment_item, parent, false);
+            return new ViewHolder1(view);
+        }
     }
 
     /**
@@ -82,13 +118,19 @@ public class CommentListAdapter extends RecyclerView.Adapter<CommentListAdapter.
      * @param position the position in the list of comments
      */
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
+
+        if (holder.getItemViewType() == 0) {
+            return;
+        }
+
+        ViewHolder1 viewHolder = (ViewHolder1) holder;
 
         DhtProto.Comment comment = commentList.get(position);
         String authorName = comment.getAnonymous() ? context.getString(R.string.anonymous) : comment.getAuthorName();
 
-        holder.authorName.setText(authorName);
-        holder.content.setText(comment.getMessage());
+        viewHolder.authorName.setText(authorName);
+        viewHolder.content.setText(comment.getMessage());
 
         // generate a string that describes the age of the comment, 1s, 4 min, 5 hours, etc.
         CharSequence dateString = DateUtils.getRelativeTimeSpanString(
@@ -97,7 +139,7 @@ public class CommentListAdapter extends RecyclerView.Adapter<CommentListAdapter.
                 0,
                 DateUtils.FORMAT_ABBREV_RELATIVE);
 
-        holder.date.setText(dateString);
+        viewHolder.date.setText(dateString);
     }
 
     /**
@@ -106,6 +148,6 @@ public class CommentListAdapter extends RecyclerView.Adapter<CommentListAdapter.
      */
     @Override
     public int getItemCount() {
-        return commentList.size();
+        return commentList.size() == 0 ? 1 : commentList.size();
     }
 }

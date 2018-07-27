@@ -132,4 +132,8 @@
     <string name="sort">Sort</string>
     <string name="filter">Filter</string>
 
+
+    <string name="no_posts">No Posts</string>
+    <string name="no_comments">No Comments</string>
+
 </resources>
