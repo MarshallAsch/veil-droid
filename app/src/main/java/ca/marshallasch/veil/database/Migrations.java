@@ -151,9 +151,9 @@ final class Migrations
 
         String[] projection = {
                 KnownPostsContract.KnownPostsEntry.COLUMN_POST_HASH,
-                KnownPostsContract.KnownPostsEntry.COLUMN_COMMENT_HASH
+                KnownPostsContract.KnownPostsEntry.COLUMN_COMMENT_HASH,
+                KnownPostsContract.KnownPostsEntry.COLUMN_TIME_INSERTED
         };
-
 
         Cursor cursor = db.query(
                 KnownPostsContract.KnownPostsEntry.TABLE_NAME,   // The table to query
