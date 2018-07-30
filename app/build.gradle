@@ -19,12 +19,12 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'io.left.rightmesh:rightmesh-plugin:1.6'
+        //classpath 'io.left.rightmesh:rightmesh-plugin:1.6'
     }
 
 }
-apply plugin: 'io.left.rightmesh.rightmesh-plugin'
-preBuild.dependsOn("rightmesh")
+//apply plugin: 'io.left.rightmesh.rightmesh-plugin'
+//preBuild.dependsOn("rightmesh")
 
 repositories {
     mavenCentral()
