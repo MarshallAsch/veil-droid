@@ -27,7 +27,6 @@
         <item name="imageCommentBar">@drawable/commentbardark</item>
         <item name="android:windowAnimationStyle">@style/WindowAnimationTransition</item>
 
-        <item name="popupMenuStyle">@style/darkPopup</item>
         <item name="android:textColorPrimary">@color/darkAccent</item>
         <item name="android:textColorSecondary">@color/darkAccent</item>
         <item name="android:textColorTertiary">@color/darkAccent</item>
@@ -59,14 +58,6 @@
         <item name="colorSwitchThumbNormal">#f1f1f1</item>
 
     </style>
-    
-    
-    <style name="darkPopup" parent="Base.Widget.AppCompat.Light.PopupMenu">
-        <item name="android:textColor">@color/darkAccent</item>
-        <item name="android:panelBackground">#FFFFFF</item>
-        <item name="android:background">#FFFFFF</item>
-    </style>
-
 
     <!-- The launcher theme. It sets the main window background to the launch_screen drawable -->
     <style name="AppTheme.Launcher">
