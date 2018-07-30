@@ -181,7 +181,9 @@ public class FragmentSignUp extends Fragment
         protected void onPostExecute(DhtProto.User user)
         {
             ProgressBar loadingBar =  getActivity().findViewById(R.id.loadingbar);
-            loadingBar.setVisibility(View.INVISIBLE);
+            if (loadingBar != null) {
+                loadingBar.setVisibility(View.VISIBLE);
+            }
 
             if (user == null) {
                 Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.unknown_err, Snackbar.LENGTH_SHORT).show();

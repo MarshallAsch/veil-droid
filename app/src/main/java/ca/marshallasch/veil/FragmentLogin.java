@@ -179,7 +179,9 @@ public class FragmentLogin extends Fragment {
         protected void onPostExecute(DhtProto.User user)
         {
             ProgressBar loadingBar =  activity.findViewById(R.id.loadingbar);
-            loadingBar.setVisibility(View.INVISIBLE);
+            if (loadingBar != null) {
+                loadingBar.setVisibility(View.VISIBLE);
+            }
 
             // check that a user was found
             if (user == null) {
