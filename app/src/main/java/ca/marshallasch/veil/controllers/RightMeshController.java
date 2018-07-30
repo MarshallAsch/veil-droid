@@ -100,7 +100,13 @@ public class RightMeshController implements MeshStateListener{
 
             Log.d("DATA_RECEIVE", message.getData().toString());
             dataStore.syncData(message.getData());
-        } else if (type == Sync.SyncMessageType.MAPPING_MESSAGE) {
+        } else if (type == Sync.SyncMessageType.SYNC_DATA){
+            Log.d("DATA_SYNC", "received data sync message");
+            dataStore.insertSync(message.getSyncMessage());
+            Intent intent = new Intent(NEW_DATA_BROADCAST);
+            LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
+        }
+        else if (type == Sync.SyncMessageType.MAPPING_MESSAGE) {
             Log.d("DATA_RECEIVE_MAP", message.getMapping().toString());
 
             dataStore.syncDatabase(message.getMapping());

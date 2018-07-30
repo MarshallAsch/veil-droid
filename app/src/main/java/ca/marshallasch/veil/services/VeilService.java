@@ -1,5 +1,7 @@
 package ca.marshallasch.veil.services;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,6 +17,8 @@ import android.widget.Toast;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
+import ca.marshallasch.veil.MainActivity;
+import ca.marshallasch.veil.R;
 import ca.marshallasch.veil.controllers.RightMeshController;
 import ca.marshallasch.veil.proto.DhtProto;
 
@@ -40,6 +44,9 @@ public class VeilService extends Service {
     // extra fields that can be set in the bundle to set data in the message
     public static final String EXTRA_POST = "EXTRA_POST";
     public static final String EXTRA_COMMENT = "EXTRA_COMMENT";
+
+    //foreground notification id
+    private static final int NEW_CONTENT_NOTIFICATION_ID = 1;
 
     /**
      * Target for clients to send messages to ServiceHandler
@@ -103,6 +110,8 @@ public class VeilService extends Service {
 
                     rightMeshController.notifyNewContent(post, comment);
 
+                    showNotification("new post");
+
                     break;
                 default:
                     super.handleMessage(msg);
@@ -159,5 +168,29 @@ public class VeilService extends Service {
     public IBinder onBind(Intent intent) {
         Toast.makeText(this, "binding", Toast.LENGTH_SHORT).show();
         return veilMessenger.getBinder();
+    }
+
+    private void showNotification(String content){
+        //create intent that will start the application
+        Intent showAppIntent = new Intent(getApplicationContext(), MainActivity.class);
+        showAppIntent.setAction(Intent.ACTION_MAIN);
+        showAppIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+        showAppIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        PendingIntent contentIntent = PendingIntent.getActivity(
+                getApplicationContext(),
+                0,
+                showAppIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Notification newContentNotification = new Notification.Builder(getApplicationContext())
+                .setContentTitle(getString(R.string.app_name))
+                .setContentText(content)
+                .setSmallIcon(R.drawable.ic_alert)
+                .setWhen(System.currentTimeMillis())
+                .setContentIntent(contentIntent)
+                .build();
+        startForeground(NEW_CONTENT_NOTIFICATION_ID, newContentNotification);
+
     }
 }
