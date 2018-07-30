@@ -59,8 +59,9 @@ public class HashTableStore implements ForumStorage
     private static HashTableStore instance;
     private static final AtomicInteger openCounter = new AtomicInteger();
 
-
     private File mapFile;
+
+    private boolean modified;
 
     private HashTableStore(@Nullable  Context c) {
 
@@ -91,9 +92,11 @@ public class HashTableStore implements ForumStorage
 
         // create a new map if one does not exist
         if (tempMap == null) {
+            modified = true;
             hashMap = new HashMap<>();
         } else {
             hashMap = tempMap;
+            modified = false;
         }
     }
 
@@ -113,8 +116,9 @@ public class HashTableStore implements ForumStorage
      */
     public void save() {
 
-        // if the file does not exist then do not save
-        if (mapFile == null) {
+        // if the file does not exist then do not save, or if it has not been modified
+        if (mapFile == null || !modified) {
+            Log.d("HashTableStore", "Not actually saving the file, changed: " + String.valueOf(modified));
             return;
         }
 
@@ -127,6 +131,7 @@ public class HashTableStore implements ForumStorage
 
             Log.d("SAVE", "saved map");
             fileOutputStream.close();
+            modified = false;
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -617,6 +622,7 @@ public class HashTableStore implements ForumStorage
         synchronized (hashMap) {
             hashMap.put(key, entries);
         }
+        modified = true;
     }
 
     /**
