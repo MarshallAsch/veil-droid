@@ -62,17 +62,12 @@ public class FragmentDiscoverForums extends Fragment implements SwipeRefreshLayo
 
         MaterialButton sort = view.findViewById(R.id.sort);
 
-        sort.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view)
-            {
-                PopupMenu popupMenu = new PopupMenu(view.getContext(), view);
-                popupMenu.inflate(R.menu.sort_menu);
-                popupMenu.show();
+        sort.setOnClickListener(view1 -> {
+            PopupMenu popupMenu = new PopupMenu(view1.getContext(), view1);
+            popupMenu.inflate(R.menu.sort_menu);
+            popupMenu.show();
 
-
-                popupMenu.setOnMenuItemClickListener(FragmentDiscoverForums.this);
-            }
+            popupMenu.setOnMenuItemClickListener(FragmentDiscoverForums.this);
         });
 
         ActionBar actionBar = ((MainActivity) activity).getSupportActionBar();
