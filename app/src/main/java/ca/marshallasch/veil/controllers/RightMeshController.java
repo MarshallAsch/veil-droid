@@ -96,7 +96,15 @@ public class RightMeshController implements MeshStateListener{
 
         Sync.SyncMessageType type = message.getType();
 
-        if (type == Sync.SyncMessageType.HASH_DATA) {
+        if (type == Sync.SyncMessageType.SYNC_DATA) {
+
+            Log.d("DATA_SYNC", "received data sync message");
+
+            dataStore.insertSync(message.getSyncMessage());
+            Intent intent = new Intent(NEW_DATA_BROADCAST);
+            LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
+
+        } else if (type == Sync.SyncMessageType.HASH_DATA) {
 
             Log.d("DATA_RECEIVE", message.getData().toString());
             dataStore.syncData(message.getData());
@@ -230,9 +238,6 @@ public class RightMeshController implements MeshStateListener{
             }
 
             Log.d("FOUND", "found user: " + event.peerUuid);
-
-            Sync.HashData hashData = dataStore.getDataStore();
-            Sync.MappingMessage mappingMessage =  dataStore.getDatabase();
 
             // send messages to the peer.
             try {

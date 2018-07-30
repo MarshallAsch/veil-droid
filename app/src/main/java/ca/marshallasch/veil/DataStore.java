@@ -58,10 +58,9 @@ public class DataStore
 
     /**
      * Save the hash table to a persistent file.
-     * @param context the application context required to save a file.
      */
-    public void save(Context context) {
-        hashTableStore.save(context);
+    public void save() {
+        hashTableStore.save();
     }
 
     public void close() {
@@ -314,7 +313,7 @@ public class DataStore
     }
 
     /**
-     * Will insert all of the synced data from another device.
+     * Will insert all of the synced data from another device. This will update the saved file.
      * @param message the data sync object.
      * @deprecated  This is being kept in for backwards compatibility and for the stats
      */
@@ -328,6 +327,8 @@ public class DataStore
             Log.d("PAIRS", "e: " + entry.getEntry().getType().getNumber() + " :: " + entry.getHash());
             hashTableStore.insert (entry.getEntry(), entry.getHash());
         }
+
+        hashTableStore.save();
     }
 
     /**
@@ -417,5 +418,6 @@ public class DataStore
             db.insertKnownPost(entry.getPostHash(), entry.getCommentHash());
         }
 
+        hashTableStore.save();
     }
 }

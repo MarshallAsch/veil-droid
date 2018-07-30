@@ -125,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
     {
         super.onDestroy();
 
-        dataStore.save(this);
+        dataStore.save();
         dataStore.close();
 
         //stopping Rightmesh service
@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
             unbindService(serviceConnection);
             isBound = false;
         }
-        dataStore.save(this);
+        dataStore.save();
     }
 
     /**

@@ -59,16 +59,20 @@ public class HashTableStore implements ForumStorage
     private static HashTableStore instance;
     private static final AtomicInteger openCounter = new AtomicInteger();
 
+
+    private File mapFile;
+
     private HashTableStore(@Nullable  Context c) {
 
         // if there is no context then do not load a persistent file
         if (c == null) {
             hashMap = new HashMap<>();
+            mapFile = null;
             return;
         }
 
         // try loading from mem or create new
-        File mapFile = new File(c.getFilesDir(), "HASH_MAP");
+        mapFile = new File(c.getFilesDir(), "HASH_MAP");
         HashMap<String, List<DhtProto.DhtWrapper>> tempMap = null;
 
         if (mapFile.exists()) {
@@ -103,16 +107,16 @@ public class HashTableStore implements ForumStorage
     }
 
     /**
-     * This function will update the saved copy of the hash map to the disk.
+     * This function will update the saved copy of the hash map to the disk. The file needs to be
+     * created in the constructor if a non null context was passed to it. Otherwise the table is not
+     * saved.
      */
-    public void save(@Nullable Context context) {
+    public void save() {
 
-        // if there is no context then don't save the file
-        if (context == null) {
+        // if the file does not exist then do not save
+        if (mapFile == null) {
             return;
         }
-
-        File mapFile = new File(context.getFilesDir(), "HASH_MAP");
 
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(mapFile, false);
