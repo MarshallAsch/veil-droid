@@ -38,6 +38,8 @@ public class FragmentLogin extends Fragment {
 
     private Activity activity;
 
+
+    private  LoginTask loginTask = null;
     public FragmentLogin() {
         // Required empty public constructor
     }
@@ -104,8 +106,12 @@ public class FragmentLogin extends Fragment {
             String username = emailAddressInput.getText().toString();
             String password = passwordInput.getText().toString();
 
-            // do the login action in the a async task
-            new LoginTask().execute(username, password);
+            // make sure that a async task is not currently running
+            if (loginTask == null) {
+                // do the login action in the a async task
+                loginTask = new LoginTask();
+                loginTask.execute(username, password);
+            }
 
         });
 
@@ -172,9 +178,10 @@ public class FragmentLogin extends Fragment {
         @Override
         protected void onPostExecute(DhtProto.User user)
         {
-
             ProgressBar loadingBar =  activity.findViewById(R.id.loadingbar);
-            loadingBar.setVisibility(View.INVISIBLE);
+            if (loadingBar != null) {
+                loadingBar.setVisibility(View.VISIBLE);
+            }
 
             // check that a user was found
             if (user == null) {
@@ -185,6 +192,7 @@ public class FragmentLogin extends Fragment {
                 ((MainActivity) activity).setCurrentUser(user);
                 ((MainActivity) activity).navigateTo(new FragmentDashBoard(), false);
             }
+            loginTask = null;
         }
     }
 }

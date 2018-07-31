@@ -33,6 +33,7 @@ public class FragmentSignUp extends Fragment
     private EditText passwordInput;
     private EditText passwordConfInput;
 
+    private SignUpTask signUpTask = null;
     /**
      * Required empty public constructor
      */
@@ -118,7 +119,11 @@ public class FragmentSignUp extends Fragment
                 break;
         }
 
-        new SignUpTask().execute(firstName, lastName, email, password);
+        // make sure only one task is running at a time.
+        if (signUpTask == null) {
+            signUpTask = new SignUpTask();
+            signUpTask.execute(firstName, lastName, email, password);
+        }
     }
 
     /**
@@ -176,7 +181,9 @@ public class FragmentSignUp extends Fragment
         protected void onPostExecute(DhtProto.User user)
         {
             ProgressBar loadingBar =  getActivity().findViewById(R.id.loadingbar);
-            loadingBar.setVisibility(View.INVISIBLE);
+            if (loadingBar != null) {
+                loadingBar.setVisibility(View.VISIBLE);
+            }
 
             if (user == null) {
                 Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.unknown_err, Snackbar.LENGTH_SHORT).show();
@@ -184,6 +191,8 @@ public class FragmentSignUp extends Fragment
                 ((MainActivity) getActivity()).setCurrentUser(user);
                 ((MainActivity) getActivity()).navigateTo(new FragmentDashBoard(), false);
             }
+
+            signUpTask = null;
         }
     }
 }
