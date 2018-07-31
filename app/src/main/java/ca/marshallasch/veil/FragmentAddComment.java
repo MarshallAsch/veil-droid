@@ -35,8 +35,8 @@ public class FragmentAddComment extends android.support.v4.app.Fragment {
         // Required empty public constructor
     }
 
-    DhtProto.Post postObject;
-    DhtProto.User currentUser;
+    private DhtProto.Post postObject;
+    private DhtProto.User currentUser;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
