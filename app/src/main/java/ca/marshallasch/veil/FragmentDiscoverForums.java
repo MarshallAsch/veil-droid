@@ -169,7 +169,6 @@ public class FragmentDiscoverForums extends Fragment implements SwipeRefreshLayo
 
                 List<DhtProto.Post> posts = DataStore.getInstance(context).getKnownPosts();
                 postListAdapter.update(posts);
-                postListAdapter.notifyDataSetChanged();
                 refreshLayout.setRefreshing(false);
             }
         }

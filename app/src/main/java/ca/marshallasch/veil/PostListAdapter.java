@@ -40,6 +40,8 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private Activity activity;
 
+    private CharSequence lastFilter = "";
+
     /**
      * Sort options.
      */
@@ -105,11 +107,14 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
 
     /**
-     * This will refresh the posts that are in the list.
+     * This will refresh the posts that are in the list. This will also re-filter the results.
+     * It will eventually call {@link #notifyDataSetChanged()} so must be called from the UI thread.
      * @param posts the new list of posts to display.
      */
+    @UiThread
     public void update(List<DhtProto.Post> posts) {
         this.posts = posts;
+        getFilter().filter(lastFilter);
     }
 
     /**
@@ -250,6 +255,7 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             protected FilterResults performFiltering(CharSequence charSequence)
             {
 
+                lastFilter = charSequence;
                 List<DhtProto.Post> filteredList = new ArrayList<>();
 
                 if (charSequence.length() == 0) {

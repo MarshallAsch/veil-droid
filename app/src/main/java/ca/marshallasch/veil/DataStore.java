@@ -1,8 +1,9 @@
 package ca.marshallasch.veil;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+import android.os.AsyncTask;
 import android.support.annotation.IntRange;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.ArraySet;
 import android.support.v4.util.Pair;
@@ -13,6 +14,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.Timer;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ca.marshallasch.veil.comparators.CommentComparator;
@@ -44,6 +46,10 @@ public class DataStore
         db = Database.getInstance(context);
         hashTableStore = HashTableStore.getInstance(context);
 
+        // start a timer to schedule the saving task to run every 10 minutes
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask(), 0, 1000*60*10);
+
     }
 
     public static synchronized DataStore getInstance(Context context){
@@ -58,10 +64,9 @@ public class DataStore
 
     /**
      * Save the hash table to a persistent file.
-     * @param context the application context required to save a file.
      */
-    public void save(Context context) {
-        hashTableStore.save(context);
+    public void save() {
+        hashTableStore.save();
     }
 
     public void close() {
@@ -314,7 +319,7 @@ public class DataStore
     }
 
     /**
-     * Will insert all of the synced data from another device.
+     * Will insert all of the synced data from another device. This will update the saved file.
      * @param message the data sync object.
      * @deprecated  This is being kept in for backwards compatibility and for the stats
      */
@@ -328,6 +333,8 @@ public class DataStore
             Log.d("PAIRS", "e: " + entry.getEntry().getType().getNumber() + " :: " + entry.getHash());
             hashTableStore.insert (entry.getEntry(), entry.getHash());
         }
+
+        hashTableStore.save();
     }
 
     /**
@@ -417,5 +424,30 @@ public class DataStore
             db.insertKnownPost(entry.getPostHash(), entry.getCommentHash());
         }
 
+        hashTableStore.save();
+    }
+
+    /**
+     * This task will be run every 10 minutes to try to save the has table store if it has been modified.
+     */
+    private class TimerTask extends java.util.TimerTask {
+        @Override
+        public void run()
+        {
+            new SaveHashTable().execute();
+        }
+
+        /**
+         * Save the Hash table if it has been modified in a worker thread.
+         */
+        private class SaveHashTable extends AsyncTask<Void, Void, Void> {
+            @Override
+            protected Void doInBackground(Void... voids)
+            {
+                Log.d("SAVE", "SAVING_FILE");
+                hashTableStore.save();
+                return null;
+            }
+        }
     }
 }
