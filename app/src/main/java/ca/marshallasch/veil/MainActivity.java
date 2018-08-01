@@ -16,6 +16,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -112,6 +113,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        Intent intent = getIntent();
+        if(intent.getAction().equals(VeilService.NOTIFICATION_ACTION)){
+            navigateTo(new FragmentDiscoverForums(), false);
+        }
         sendServiceMessage( VeilService.ACTION_MAIN_RESUME_MESH, null);
 
     }

@@ -1,6 +1,7 @@
 package ca.marshallasch.veil.services;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
@@ -22,6 +23,7 @@ import ca.marshallasch.veil.MainActivity;
 import ca.marshallasch.veil.R;
 import ca.marshallasch.veil.controllers.RightMeshController;
 import ca.marshallasch.veil.proto.DhtProto;
+import ca.marshallasch.veil.utilities.Util;
 
 /**
  * Hosts all RightMesh logic on this service thread. Also receives {@link Message}s from
@@ -46,8 +48,8 @@ public class VeilService extends Service {
     public static final String EXTRA_POST = "EXTRA_POST";
     public static final String EXTRA_COMMENT = "EXTRA_COMMENT";
 
-    //foreground notification id
-    private static final int NEW_CONTENT_NOTIFICATION_ID = 1;
+    //Notification intent action
+    public static final String NOTIFICATION_ACTION = "NOTIFICATION_ACTION";
 
     /**
      * Target for clients to send messages to ServiceHandler
@@ -110,9 +112,11 @@ public class VeilService extends Service {
                     }
 
                     rightMeshController.notifyNewContent(post, comment);
-
-                    showNotification("new post");
-                    Log.e("RIGHTMESH SERVICE", "WTF?");
+                    if(post.getAnonymous()){
+                        showNotification(post.getTitle(), getString(R.string.anonymous));
+                    }else{
+                        showNotification(post.getTitle(), post.getAuthorName());
+                    }
 
                     break;
                 default:
@@ -172,27 +176,34 @@ public class VeilService extends Service {
         return veilMessenger.getBinder();
     }
 
-    private void showNotification(String content){
+    /**
+     * Sends a notification to the foreground.
+     * @param postTitle the title of the notification
+     * @param postAuthor the content of the notification
+     */
+    private void showNotification(String postTitle, String postAuthor){
         //create intent that will start the application
         Intent showAppIntent = new Intent(getApplicationContext(), MainActivity.class);
-        showAppIntent.setAction(Intent.ACTION_MAIN);
+        showAppIntent.setAction(NOTIFICATION_ACTION);
         showAppIntent.addCategory(Intent.CATEGORY_LAUNCHER);
         showAppIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         PendingIntent contentIntent = PendingIntent.getActivity(
                 getApplicationContext(),
-                0,
+                Util.getRandomRequestCode(),
                 showAppIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
+        NotificationManager mNotifyManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         Notification newContentNotification = new Notification.Builder(getApplicationContext())
-                .setContentTitle(getString(R.string.app_name))
-                .setContentText(content)
+                .setContentTitle(postTitle)
+                .setContentText(getString(R.string.by) +" "+ postAuthor)
                 .setSmallIcon(R.drawable.ic_alert)
                 .setWhen(System.currentTimeMillis())
                 .setContentIntent(contentIntent)
+                .setAutoCancel(true)
                 .build();
-        startForeground(NEW_CONTENT_NOTIFICATION_ID, newContentNotification);
+        mNotifyManager.notify(Util.getRandomRequestCode(), newContentNotification);
 
     }
 }
