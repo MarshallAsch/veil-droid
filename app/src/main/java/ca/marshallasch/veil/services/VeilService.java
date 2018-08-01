@@ -13,6 +13,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.support.annotation.Nullable;
 import android.os.Process;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -111,6 +112,7 @@ public class VeilService extends Service {
                     rightMeshController.notifyNewContent(post, comment);
 
                     showNotification("new post");
+                    Log.e("RIGHTMESH SERVICE", "WTF?");
 
                     break;
                 default:
