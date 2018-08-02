@@ -2,6 +2,8 @@ package ca.marshallasch.veil.controllers;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
@@ -12,8 +14,10 @@ import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.io.Serializable;
 import java.util.Set;
+import java.util.UUID;
 
 import ca.marshallasch.veil.DataStore;
+import ca.marshallasch.veil.FragmentSettings;
 import ca.marshallasch.veil.R;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.proto.Sync;
@@ -24,6 +28,9 @@ import io.left.rightmesh.mesh.MeshManager;
 import io.left.rightmesh.mesh.MeshStateListener;
 import io.left.rightmesh.util.RightMeshException;
 
+import static ca.marshallasch.veil.database.SyncStatsContract.SYNC_MESSAGE_V2;
+import static ca.marshallasch.veil.proto.Sync.SyncMessageType.REQUEST_DATA_V1;
+import static ca.marshallasch.veil.proto.Sync.SyncMessageType.REQUEST_DATA_V2;
 import static io.left.rightmesh.mesh.MeshManager.DATA_RECEIVED;
 import static io.left.rightmesh.mesh.MeshManager.PEER_CHANGED;
 import static io.left.rightmesh.mesh.MeshManager.REMOVED;
@@ -141,7 +148,7 @@ public class RightMeshController implements MeshStateListener{
                 break;
             case REQUEST_DATA_V1:
 
-                Log.d("DATA_REQUEST", "received request for data");
+                Log.d("REQUEST_DATA_V1", "received request for data");
                 // if someone sent a message asking for data send a response with everything
 
                 syncMessage = dataStore.getSyncV1();
@@ -150,6 +157,7 @@ public class RightMeshController implements MeshStateListener{
                 toSend = Sync.Message.newBuilder()
                         .setType(Sync.SyncMessageType.SYNC_DATA_V1)
                         .setSyncMessage(syncMessage)
+                        .setDataID(message.getDataID())
                         .build();
 
                 try {
@@ -162,7 +170,7 @@ public class RightMeshController implements MeshStateListener{
                 break;
             case REQUEST_DATA_V2:
 
-                Log.d("DATA_REQUEST_v2", "received request for data");
+                Log.d("REQUEST_DATA_V2", "received request for data");
                 // if someone sent a message asking for data send a response with everything
 
                 syncMessage = dataStore.getSyncFor(event.peerUuid);
@@ -171,6 +179,7 @@ public class RightMeshController implements MeshStateListener{
                 toSend = Sync.Message.newBuilder()
                         .setType(Sync.SyncMessageType.SYNC_DATA_V2)
                         .setSyncMessage(syncMessage)
+                        .setDataID(message.getDataID())
                         .build();
 
                 try {
@@ -180,8 +189,8 @@ public class RightMeshController implements MeshStateListener{
                     e1.printStackTrace();
                 }
                 break;
-                default:
-                    Log.d("UNKNOWN_COMMAND", "handleDataReceived: unknown command received");
+            default:
+                Log.d("UNKNOWN_COMMAND", "handleDataReceived: unknown command received");
         }
     }
 
@@ -237,9 +246,14 @@ public class RightMeshController implements MeshStateListener{
             // send messages to the peer.
             try {
 
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(serviceContext);
+                int syncVersion = preferences.getInt(FragmentSettings.PREF_SYNC_VERSION, SYNC_MESSAGE_V2);
+
                 Sync.Message message = Sync.Message.newBuilder()
-                        .setType(Sync.SyncMessageType.REQUEST_DATA_V2)
+                        .setType(syncVersion == SYNC_MESSAGE_V2 ? REQUEST_DATA_V2 : REQUEST_DATA_V1)
+                        .setDataID(UUID.randomUUID().toString())
                         .build();
+
                 meshManager.sendDataReliable(event.peerUuid, DATA_PORT, message.toByteArray());
             }
             catch (RightMeshException e1) {
@@ -257,7 +271,13 @@ public class RightMeshController implements MeshStateListener{
             MeshManager manager = this.meshManager;
             Set<MeshId> peers = manager.getPeers(DATA_PORT);
 
-            Sync.Message dataRequest = Sync.Message.newBuilder().setType(Sync.SyncMessageType.REQUEST_DATA_V2).build();
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(serviceContext);
+            int syncVersion = preferences.getInt(FragmentSettings.PREF_SYNC_VERSION, SYNC_MESSAGE_V2);
+
+            Sync.Message dataRequest = Sync.Message.newBuilder()
+                    .setType(syncVersion == SYNC_MESSAGE_V2 ? REQUEST_DATA_V2 : REQUEST_DATA_V1)
+                    .setDataID(UUID.randomUUID().toString())
+                    .build();
 
             // request an update from everyone
             for (MeshId peer: peers) {
@@ -273,8 +293,6 @@ public class RightMeshController implements MeshStateListener{
         catch (RightMeshException e) {
             e.printStackTrace();
         }
-        Intent intent = new Intent(RightMeshController.NEW_DATA_BROADCAST);
-        LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
     }
 
     /**

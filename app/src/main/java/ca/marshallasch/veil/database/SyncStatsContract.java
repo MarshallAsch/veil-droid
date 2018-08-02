@@ -7,7 +7,7 @@ import android.provider.BaseColumns;
  * @version 1.0
  * @since 2018-05-29
  */
-final class SyncStatsContract
+public final class SyncStatsContract
 {
     public static final int SYNC_MESSAGE_OTHER = 0;
     public static final int SYNC_MESSAGE_V1 = 1;
