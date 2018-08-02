@@ -94,97 +94,104 @@ public class RightMeshController implements MeshStateListener{
             return;
         }
 
-        Sync.SyncMessageType type = message.getType();
+        Intent intent = new Intent(NEW_DATA_BROADCAST);
+        Sync.Message toSend;
 
-        if (type == Sync.SyncMessageType.HASH_DATA) {
+        // check what message was received and do the appropriate action.
+        switch (message.getType()){
+            case HASH_DATA:
+                Log.d("DATA_RECEIVE", message.getData().toString());
+                dataStore.syncData(message.getData());
+                break;
+            case SYNC_DATA:
+                Log.d("DATA_SYNC", "received data sync message");
 
-            Log.d("DATA_RECEIVE", message.getData().toString());
-            dataStore.syncData(message.getData());
-        } else if (type == Sync.SyncMessageType.SYNC_DATA){
-            Log.d("DATA_SYNC", "received data sync message");
-            dataStore.insertSync(message.getSyncMessage());
-            Intent intent = new Intent(NEW_DATA_BROADCAST);
-            LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
-        }
-        else if (type == Sync.SyncMessageType.MAPPING_MESSAGE) {
-            Log.d("DATA_RECEIVE_MAP", message.getMapping().toString());
+                dataStore.insertSync(message.getSyncMessage());
+                LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
+                break;
+            case NEW_CONTENT:
+                Log.d("NEW_CONTENT", "received new content");
+                Sync.NewContent newContent = message.getNewContent();
 
-            dataStore.syncDatabase(message.getMapping());
+                // get the post or comment from the message
+                DhtProto.Post post = newContent.getPost();
+                DhtProto.Comment comment = newContent.getComment();
 
-            // notify anyone interested that the data store has been updated.
-            Intent intent = new Intent(NEW_DATA_BROADCAST);
-            LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
-        } else if (type == Sync.SyncMessageType.REQUEST_DATA_V1) {
+                if (comment == null && post != null) {
+                    dataStore.savePost(post);
 
-            Log.d("DATA_REQUEST", "received request for data");
-            // if someone sent a message asking for data send a responce with everything
+                    // notify anyone interested that the data store has been updated.
+                    LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
+                } else if (comment != null && post != null) {
+                    dataStore.saveComment(comment, post);
 
-            Sync.HashData hashData = dataStore.getDataStore();
-            Sync.MappingMessage mappingMessage = dataStore.getDatabase();
+                    // notify anyone interested that the data store has been updated.
+                    LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
+                }
+                else {
+                    Log.d("INVALID_CONTENT", "New content message is missing content");
+                }
 
-            // send messages to the peer.
-            Sync.Message toSend = Sync.Message.newBuilder()
-                    .setType(Sync.SyncMessageType.HASH_DATA)
-                    .setData(hashData)
-                    .build();
+                break;
+            case MAPPING_MESSAGE:
+                Log.d("DATA_RECEIVE_MAP", message.getMapping().toString());
+                dataStore.syncDatabase(message.getMapping());
 
-            try {
-                meshManager.sendDataReliable(event.peerUuid, DATA_PORT, toSend.toByteArray());
+                // notify anyone interested that the data store has been updated.
+                LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
+                break;
+            case REQUEST_DATA_V1:
 
+                Log.d("DATA_REQUEST", "received request for data");
+                // if someone sent a message asking for data send a responce with everything
+
+                Sync.HashData hashData = dataStore.getDataStore();
+                Sync.MappingMessage mappingMessage = dataStore.getDatabase();
+
+                // send messages to the peer.
                 toSend = Sync.Message.newBuilder()
-                        .setType(Sync.SyncMessageType.MAPPING_MESSAGE)
-                        .setMapping(mappingMessage)
+                        .setType(Sync.SyncMessageType.HASH_DATA)
+                        .setData(hashData)
                         .build();
 
-                meshManager.sendDataReliable(event.peerUuid, DATA_PORT, toSend.toByteArray());
+                try {
+                    meshManager.sendDataReliable(event.peerUuid, DATA_PORT, toSend.toByteArray());
 
-            }
-            catch (RightMeshException e1) {
-                e1.printStackTrace();
-            }
-        } else if (type == Sync.SyncMessageType.REQUEST_DATA_V2) {
+                    toSend = Sync.Message.newBuilder()
+                            .setType(Sync.SyncMessageType.MAPPING_MESSAGE)
+                            .setMapping(mappingMessage)
+                            .build();
 
-            Log.d("DATA_REQUEST_v2", "received request for data");
-            // if someone sent a message asking for data send a response with everything
+                    meshManager.sendDataReliable(event.peerUuid, DATA_PORT, toSend.toByteArray());
 
-            Sync.SyncMessage syncMessage = dataStore.getSyncFor(event.peerUuid);
+                }
+                catch (RightMeshException e1) {
+                    e1.printStackTrace();
+                }
 
-            // send messages to the peer.
-            Sync.Message toSend = Sync.Message.newBuilder()
-                    .setType(Sync.SyncMessageType.SYNC_DATA)
-                    .setSyncMessage(syncMessage)
-                    .build();
+                break;
+            case REQUEST_DATA_V2:
 
-            try {
-                meshManager.sendDataReliable(event.peerUuid, DATA_PORT, toSend.toByteArray());
-            }
-            catch (RightMeshException e1) {
-                e1.printStackTrace();
-            }
-        } else if (type == Sync.SyncMessageType.NEW_CONTENT) {
-            Log.d("NEW_CONTENT", "received new content");
+                Log.d("DATA_REQUEST_v2", "received request for data");
+                // if someone sent a message asking for data send a response with everything
 
-            Sync.NewContent newContent = message.getNewContent();
+                Sync.SyncMessage syncMessage = dataStore.getSyncFor(event.peerUuid);
 
-            DhtProto.Post post = newContent.getPost();
-            DhtProto.Comment comment = newContent.getComment();
+                // send messages to the peer.
+                toSend = Sync.Message.newBuilder()
+                        .setType(Sync.SyncMessageType.SYNC_DATA)
+                        .setSyncMessage(syncMessage)
+                        .build();
 
-            if (comment == null && post != null) {
-                dataStore.savePost(post);
-
-                // notify anyone interested that the data store has been updated.
-                Intent intent = new Intent(NEW_DATA_BROADCAST);
-                LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
-            } else if (comment != null && post != null) {
-                dataStore.saveComment(comment, post);
-
-                // notify anyone interested that the data store has been updated.
-                Intent intent = new Intent(NEW_DATA_BROADCAST);
-                LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
-            }
-            else {
-                Log.d("INVALID_CONTENT", "New content message is missing content");
-            }
+                try {
+                    meshManager.sendDataReliable(event.peerUuid, DATA_PORT, toSend.toByteArray());
+                }
+                catch (RightMeshException e1) {
+                    e1.printStackTrace();
+                }
+                break;
+                default:
+                    Log.d("UNKNOWN_COMMAND", "handleDataReceived: unknown command recived");
         }
     }
 
@@ -236,9 +243,6 @@ public class RightMeshController implements MeshStateListener{
             }
 
             Log.d("FOUND", "found user: " + event.peerUuid);
-
-            Sync.HashData hashData = dataStore.getDataStore();
-            Sync.MappingMessage mappingMessage =  dataStore.getDatabase();
 
             // send messages to the peer.
             try {
