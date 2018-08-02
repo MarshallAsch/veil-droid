@@ -100,10 +100,10 @@ public class FragmentAddComment extends android.support.v4.app.Fragment {
                 return;
             }
 
-            DhtProto.Comment comment = Util.createComment(message, currentUser, anonymous);
+            DhtProto.Comment comment = Util.createComment(message, currentUser, postObject.getUuid(), anonymous);
 
             // save to the data store
-            DataStore.getInstance(activity).saveComment(comment, postObject);
+            DataStore.getInstance(activity).saveComment(comment);
 
             Bundle bundle1 = new Bundle();
             bundle1.putByteArray(VeilService.EXTRA_POST, postObject.toByteArray());

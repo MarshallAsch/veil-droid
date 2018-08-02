@@ -172,7 +172,7 @@ public class Util
     }
 
     /**
-     * Ths function will save the user so they don't need to login everyt ime.
+     * Ths function will save the user so they don't need to login every time.
      * @param activity the activity for the shared preferences to use
      * @param username the username of the user
      * @param password the password of the user.
@@ -228,34 +228,6 @@ public class Util
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(activity);
 
         return sharedPref.getString(activity.getString(R.string.pref_passwords), null);
-    }
-
-    /**
-     * Create a new comment object, that is not assigned to a specific post.
-     * Note that this does not set the postID field, and the hash is made with the field unset.
-     * This will set anonymous to false.
-     *
-     * @param message the body of the comment
-     * @param author the author who wrote the comment
-     * @return a comment object with the postID field unset
-     */
-    public static DhtProto.Comment createComment(@NonNull String message, @NonNull DhtProto.User author) {
-
-        return createComment(message, author, null, false);
-    }
-
-    /**
-     * Create a new comment object, that is not assigned to a specific post.
-     * Note that this does not set the postID field, and the hash is made with the field unset.
-     *
-     * @param message the body of the comment
-     * @param author the author who wrote the comment
-     * @param anonymous if the post is anonymous or not
-     * @return a comment object with the postID field unset
-     */
-    public static DhtProto.Comment createComment(@NonNull String message, @NonNull DhtProto.User author, boolean anonymous) {
-
-        return createComment(message, author, null, anonymous);
     }
 
     /**

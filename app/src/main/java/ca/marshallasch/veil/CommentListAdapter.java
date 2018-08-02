@@ -27,15 +27,15 @@ import ca.marshallasch.veil.utilities.Util;
 public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<DhtProto.Comment> commentList;
 
-    private Context context;
+    private final Context context;
 
     /**
      *  This is the cell for each comment in the comment list
      */
     private static class ViewHolder1 extends RecyclerView.ViewHolder {
-        private TextView content;
-        private TextView authorName;
-        private TextView date;
+        private final TextView content;
+        private final TextView authorName;
+        private final TextView date;
 
         /**
          * constructor for the ViewHolder Class

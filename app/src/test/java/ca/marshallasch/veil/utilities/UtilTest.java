@@ -27,7 +27,7 @@ import ca.marshallasch.veil.proto.DhtProto;
 //@RunWith(RobolectricTestRunner.class)
 public class UtilTest
 {
-    DhtProto.User author = DhtProto.User.newBuilder()
+    private final DhtProto.User author = DhtProto.User.newBuilder()
             .setFirstName("Marshall")
             .setLastName("Asch")
             .setEmail("maasch@rogers.com")
@@ -60,24 +60,24 @@ public class UtilTest
     public void createComment()
     {
 
-        DhtProto.Comment comment = Util.createComment("This is the message", author);
+        DhtProto.Comment comment = Util.createComment("This is the message", author, "POSTHASH");
 
         Assert.assertNotNull(comment);
         Assert.assertEquals("Marshall Asch", comment.getAuthorName());
         Assert.assertEquals("userID", comment.getAuthorId());
         Assert.assertEquals("This is the message", comment.getMessage());
         Assert.assertEquals(false, comment.getAnonymous());
-        Assert.assertEquals("", comment.getPostId());
+        Assert.assertEquals("POSTHASH", comment.getPostId());
 
         // test no post hash set
-        comment = Util.createComment("This is the second message", author, true);
+        comment = Util.createComment("This is the second message", author, "POSTHASH", true);
 
         Assert.assertNotNull(comment);
         Assert.assertEquals("Marshall Asch", comment.getAuthorName());
         Assert.assertEquals("userID", comment.getAuthorId());
         Assert.assertEquals("This is the second message", comment.getMessage());
         Assert.assertEquals(true, comment.getAnonymous());
-        Assert.assertEquals("", comment.getPostId());
+        Assert.assertEquals("POSTHASH", comment.getPostId());
 
         // test set postHash
         comment = Util.createComment("This is the third message", author, "postHash");

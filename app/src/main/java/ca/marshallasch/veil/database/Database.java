@@ -59,7 +59,7 @@ public class Database extends SQLiteOpenHelper
     private static Database instance = null;
     private static final AtomicInteger openCounter = new AtomicInteger();
 
-    private Context context;
+    private final Context context;
 
     private Database(final Context context)
     {
@@ -140,7 +140,7 @@ public class Database extends SQLiteOpenHelper
     }
 
     /**
-     * Do the apropreate upgrade path for the database
+     * Do the appropriate upgrade path for the database
      * @param db the database to be upgraded
      * @param oldVersion the old version of the DB
      * @param newVersion the new version of the DB
@@ -353,15 +353,15 @@ public class Database extends SQLiteOpenHelper
      * This will add a entry to the table to make it easier for look up later.
      * Since this calls {@link #getWritableDatabase()}, do not call this from the main thread
      *
-     * @param posthash The SHA256 hash of the post object
+     * @param postHash The SHA256 hash of the post object
      * @param commentHash the SHA256 hash of the comment object
-     * @return
+     * @return <code>true</code> if it is successfully inserted, <code>false</code> otherwise
      */
     @WorkerThread
-    public boolean insertKnownPost(@Size(max = 36) String posthash, @Nullable @Size(max = 36) String commentHash) {
+    public boolean insertKnownPost(@Size(max = 36) String postHash, @Nullable @Size(max = 36) String commentHash) {
 
         // the post hash has to be set but the comment hash can be null, if the post hash is empty return false too.
-        if (posthash == null || posthash.isEmpty()) {
+        if (postHash == null || postHash.isEmpty()) {
             return false;
         }
 
@@ -369,7 +369,7 @@ public class Database extends SQLiteOpenHelper
 
         ContentValues values = new ContentValues();
 
-        values.put(KnownPostsEntry.COLUMN_POST_HASH, posthash);
+        values.put(KnownPostsEntry.COLUMN_POST_HASH, postHash);
         values.put(KnownPostsEntry.COLUMN_COMMENT_HASH, commentHash);
         values.put(KnownPostsEntry.COLUMN_TIME_INSERTED, new Date().getTime());
 
@@ -380,7 +380,7 @@ public class Database extends SQLiteOpenHelper
             id = getWritableDatabase().insert(KnownPostsEntry.TABLE_NAME, null, values);
         }
 
-        Log.d("INSERT", "ID: " + id + " POST: " + posthash);
+        Log.d("INSERT", "ID: " + id + " POST: " + postHash);
         return id != -1;
     }
 
@@ -515,7 +515,7 @@ public class Database extends SQLiteOpenHelper
      * restarts itself.
      *
      * Since this calls {@link #getReadableDatabase()}, do not call this from the main thread
-     * @param uuid the id of the user to loggin
+     * @param uuid the id of the user to login
      * @return {@link DhtProto.User} object that contains all the account information for the user.
      */
     @Nullable

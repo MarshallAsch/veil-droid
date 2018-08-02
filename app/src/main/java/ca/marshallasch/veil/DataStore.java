@@ -35,8 +35,8 @@ import io.left.rightmesh.id.MeshId;
  */
 public class DataStore
 {
-    private Database db;
-    private HashTableStore hashTableStore;
+    private final Database db;
+    private final HashTableStore hashTableStore;
 
     private static DataStore instance;
     private static final AtomicInteger openCounter = new AtomicInteger();
@@ -165,33 +165,23 @@ public class DataStore
     /**
      * This function will take a comment and associate it with the post in the data store.
      * The comment's UUID field must be set to the has for the comment.
-     * The this will set the comments PostId field in the one that gets stored, but not in the one
-     * that was passed in.
+     * The comments postID field must be set for the comment.
      *
      * @param comment the comment object to insert
-     * @param forPost the post the the comment is associated with
      * @return the updated comment object
      */
-    @Nullable
-    public DhtProto.Comment saveComment(@Nullable DhtProto.Comment comment, DhtProto.Post forPost){
+    public boolean saveComment(@Nullable DhtProto.Comment comment){
 
         // make sure args are given
-        if (comment == null || forPost == null) {
-            return comment;
+        if (comment == null || comment.getPostId().isEmpty()  || comment.getUuid().isEmpty()) {
+            return false;
         }
 
-        // put the post ID into the comment
-        comment = DhtProto.Comment.newBuilder(comment)
-                .setPostId(forPost.getUuid())
-                .build();
-
         // insert into the data store
-        hashTableStore.insertComment(comment, forPost.getUuid());
+        hashTableStore.insertComment(comment, comment.getPostId());
 
         // insert the comment for mapping
-        db.insertKnownPost(forPost.getUuid(), comment.getUuid());
-
-        return comment;
+        return db.insertKnownPost(comment.getPostId(), comment.getUuid());
     }
 
     /**

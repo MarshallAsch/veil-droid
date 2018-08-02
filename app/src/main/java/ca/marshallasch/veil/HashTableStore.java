@@ -14,8 +14,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -59,7 +57,7 @@ public class HashTableStore implements ForumStorage
     private static HashTableStore instance;
     private static final AtomicInteger openCounter = new AtomicInteger();
 
-    private File mapFile;
+    private final File mapFile;
 
     private boolean modified;
 
@@ -565,7 +563,7 @@ public class HashTableStore implements ForumStorage
      * @param keyword the keyword it is mapping
      * @param dataHash the data it is mapping the key to
      * @param type the type of keyword it is. {@link DhtProto.KeywordType}
-     * @return the wraper object to insert into the hashmap
+     * @return the wrapper object to insert into the hashmap
      */
     @NonNull
     private DhtProto.DhtWrapper generateKeyword(@Nullable String keyword, String dataHash, DhtProto.KeywordType type) {
@@ -623,37 +621,6 @@ public class HashTableStore implements ForumStorage
             hashMap.put(key, entries);
         }
         modified = true;
-    }
-
-    /**
-     * This is not a good way to do this, should probably make it better.
-     * todo fix this.
-     * @return a list of posts and comments
-     */
-    public List<Pair<String, DhtProto.DhtWrapper>> getData() {
-
-        List<Pair<String, DhtProto.DhtWrapper>> data = new ArrayList<>();
-
-        Set<Map.Entry<String, List<DhtProto.DhtWrapper>>> set;
-
-        synchronized (hashMap) {
-            set = hashMap.entrySet();
-        }
-
-        for(Map.Entry<String, List<DhtProto.DhtWrapper>> entry: set) {
-            String hash = entry.getKey();
-            List<DhtProto.DhtWrapper> list = entry.getValue();
-
-            // make sure the data is for a post or a comment only
-            for (DhtProto.DhtWrapper element: list) {
-
-                if (element.getType() == DhtProto.MessageType.COMMENT || element.getType() == DhtProto.MessageType.POST) {
-                    data.add(new Pair<String, DhtProto.DhtWrapper>(hash, element));
-                }
-            }
-        }
-
-        return data;
     }
 
     /**

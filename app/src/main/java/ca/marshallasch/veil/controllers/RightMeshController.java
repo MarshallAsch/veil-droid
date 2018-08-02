@@ -41,7 +41,7 @@ public class RightMeshController implements MeshStateListener{
     public static final String NEW_DATA_BROADCAST = "ca.marshallasch.veil.controllers.NEW_DATA_BROADCAST";
     public static final String GET_PEERS_BROADCAST = "ca.marshallasch.veil.controllers.GET_PEERS_BROADCAST";
 
-    //the key for access the list of peers in the broadcasted message
+    //the key for access the list of peers in the broadcast message
     public static final String EXTRA_PEERS_LIST = "ca.marshallasch.veil.controllers.EXTRA_PEERS_LIST";
 
     private static final int DATA_PORT = 9182;
@@ -123,13 +123,13 @@ public class RightMeshController implements MeshStateListener{
                 DhtProto.Post post = newContent.getPost();
                 DhtProto.Comment comment = newContent.getComment();
 
-                if (comment == null && post != null) {
+                if (post != null) {
                     dataStore.savePost(post);
 
                     // notify anyone interested that the data store has been updated.
                     LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
-                } else if (comment != null && post != null) {
-                    dataStore.saveComment(comment, post);
+                } else if (comment != null) {
+                    dataStore.saveComment(comment);
 
                     // notify anyone interested that the data store has been updated.
                     LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
@@ -142,7 +142,7 @@ public class RightMeshController implements MeshStateListener{
             case REQUEST_DATA_V1:
 
                 Log.d("DATA_REQUEST", "received request for data");
-                // if someone sent a message asking for data send a responce with everything
+                // if someone sent a message asking for data send a response with everything
 
                 syncMessage = dataStore.getSyncV1();
 
@@ -181,7 +181,7 @@ public class RightMeshController implements MeshStateListener{
                 }
                 break;
                 default:
-                    Log.d("UNKNOWN_COMMAND", "handleDataReceived: unknown command recived");
+                    Log.d("UNKNOWN_COMMAND", "handleDataReceived: unknown command received");
         }
     }
 

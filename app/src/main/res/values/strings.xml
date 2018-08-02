@@ -135,5 +135,10 @@
 
     <string name="no_posts">No Posts</string>
     <string name="no_comments">No Comments</string>
+    <string name="unread_content_description">Marks if a post is unread</string>
+    <string name="add_comment_content_description">Add comment to post button</string>
+    <string name="peerlist">PeerList</string>
+    <string name="peers">Peers:</string>
+    <string name="refresh">Refresh</string>
 
 </resources>
