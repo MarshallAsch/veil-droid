@@ -233,108 +233,50 @@ public class DataStore
     }
 
     /**
-     * Generate the object for syncing the database between devices.
-     * @return the mapping object
-     * @deprecated  This is being kept in for backwards compatibility and for the stats
+     * This will generate a data synchronization message containing all the data.
+     * This is the version 1 of the data synchronization protocol.
+     * @return a sync message that is filled with the data for the remote peer
      */
-    @Deprecated
-    public Sync.MappingMessage getDatabase() {
+    @NonNull
+    public Sync.SyncMessage getSyncV1() {
 
-        List<Pair<String, String>> knownPosts = db.dumpKnownPosts();
+        // get time last sent data
+        Sync.SyncMessage.Builder builder = Sync.SyncMessage.newBuilder();
 
-        Sync.MappingMessage.Builder builder = Sync.MappingMessage.newBuilder();
+        // get the list of comments and post hashes since the given time.
+        List<Pair<String, String>> mapping = db.dumpKnownPosts();
 
-        Sync.CommentMapping.Builder commentBuilder;
-        // add it to the list
-        for (Pair<String, String> pair: knownPosts) {
+        Set<String> hashes = new ArraySet<>();
 
-            commentBuilder = Sync.CommentMapping.newBuilder();
+        for (Pair<String, String> pair: mapping) {
+            hashes.add(pair.first);
+            hashes.add(pair.second);
 
-            // handle nulls
-            if (pair.first != null) {
-                commentBuilder.setPostHash(pair.first);
-            }
-
-            if (pair.second != null) {
-                commentBuilder.setCommentHash(pair.second);
-            }
-
-            builder.addMappings(commentBuilder.build());
-        }
-
-        // build the message to send to other devices
-        return builder.build();
-    }
-
-    /**
-     * Generate the syncing object for the data store. It will contain all of the objects
-     * for the posts and the comments only.
-     * @return the message object
-     * @deprecated  This is being kept in for backwards compatibility and for the stats
-     */
-    @Deprecated
-    public Sync.HashData getDataStore() {
-
-        List<Pair<String, DhtProto.DhtWrapper>> data = hashTableStore.getData();
-
-
-        Sync.HashData.Builder builder = Sync.HashData.newBuilder();
-
-        // generate the list
-        for(Pair<String, DhtProto.DhtWrapper> pair: data) {
-
-            builder.addEntries(Sync.HashPair.newBuilder()
-                    .setHash(pair.first)
-                    .setEntry(pair.second)
+            builder.addMappings(Sync.CommentMapping.newBuilder()
+                    .setPostHash(pair.first)
+                    .setCommentHash(pair.second)
                     .build());
         }
+        // remove the empty string from the empty comment hashes
+        hashes.remove("");
+
+        DhtProto.DhtWrapper wrapper;
+
+        for (String hash: hashes) {
+
+            // search for the comment or post
+            wrapper = hashTableStore.getPostOrComment(hash);
+
+            // insert into the list
+            if (wrapper != null) {
+                builder.addEntries(Sync.HashPair.newBuilder()
+                        .setHash(hash)
+                        .setEntry(wrapper)
+                        .build());
+            }
+        }
 
         return builder.build();
-    }
-
-    /**
-     * Will insert the database sync object into the database.
-     * @param message the message to insert
-     * @deprecated  This is being kept in for backwards compatibility and for the stats
-     */
-    @Deprecated
-    public void syncDatabase(Sync.MappingMessage message) {
-
-        List<Sync.CommentMapping> mapping = message.getMappingsList();
-        List<Sync.CommentMapping> oldMappings = getDatabase().getMappingsList();
-
-        Log.d("MAPPING", "LEN: " + mapping.size());
-
-        // insert all of the mappings
-        for (Sync.CommentMapping entry: mapping) {
-
-            // skip if we alrey have the entry
-            if (oldMappings.contains(entry)) {
-                continue;
-            }
-
-            Log.d("MAPPING", "post: " + entry.getPostHash());
-            db.insertKnownPost(entry.getPostHash(), entry.getCommentHash());
-        }
-    }
-
-    /**
-     * Will insert all of the synced data from another device. This will update the saved file.
-     * @param message the data sync object.
-     * @deprecated  This is being kept in for backwards compatibility and for the stats
-     */
-    @Deprecated
-    public void syncData(Sync.HashData message) {
-
-        List<Sync.HashPair> mapping = message.getEntriesList();
-
-        // insert all of the mappings
-        for (Sync.HashPair entry: mapping) {
-            Log.d("PAIRS", "e: " + entry.getEntry().getType().getNumber() + " :: " + entry.getHash());
-            hashTableStore.insert (entry.getEntry(), entry.getHash());
-        }
-
-        hashTableStore.save();
     }
 
     /**

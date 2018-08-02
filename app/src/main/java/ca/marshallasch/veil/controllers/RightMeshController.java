@@ -96,15 +96,19 @@ public class RightMeshController implements MeshStateListener{
 
         Intent intent = new Intent(NEW_DATA_BROADCAST);
         Sync.Message toSend;
+        Sync.SyncMessage syncMessage;
 
         // check what message was received and do the appropriate action.
         switch (message.getType()){
-            case HASH_DATA:
-                Log.d("DATA_RECEIVE", message.getData().toString());
-                dataStore.syncData(message.getData());
+            case SYNC_DATA_V1:
+                Log.d("SYNC_DATA_V1", "received data sync message");
+
+                dataStore.insertSync(message.getSyncMessage());
+                LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
+
                 break;
-            case SYNC_DATA:
-                Log.d("DATA_SYNC", "received data sync message");
+            case SYNC_DATA_V2:
+                Log.d("SYNC_DATA_V2", "received data sync message");
 
                 dataStore.insertSync(message.getSyncMessage());
                 LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
@@ -135,37 +139,21 @@ public class RightMeshController implements MeshStateListener{
                 }
 
                 break;
-            case MAPPING_MESSAGE:
-                Log.d("DATA_RECEIVE_MAP", message.getMapping().toString());
-                dataStore.syncDatabase(message.getMapping());
-
-                // notify anyone interested that the data store has been updated.
-                LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
-                break;
             case REQUEST_DATA_V1:
 
                 Log.d("DATA_REQUEST", "received request for data");
                 // if someone sent a message asking for data send a responce with everything
 
-                Sync.HashData hashData = dataStore.getDataStore();
-                Sync.MappingMessage mappingMessage = dataStore.getDatabase();
+                syncMessage = dataStore.getSyncV1();
 
                 // send messages to the peer.
                 toSend = Sync.Message.newBuilder()
-                        .setType(Sync.SyncMessageType.HASH_DATA)
-                        .setData(hashData)
+                        .setType(Sync.SyncMessageType.SYNC_DATA_V1)
+                        .setSyncMessage(syncMessage)
                         .build();
 
                 try {
                     meshManager.sendDataReliable(event.peerUuid, DATA_PORT, toSend.toByteArray());
-
-                    toSend = Sync.Message.newBuilder()
-                            .setType(Sync.SyncMessageType.MAPPING_MESSAGE)
-                            .setMapping(mappingMessage)
-                            .build();
-
-                    meshManager.sendDataReliable(event.peerUuid, DATA_PORT, toSend.toByteArray());
-
                 }
                 catch (RightMeshException e1) {
                     e1.printStackTrace();
@@ -177,11 +165,11 @@ public class RightMeshController implements MeshStateListener{
                 Log.d("DATA_REQUEST_v2", "received request for data");
                 // if someone sent a message asking for data send a response with everything
 
-                Sync.SyncMessage syncMessage = dataStore.getSyncFor(event.peerUuid);
+                syncMessage = dataStore.getSyncFor(event.peerUuid);
 
                 // send messages to the peer.
                 toSend = Sync.Message.newBuilder()
-                        .setType(Sync.SyncMessageType.SYNC_DATA)
+                        .setType(Sync.SyncMessageType.SYNC_DATA_V2)
                         .setSyncMessage(syncMessage)
                         .build();
 
