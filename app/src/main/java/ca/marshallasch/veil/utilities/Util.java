@@ -365,4 +365,12 @@ public class Util
                 email.length() != 0 &&
                 email.matches("^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$");
     }
+
+    /**
+     * Generates a random hash
+     * @return a random hash based on a hardcoded string and the system time
+     */
+    public static int getRandomRequestCode(){
+        return (("randomString" + System.currentTimeMillis()).hashCode());
+    }
 }

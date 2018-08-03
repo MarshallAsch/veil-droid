@@ -11,6 +11,9 @@
     <string name="signup_menu_title">Signup</string>
     <string name="landing_menu_title">Landing Page</string>
 
+    <!-- notification items -->
+    <string name="by">by: </string>
+
     <!-- Sign up page titles-->
     <string name="email_title">Email Address</string>
     <string name="password_title">Password</string>
