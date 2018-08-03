@@ -19,6 +19,7 @@ import java.util.UUID;
 import ca.marshallasch.veil.DataStore;
 import ca.marshallasch.veil.FragmentSettings;
 import ca.marshallasch.veil.R;
+import ca.marshallasch.veil.database.Database;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.proto.Sync;
 import io.left.rightmesh.android.AndroidMeshManager;
@@ -110,14 +111,18 @@ public class RightMeshController implements MeshStateListener{
             case SYNC_DATA_V1:
                 Log.d("SYNC_DATA_V1", "received data sync message");
 
-                dataStore.insertSync(message.getSyncMessage());
+                syncMessage = message.getSyncMessage();
+                Database.getInstance(serviceContext).updateLogSync(message.getDataID(), message.getSerializedSize(), syncMessage.getEntriesCount());
+                dataStore.insertSync(syncMessage);
                 LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
 
                 break;
             case SYNC_DATA_V2:
                 Log.d("SYNC_DATA_V2", "received data sync message");
 
-                dataStore.insertSync(message.getSyncMessage());
+                syncMessage = message.getSyncMessage();
+                Database.getInstance(serviceContext).updateLogSync(message.getDataID(), message.getSerializedSize(), syncMessage.getEntriesCount());
+                dataStore.insertSync(syncMessage);
                 LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
                 break;
             case NEW_CONTENT:
@@ -254,6 +259,8 @@ public class RightMeshController implements MeshStateListener{
                         .setDataID(UUID.randomUUID().toString())
                         .build();
 
+                Database.getInstance(serviceContext).logSync(message.getDataID(), event.peerUuid.toString(), message.getSerializedSize(), syncVersion);
+
                 meshManager.sendDataReliable(event.peerUuid, DATA_PORT, message.toByteArray());
             }
             catch (RightMeshException e1) {
@@ -286,6 +293,8 @@ public class RightMeshController implements MeshStateListener{
                 if (peer.equals(manager.getUuid())) {
                     continue;
                 }
+
+                Database.getInstance(serviceContext).logSync(dataRequest.getDataID(), peer.toString(), dataRequest.getSerializedSize(), syncVersion);
                 manager.sendDataReliable(peer, DATA_PORT, dataRequest.toByteArray());
             }
 
