@@ -146,4 +146,22 @@
     <string name="peers">Peers:</string>
     <string name="refresh">Refresh</string>
 
+
+
+    <!-- Stats page -->
+    <string name="protocol_v1">Protocol Version 1</string>
+    <string name="protocol_v2">Protocol Version 2</string>
+    <string name="num_packets">Number Packets: %d</string>
+    <string name="total_size">Total Size: %d</string>
+    <string name="average_size">Average Size: %f</string>
+    <string name="total_entries">Total Entries Received: %d</string>
+    <string name="num_peers">Number Peers: %d</string>
+    <string name="slowest_time">Slowest time: %f seconds</string>
+    <string name="fastest_time">Fastest time: %f seconds</string>
+    <string name="average_time">Average time: %f seconds</string>
+    <string name="num_packet_lost">Number Lost: %d</string>
+
+
+
+
 </resources>

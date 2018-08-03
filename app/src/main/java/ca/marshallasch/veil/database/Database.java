@@ -1229,4 +1229,216 @@ public class Database extends SQLiteOpenHelper
 
         return  numUpdated == 1;
     }
+
+
+    public int getNumMessages(@IntRange(from = 0, to = 3) int protocolVersion) {
+
+        String where = SyncStatsEntry.COLUMN_MESSAGE_TYPE + " = ?";
+        String[] whereArgs = {String.valueOf(protocolVersion)};
+
+        return getCount(SyncStatsEntry.TABLE_NAME, where, whereArgs);
+    }
+
+    public int getTotalMessageSize(@IntRange(from = 0, to = 3) int protocolVersion) {
+
+        String selection = SyncStatsEntry.COLUMN_MESSAGE_TYPE + " = ?";
+        String[] selectionArgs = {String.valueOf(protocolVersion)};
+
+        String[] projection = { "SUM(" + SyncStatsEntry.COLUMN_PACKET_SIZE + ")"};
+
+        Cursor c;
+        synchronized (this) {
+            c = getReadableDatabase().query(
+                    KnownPostsEntry.TABLE_NAME,   // The table to query
+                    projection,             // The array of columns to return (pass null to get all)
+                    selection,              // The columns for the WHERE clause
+                    selectionArgs,          // The values for the WHERE clause
+                    null,          // don't group the rows
+                    null,           // don't filter by row groups
+                    null          // don't sort
+            );
+        }
+
+        int totalSize = c.moveToFirst() ? c.getInt(0) : 0;
+        c.close();
+
+        return totalSize;
+    }
+
+    public int getAverageMessageSize(@IntRange(from = 0, to = 3) int protocolVersion) {
+
+        String selection = SyncStatsEntry.COLUMN_MESSAGE_TYPE + " = ? AND " +
+                SyncStatsEntry.COLUMN_TIMESTAMP_RECEIVED  + " not NULL";
+
+        String[] selectionArgs = {String.valueOf(protocolVersion)};
+
+        String[] projection = { "AVG(" + SyncStatsEntry.COLUMN_PACKET_SIZE + ")"};
+
+        Cursor c;
+        synchronized (this) {
+            c = getReadableDatabase().query(
+                    KnownPostsEntry.TABLE_NAME,   // The table to query
+                    projection,             // The array of columns to return (pass null to get all)
+                    selection,              // The columns for the WHERE clause
+                    selectionArgs,          // The values for the WHERE clause
+                    null,          // don't group the rows
+                    null,           // don't filter by row groups
+                    null          // don't sort
+            );
+        }
+
+        int averageSize = c.moveToFirst() ? c.getInt(0) : 0;
+        c.close();
+
+        return averageSize;
+    }
+
+    public int getTotalEntries(@IntRange(from = 0, to = 3) int protocolVersion) {
+
+        String selection = SyncStatsEntry.COLUMN_MESSAGE_TYPE + " = ?";
+        String[] selectionArgs = {String.valueOf(protocolVersion)};
+
+        String[] projection = { "SUM(" + SyncStatsEntry.COLUMN_NUM_RECORDS + ")"};
+
+        Cursor c;
+        synchronized (this) {
+            c = getReadableDatabase().query(
+                    KnownPostsEntry.TABLE_NAME,   // The table to query
+                    projection,             // The array of columns to return (pass null to get all)
+                    selection,              // The columns for the WHERE clause
+                    selectionArgs,          // The values for the WHERE clause
+                    null,          // don't group the rows
+                    null,           // don't filter by row groups
+                    null          // don't sort
+            );
+        }
+
+        int numRecords = c.moveToFirst() ? c.getInt(0) : 0;
+        c.close();
+
+        return numRecords;
+    }
+
+    public int getTotalNumPeers(@IntRange(from = 0, to = 3) int protocolVersion) {
+
+        String selection = SyncStatsEntry.COLUMN_MESSAGE_TYPE + " = ?";
+        String[] selectionArgs = {String.valueOf(protocolVersion)};
+
+        String[] projection = { SyncStatsEntry.COLUMN_PEER_ID };
+
+        Cursor c;
+        synchronized (this) {
+            c = getReadableDatabase().query(
+                    true,                   //distinct
+                    KnownPostsEntry.TABLE_NAME,   // The table to query
+                    projection,             // The array of columns to return (pass null to get all)
+                    selection,              // The columns for the WHERE clause
+                    selectionArgs,          // The values for the WHERE clause
+                    null,          // don't group the rows
+                    null,           // don't filter by row groups
+                    null,          // don't sort
+                    null
+            );
+        }
+
+        int numPeers = c.getCount();
+        c.close();
+
+        return numPeers;
+    }
+
+    public long getSlowestTime(@IntRange(from = 0, to = 3) int protocolVersion) {
+
+        String selection = SyncStatsEntry.COLUMN_MESSAGE_TYPE + " = ? AND " +
+                SyncStatsEntry.COLUMN_TIMESTAMP_RECEIVED  + " not NULL";
+
+        String[] selectionArgs = {String.valueOf(protocolVersion)};
+
+        String[] projection = { "MAX(" + SyncStatsEntry.COLUMN_TIMESTAMP_RECEIVED + " - " + SyncStatsEntry.COLUMN_TIMESTAMP_SENT + ")"};
+
+        Cursor c;
+        synchronized (this) {
+            c = getReadableDatabase().query(
+                    KnownPostsEntry.TABLE_NAME,   // The table to query
+                    projection,             // The array of columns to return (pass null to get all)
+                    selection,              // The columns for the WHERE clause
+                    selectionArgs,          // The values for the WHERE clause
+                    null,          // don't group the rows
+                    null,           // don't filter by row groups
+                    null          // don't sort
+            );
+        }
+
+        long longestTime = c.moveToFirst() ? c.getLong(0) : 0;
+        c.close();
+
+        return longestTime;
+    }
+
+    public long getFastestTime(@IntRange(from = 0, to = 3) int protocolVersion) {
+
+        String selection = SyncStatsEntry.COLUMN_MESSAGE_TYPE + " = ? AND " +
+                SyncStatsEntry.COLUMN_TIMESTAMP_RECEIVED  + " not NULL";
+
+        String[] selectionArgs = {String.valueOf(protocolVersion)};
+
+        String[] projection = { "MIN(" + SyncStatsEntry.COLUMN_TIMESTAMP_RECEIVED + " - " + SyncStatsEntry.COLUMN_TIMESTAMP_SENT + ")"};
+
+        Cursor c;
+        synchronized (this) {
+            c = getReadableDatabase().query(
+                    KnownPostsEntry.TABLE_NAME,   // The table to query
+                    projection,             // The array of columns to return (pass null to get all)
+                    selection,              // The columns for the WHERE clause
+                    selectionArgs,          // The values for the WHERE clause
+                    null,          // don't group the rows
+                    null,           // don't filter by row groups
+                    null          // don't sort
+            );
+        }
+
+        long shortestTime = c.moveToFirst() ? c.getLong(0) : 0;
+        c.close();
+
+        return shortestTime;
+    }
+
+    public long getAverageTime(@IntRange(from = 0, to = 3) int protocolVersion) {
+
+        String selection = SyncStatsEntry.COLUMN_MESSAGE_TYPE + " = ? AND " +
+                SyncStatsEntry.COLUMN_TIMESTAMP_RECEIVED  + " not NULL";
+
+        String[] selectionArgs = {String.valueOf(protocolVersion)};
+
+        String[] projection = { "AVG(" + SyncStatsEntry.COLUMN_TIMESTAMP_RECEIVED + " - " + SyncStatsEntry.COLUMN_TIMESTAMP_SENT + ")"};
+
+        Cursor c;
+        synchronized (this) {
+            c = getReadableDatabase().query(
+                    KnownPostsEntry.TABLE_NAME,   // The table to query
+                    projection,             // The array of columns to return (pass null to get all)
+                    selection,              // The columns for the WHERE clause
+                    selectionArgs,          // The values for the WHERE clause
+                    null,          // don't group the rows
+                    null,           // don't filter by row groups
+                    null          // don't sort
+            );
+        }
+
+        long avgTime = c.moveToFirst() ? c.getLong(0) : 0;
+        c.close();
+
+        return avgTime;
+    }
+
+    public int getNumLost(@IntRange(from = 0, to = 3) int protocolVersion) {
+
+        String selection = SyncStatsEntry.COLUMN_MESSAGE_TYPE + " = ? AND " +
+                SyncStatsEntry.COLUMN_TIMESTAMP_RECEIVED  + " is NULL";
+
+        String[] selectionArgs = {String.valueOf(protocolVersion)};
+
+        return getCount(SyncStatsEntry.TABLE_NAME, selection, selectionArgs);
+    }
+
 }
