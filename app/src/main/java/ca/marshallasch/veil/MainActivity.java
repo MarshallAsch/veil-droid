@@ -21,6 +21,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import ca.marshallasch.veil.controllers.RightMeshController;
 import ca.marshallasch.veil.database.Database;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.services.VeilService;
@@ -114,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         Intent intent = getIntent();
-        if(intent.getAction().equals(VeilService.NOTIFICATION_ACTION)){
+        if(intent.getAction().equals(RightMeshController.NOTIFICATION_ACTION)){
             navigateTo(new FragmentDiscoverForums(), false);
         }
         sendServiceMessage( VeilService.ACTION_MAIN_RESUME_MESH, null);

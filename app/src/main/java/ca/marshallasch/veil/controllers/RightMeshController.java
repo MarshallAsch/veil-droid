@@ -1,5 +1,8 @@
 package ca.marshallasch.veil.controllers;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -14,9 +17,11 @@ import java.io.Serializable;
 import java.util.Set;
 
 import ca.marshallasch.veil.DataStore;
+import ca.marshallasch.veil.MainActivity;
 import ca.marshallasch.veil.R;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.proto.Sync;
+import ca.marshallasch.veil.utilities.Util;
 import io.left.rightmesh.android.AndroidMeshManager;
 import io.left.rightmesh.android.MeshService;
 import io.left.rightmesh.id.MeshId;
@@ -24,6 +29,7 @@ import io.left.rightmesh.mesh.MeshManager;
 import io.left.rightmesh.mesh.MeshStateListener;
 import io.left.rightmesh.util.RightMeshException;
 
+import static android.content.Context.NOTIFICATION_SERVICE;
 import static io.left.rightmesh.mesh.MeshManager.DATA_RECEIVED;
 import static io.left.rightmesh.mesh.MeshManager.PEER_CHANGED;
 import static io.left.rightmesh.mesh.MeshManager.REMOVED;
@@ -51,6 +57,10 @@ public class RightMeshController implements MeshStateListener{
     private Context serviceContext = null;
 
     private DataStore dataStore = null;
+
+
+    //Notification intent action
+    public static final String NOTIFICATION_ACTION = "NOTIFICATION_ACTION";
 
     /**
      * Get a {@link AndroidMeshManager} instance and/or start RightMesh if it isn't already
@@ -122,11 +132,24 @@ public class RightMeshController implements MeshStateListener{
 
                     // notify anyone interested that the data store has been updated.
                     LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
+
+                    if(post.getAnonymous()){
+                        showNotification(post.getTitle(), serviceContext.getString(R.string.anonymous));
+                    }else{
+                        showNotification(post.getTitle(), post.getAuthorName());
+                    }
+
                 } else if (comment != null && post != null) {
                     dataStore.saveComment(comment, post);
 
                     // notify anyone interested that the data store has been updated.
                     LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
+
+                    if(post.getAnonymous()){
+                        showNotification(post.getTitle(), serviceContext.getString(R.string.anonymous));
+                    }else{
+                        showNotification(post.getTitle(), post.getAuthorName());
+                    }
                 }
                 else {
                     Log.d("INVALID_CONTENT", "New content message is missing content");
@@ -368,5 +391,36 @@ public class RightMeshController implements MeshStateListener{
         } catch (RightMeshException e){
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Sends a notification to the foreground.
+     * @param postTitle the title of the notification
+     * @param postAuthor the content of the notification
+     */
+    private void showNotification(String postTitle, String postAuthor){
+        //create intent that will start the application
+        Intent showAppIntent = new Intent(serviceContext.getApplicationContext(), MainActivity.class);
+        showAppIntent.setAction(NOTIFICATION_ACTION);
+        showAppIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+        showAppIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        PendingIntent contentIntent = PendingIntent.getActivity(
+                serviceContext.getApplicationContext(),
+                Util.getRandomRequestCode(),
+                showAppIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        NotificationManager mNotifyManager = (NotificationManager) serviceContext.getSystemService(NOTIFICATION_SERVICE);
+
+        Notification newContentNotification = new Notification.Builder(serviceContext.getApplicationContext())
+                .setContentTitle(postTitle)
+                .setContentText(serviceContext.getString(R.string.by) +" "+ postAuthor)
+                .setSmallIcon(R.drawable.ic_alert)
+                .setWhen(System.currentTimeMillis())
+                .setContentIntent(contentIntent)
+                .setAutoCancel(true)
+                .build();
+        mNotifyManager.notify(Util.getRandomRequestCode(), newContentNotification);
+
     }
 }

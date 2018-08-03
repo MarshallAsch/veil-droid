@@ -48,9 +48,6 @@ public class VeilService extends Service {
     public static final String EXTRA_POST = "EXTRA_POST";
     public static final String EXTRA_COMMENT = "EXTRA_COMMENT";
 
-    //Notification intent action
-    public static final String NOTIFICATION_ACTION = "NOTIFICATION_ACTION";
-
     /**
      * Target for clients to send messages to ServiceHandler
      */
@@ -112,12 +109,6 @@ public class VeilService extends Service {
                     }
 
                     rightMeshController.notifyNewContent(post, comment);
-                    if(post.getAnonymous()){
-                        showNotification(post.getTitle(), getString(R.string.anonymous));
-                    }else{
-                        showNotification(post.getTitle(), post.getAuthorName());
-                    }
-
                     break;
                 default:
                     super.handleMessage(msg);
@@ -176,34 +167,4 @@ public class VeilService extends Service {
         return veilMessenger.getBinder();
     }
 
-    /**
-     * Sends a notification to the foreground.
-     * @param postTitle the title of the notification
-     * @param postAuthor the content of the notification
-     */
-    private void showNotification(String postTitle, String postAuthor){
-        //create intent that will start the application
-        Intent showAppIntent = new Intent(getApplicationContext(), MainActivity.class);
-        showAppIntent.setAction(NOTIFICATION_ACTION);
-        showAppIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-        showAppIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-        PendingIntent contentIntent = PendingIntent.getActivity(
-                getApplicationContext(),
-                Util.getRandomRequestCode(),
-                showAppIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-        NotificationManager mNotifyManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
-        Notification newContentNotification = new Notification.Builder(getApplicationContext())
-                .setContentTitle(postTitle)
-                .setContentText(getString(R.string.by) +" "+ postAuthor)
-                .setSmallIcon(R.drawable.ic_alert)
-                .setWhen(System.currentTimeMillis())
-                .setContentIntent(contentIntent)
-                .setAutoCancel(true)
-                .build();
-        mNotifyManager.notify(Util.getRandomRequestCode(), newContentNotification);
-
-    }
 }
