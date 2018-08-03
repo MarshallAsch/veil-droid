@@ -1,5 +1,8 @@
 package ca.marshallasch.veil.services;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,12 +14,16 @@ import android.os.Message;
 import android.os.Messenger;
 import android.support.annotation.Nullable;
 import android.os.Process;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
+import ca.marshallasch.veil.MainActivity;
+import ca.marshallasch.veil.R;
 import ca.marshallasch.veil.controllers.RightMeshController;
 import ca.marshallasch.veil.proto.DhtProto;
+import ca.marshallasch.veil.utilities.Util;
 
 /**
  * Hosts all RightMesh logic on this service thread. Also receives {@link Message}s from
@@ -102,7 +109,6 @@ public class VeilService extends Service {
                     }
 
                     rightMeshController.notifyNewContent(post, comment);
-
                     break;
                 default:
                     super.handleMessage(msg);
@@ -160,4 +166,5 @@ public class VeilService extends Service {
         Toast.makeText(this, "binding", Toast.LENGTH_SHORT).show();
         return veilMessenger.getBinder();
     }
+
 }
