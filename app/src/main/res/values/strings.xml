@@ -154,10 +154,11 @@
     <string name="num_packets">Number Packets: %d</string>
     <string name="total_size">Total Size: %d</string>
     <string name="average_size">Average Size: %f</string>
-    <string name="total_entries">Total Entries Received: %d</string>
+    <string name="total_entries_received">Total Received: %d</string>
+    <string name="total_entries_stored">Total Stored: %d</string>
     <string name="num_peers">Number Peers: %d</string>
-    <string name="slowest_time">Slowest time: %d s</string>
-    <string name="fastest_time">Fastest time: %d s</string>
+    <string name="slowest_time">Slowest time: %f s</string>
+    <string name="fastest_time">Fastest time: %f s</string>
     <string name="average_time">Average time: %f s</string>
     <string name="num_packet_lost">Number Lost: %d</string>
 

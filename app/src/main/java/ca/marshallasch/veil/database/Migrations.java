@@ -203,9 +203,4 @@ final class Migrations
     static void upgradeV9(SQLiteDatabase db) {
         db.execSQL(SyncStatsContract.SQL_CREATE_SYNC_STATS);
     }
-
-    static  void upgradeV10(SQLiteDatabase db) {
-        db.execSQL("DROP TABLE IF EXISTS " + SyncStatsContract.SyncStatsEntry.TABLE_NAME);
-        db.execSQL(SyncStatsContract.SQL_CREATE_SYNC_STATS);
-    }
 }

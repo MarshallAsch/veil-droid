@@ -45,7 +45,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="24dp"
         android:text="@string/num_packets"
         app:layout_constraintEnd_toStartOf="@+id/divider2"
@@ -72,13 +72,22 @@
         app:layout_constraintTop_toBottomOf="@+id/total_size_v1"/>
 
     <TextView
-        android:id="@+id/total_entries_v1"
+        android:id="@+id/total_entries_received_v1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="@string/total_entries"
+        android:text="@string/total_entries_received"
         app:layout_constraintStart_toStartOf="@+id/average_size_v1"
         app:layout_constraintTop_toBottomOf="@+id/average_size_v1"/>
+
+    <TextView
+        android:id="@+id/total_entries_stored_v1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/total_entries_stored"
+        app:layout_constraintStart_toStartOf="@+id/total_entries_received_v1"
+        app:layout_constraintTop_toBottomOf="@+id/total_entries_received_v1"/>
 
     <TextView
         android:id="@+id/num_peers_v1"
@@ -86,8 +95,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="@string/num_peers"
-        app:layout_constraintStart_toStartOf="@+id/total_entries_v1"
-        app:layout_constraintTop_toBottomOf="@+id/total_entries_v1"/>
+        app:layout_constraintStart_toStartOf="@+id/total_entries_stored_v1"
+        app:layout_constraintTop_toBottomOf="@+id/total_entries_stored_v1"/>
 
     <TextView
         android:id="@+id/slow_time_v1"
@@ -131,7 +140,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="24dp"
         android:text="@string/num_packets"
         app:layout_constraintEnd_toEndOf="parent"
@@ -158,13 +167,22 @@
         app:layout_constraintTop_toBottomOf="@+id/total_size_v2"/>
 
     <TextView
-        android:id="@+id/total_entries_v2"
+        android:id="@+id/total_entries_received_v2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="@string/total_entries"
+        android:text="@string/total_entries_received"
         app:layout_constraintStart_toStartOf="@+id/average_size_v2"
         app:layout_constraintTop_toBottomOf="@+id/average_size_v2"/>
+
+    <TextView
+        android:id="@+id/total_entries_stored_v2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/total_entries_stored"
+        app:layout_constraintStart_toStartOf="@+id/total_entries_received_v2"
+        app:layout_constraintTop_toBottomOf="@+id/total_entries_received_v2"/>
 
     <TextView
         android:id="@+id/num_peers_v2"
@@ -172,8 +190,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="@string/num_peers"
-        app:layout_constraintStart_toStartOf="@+id/total_entries_v2"
-        app:layout_constraintTop_toBottomOf="@+id/total_entries_v2"/>
+        app:layout_constraintStart_toStartOf="@+id/total_entries_stored_v2"
+        app:layout_constraintTop_toBottomOf="@+id/total_entries_stored_v2"/>
 
     <TextView
         android:id="@+id/slow_time_v2"

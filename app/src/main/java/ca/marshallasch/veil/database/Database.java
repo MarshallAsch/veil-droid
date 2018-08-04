@@ -53,7 +53,7 @@ import ca.marshallasch.veil.utilities.Util;
 public class Database extends SQLiteOpenHelper
 {
     private static String DATABASE_NAME = "contentDiscoveryTables";
-    private static final int DATABASE_VERSION = 10;
+    private static final int DATABASE_VERSION = 9;
 
     // this is for the singleton
     private static Database instance = null;
@@ -169,11 +169,11 @@ public class Database extends SQLiteOpenHelper
         if (oldVersion < 9) {
             Migrations.upgradeV9(db);
         }
-
-        if (oldVersion < 10) {
-            Migrations.upgradeV10(db);
-        }
     }
+
+    @Override
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion)
+    { }
 
     /**
      * Will add a row to the block user table. If a user is already in the table then it will
@@ -1323,6 +1323,10 @@ public class Database extends SQLiteOpenHelper
         return numRecords;
     }
 
+    public int getTotalEntries() {
+        return getCount(KnownPostsEntry.TABLE_NAME);
+    }
+
     public int getTotalNumPeers(@IntRange(from = 0, to = 3) int protocolVersion) {
 
         String selection = SyncStatsEntry.COLUMN_MESSAGE_TYPE + " = ?";
@@ -1351,7 +1355,7 @@ public class Database extends SQLiteOpenHelper
         return numPeers;
     }
 
-    public long getSlowestTime(@IntRange(from = 0, to = 3) int protocolVersion) {
+    public double getSlowestTime(@IntRange(from = 0, to = 3) int protocolVersion) {
 
         String selection = SyncStatsEntry.COLUMN_MESSAGE_TYPE + " = ? AND " +
                 SyncStatsEntry.COLUMN_TIMESTAMP_RECEIVED  + " not NULL";
@@ -1376,10 +1380,10 @@ public class Database extends SQLiteOpenHelper
         long longestTime = c.moveToFirst() ? c.getLong(0) : 0;
         c.close();
 
-        return longestTime;
+        return (double)longestTime / 1000.0;
     }
 
-    public long getFastestTime(@IntRange(from = 0, to = 3) int protocolVersion) {
+    public double getFastestTime(@IntRange(from = 0, to = 3) int protocolVersion) {
 
         String selection = SyncStatsEntry.COLUMN_MESSAGE_TYPE + " = ? AND " +
                 SyncStatsEntry.COLUMN_TIMESTAMP_RECEIVED  + " not NULL";
@@ -1404,7 +1408,7 @@ public class Database extends SQLiteOpenHelper
         long shortestTime = c.moveToFirst() ? c.getLong(0) : 0;
         c.close();
 
-        return shortestTime;
+        return (double) shortestTime / 1000.0;
     }
 
     public double getAverageTime(@IntRange(from = 0, to = 3) int protocolVersion) {
@@ -1432,7 +1436,7 @@ public class Database extends SQLiteOpenHelper
         double avgTime = c.moveToFirst() ? c.getDouble(0) : 0;
         c.close();
 
-        return avgTime;
+        return avgTime / 1000;
     }
 
     public int getNumLost(@IntRange(from = 0, to = 3) int protocolVersion) {
