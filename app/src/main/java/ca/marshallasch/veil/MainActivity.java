@@ -16,7 +16,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -199,6 +198,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.setup:
                 sendServiceMessage(VeilService.ACTION_VIEW_MESH_SETTINGS, null);
                 return true;
+            case R.id.stats:
+                frag = new FragmentStats();
+                break;
             default:
                 return super.onOptionsItemSelected(item);
         }

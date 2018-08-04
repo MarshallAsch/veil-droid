@@ -53,7 +53,7 @@ import ca.marshallasch.veil.utilities.Util;
 public class Database extends SQLiteOpenHelper
 {
     private static String DATABASE_NAME = "contentDiscoveryTables";
-    private static final int DATABASE_VERSION = 9;
+    private static final int DATABASE_VERSION = 10;
 
     // this is for the singleton
     private static Database instance = null;
@@ -168,6 +168,10 @@ public class Database extends SQLiteOpenHelper
 
         if (oldVersion < 9) {
             Migrations.upgradeV9(db);
+        }
+
+        if (oldVersion < 10) {
+            Migrations.upgradeV10(db);
         }
     }
 
@@ -1249,7 +1253,7 @@ public class Database extends SQLiteOpenHelper
         Cursor c;
         synchronized (this) {
             c = getReadableDatabase().query(
-                    KnownPostsEntry.TABLE_NAME,   // The table to query
+                    SyncStatsEntry.TABLE_NAME,   // The table to query
                     projection,             // The array of columns to return (pass null to get all)
                     selection,              // The columns for the WHERE clause
                     selectionArgs,          // The values for the WHERE clause
@@ -1265,7 +1269,7 @@ public class Database extends SQLiteOpenHelper
         return totalSize;
     }
 
-    public int getAverageMessageSize(@IntRange(from = 0, to = 3) int protocolVersion) {
+    public float getAverageMessageSize(@IntRange(from = 0, to = 3) int protocolVersion) {
 
         String selection = SyncStatsEntry.COLUMN_MESSAGE_TYPE + " = ? AND " +
                 SyncStatsEntry.COLUMN_TIMESTAMP_RECEIVED  + " not NULL";
@@ -1277,7 +1281,7 @@ public class Database extends SQLiteOpenHelper
         Cursor c;
         synchronized (this) {
             c = getReadableDatabase().query(
-                    KnownPostsEntry.TABLE_NAME,   // The table to query
+                    SyncStatsEntry.TABLE_NAME,   // The table to query
                     projection,             // The array of columns to return (pass null to get all)
                     selection,              // The columns for the WHERE clause
                     selectionArgs,          // The values for the WHERE clause
@@ -1287,7 +1291,7 @@ public class Database extends SQLiteOpenHelper
             );
         }
 
-        int averageSize = c.moveToFirst() ? c.getInt(0) : 0;
+        float averageSize = c.moveToFirst() ? c.getFloat(0) : 0;
         c.close();
 
         return averageSize;
@@ -1303,7 +1307,7 @@ public class Database extends SQLiteOpenHelper
         Cursor c;
         synchronized (this) {
             c = getReadableDatabase().query(
-                    KnownPostsEntry.TABLE_NAME,   // The table to query
+                    SyncStatsEntry.TABLE_NAME,   // The table to query
                     projection,             // The array of columns to return (pass null to get all)
                     selection,              // The columns for the WHERE clause
                     selectionArgs,          // The values for the WHERE clause
@@ -1330,7 +1334,7 @@ public class Database extends SQLiteOpenHelper
         synchronized (this) {
             c = getReadableDatabase().query(
                     true,                   //distinct
-                    KnownPostsEntry.TABLE_NAME,   // The table to query
+                    SyncStatsEntry.TABLE_NAME,   // The table to query
                     projection,             // The array of columns to return (pass null to get all)
                     selection,              // The columns for the WHERE clause
                     selectionArgs,          // The values for the WHERE clause
@@ -1359,7 +1363,7 @@ public class Database extends SQLiteOpenHelper
         Cursor c;
         synchronized (this) {
             c = getReadableDatabase().query(
-                    KnownPostsEntry.TABLE_NAME,   // The table to query
+                    SyncStatsEntry.TABLE_NAME,   // The table to query
                     projection,             // The array of columns to return (pass null to get all)
                     selection,              // The columns for the WHERE clause
                     selectionArgs,          // The values for the WHERE clause
@@ -1387,7 +1391,7 @@ public class Database extends SQLiteOpenHelper
         Cursor c;
         synchronized (this) {
             c = getReadableDatabase().query(
-                    KnownPostsEntry.TABLE_NAME,   // The table to query
+                    SyncStatsEntry.TABLE_NAME,   // The table to query
                     projection,             // The array of columns to return (pass null to get all)
                     selection,              // The columns for the WHERE clause
                     selectionArgs,          // The values for the WHERE clause
@@ -1403,7 +1407,7 @@ public class Database extends SQLiteOpenHelper
         return shortestTime;
     }
 
-    public long getAverageTime(@IntRange(from = 0, to = 3) int protocolVersion) {
+    public double getAverageTime(@IntRange(from = 0, to = 3) int protocolVersion) {
 
         String selection = SyncStatsEntry.COLUMN_MESSAGE_TYPE + " = ? AND " +
                 SyncStatsEntry.COLUMN_TIMESTAMP_RECEIVED  + " not NULL";
@@ -1415,7 +1419,7 @@ public class Database extends SQLiteOpenHelper
         Cursor c;
         synchronized (this) {
             c = getReadableDatabase().query(
-                    KnownPostsEntry.TABLE_NAME,   // The table to query
+                    SyncStatsEntry.TABLE_NAME,   // The table to query
                     projection,             // The array of columns to return (pass null to get all)
                     selection,              // The columns for the WHERE clause
                     selectionArgs,          // The values for the WHERE clause
@@ -1425,7 +1429,7 @@ public class Database extends SQLiteOpenHelper
             );
         }
 
-        long avgTime = c.moveToFirst() ? c.getLong(0) : 0;
+        double avgTime = c.moveToFirst() ? c.getDouble(0) : 0;
         c.close();
 
         return avgTime;

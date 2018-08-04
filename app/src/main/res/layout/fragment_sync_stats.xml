@@ -46,11 +46,12 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
         android:text="@string/num_packets"
         app:layout_constraintEnd_toStartOf="@+id/divider2"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="75dp"/>
+        app:layout_constraintTop_toBottomOf="@+id/textView11"/>
 
     <TextView
         android:id="@+id/total_size_v1"
@@ -131,11 +132,12 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
         android:text="@string/num_packets"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/divider2"
-        tools:layout_editor_absoluteY="75dp"/>
+        app:layout_constraintTop_toBottomOf="@+id/textView13"/>
 
     <TextView
         android:id="@+id/total_size_v2"

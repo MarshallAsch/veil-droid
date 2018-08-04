@@ -22,7 +22,7 @@ public final class SyncStatsContract
             SyncStatsEntry.COLUMN_NUM_RECORDS + " INTEGER," +
             SyncStatsEntry.COLUMN_TIMESTAMP_SENT + " DATETIME," +
             SyncStatsEntry.COLUMN_TIMESTAMP_RECEIVED + " DATETIME DEFAULT NULL," +
-            SyncStatsEntry.COLUMN_MESSAGE_TYPE + "INTEGER DEFAULT 0" +
+            SyncStatsEntry.COLUMN_MESSAGE_TYPE + " INTEGER DEFAULT 0" +
             ")";
 
     private SyncStatsContract() {}
