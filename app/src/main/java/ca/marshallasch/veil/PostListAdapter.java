@@ -168,11 +168,12 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         int numComments = DataStore.getInstance(activity).getNumCommentsFor(post.getUuid());
         boolean read = DataStore.getInstance(activity).isRead(post.getUuid());
+        String authorName = post.getAnonymous() ? activity.getString(R.string.anonymous) : post.getAuthorName();
 
         viewHolder.title.setText(post.getTitle());
         viewHolder.contentPreview.setText(post.getMessage());
         viewHolder.commentCount.setText(activity.getString(R.string.num_comments, numComments));
-        viewHolder.authorName.setText(post.getAuthorName());
+        viewHolder.authorName.setText(authorName);
 
         // show or hide the read marker
         viewHolder.readMarker.setVisibility(read ? View.INVISIBLE : View.VISIBLE);
