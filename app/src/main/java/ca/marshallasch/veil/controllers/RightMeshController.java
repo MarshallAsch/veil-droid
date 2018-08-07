@@ -121,15 +121,8 @@ public class RightMeshController implements MeshStateListener{
         switch (message.getType()){
             case SYNC_DATA_V1:
                 Log.d("SYNC_DATA_V1", "received data sync message");
-
-                syncMessage = message.getSyncMessage();
-                Database.getInstance(serviceContext).updateLogSync(message.getDataID(), message.getSerializedSize(), syncMessage.getEntriesCount());
-                dataStore.insertSync(syncMessage);
-                LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
-
-                break;
             case SYNC_DATA_V2:
-                Log.d("SYNC_DATA_V2", "received data sync message");
+                Log.d("SYNC_DATA_V2", "received data sync message (v2 or v1)");
 
                 syncMessage = message.getSyncMessage();
                 Database.getInstance(serviceContext).updateLogSync(message.getDataID(), message.getSerializedSize(), syncMessage.getEntriesCount());
