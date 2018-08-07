@@ -14,7 +14,7 @@ import ca.marshallasch.veil.utilities.Util;
 public class EntryComparatorTest
 {
 
-    DhtProto.User author = DhtProto.User.newBuilder()
+    private final DhtProto.User author = DhtProto.User.newBuilder()
             .setFirstName("Marshall")
             .setLastName("Asch")
             .setEmail("maasch@rogers.com")
@@ -25,13 +25,13 @@ public class EntryComparatorTest
     @Test
     public void entryEquals()
     {
-        DhtProto.Post postA = Util.createPost("Awsome Post", "Message of the post", author, null);
+        DhtProto.Post postA = Util.createPost("Awesome Post", "Message of the post", author, null);
         DhtProto.Post postB = Util.createPost("Second non match", "Message of the post", author, null);
         DhtProto.Post postC = DhtProto.Post.newBuilder(postA).build();
 
-        DhtProto.Comment commentA = Util.createComment("Good comment", author);
+        DhtProto.Comment commentA = Util.createComment("Good comment", author, "POSTHASH");
 
-        DhtProto.Comment commentB = Util.createComment("Second comment", author);
+        DhtProto.Comment commentB = Util.createComment("Second comment", author, "POSTHASH");
 
 
         DhtProto.DhtWrapper wrapperA = DhtProto.DhtWrapper.newBuilder()

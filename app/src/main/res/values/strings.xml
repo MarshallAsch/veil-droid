@@ -115,6 +115,8 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="num_comments">Comments: %d</string>
+    <string name="toggle_protocal_version">Sync Protocol Version 2</string>
+
 
     <string-array name="tag_list">
         <item>Select Tags</item>
@@ -138,5 +140,29 @@
 
     <string name="no_posts">No Posts</string>
     <string name="no_comments">No Comments</string>
+    <string name="unread_content_description">Marks if a post is unread</string>
+    <string name="add_comment_content_description">Add comment to post button</string>
+    <string name="peer_list">PeerList</string>
+    <string name="peers">Peers:</string>
+    <string name="refresh">Refresh</string>
+
+
+
+    <!-- Stats page -->
+    <string name="protocol_v1">Protocol Version 1</string>
+    <string name="protocol_v2">Protocol Version 2</string>
+    <string name="num_packets">Number Packets: %d</string>
+    <string name="total_size">Total Size: %d</string>
+    <string name="average_size">Average Size: %f</string>
+    <string name="total_entries_received">Total Received: %d</string>
+    <string name="total_entries_stored">Total Stored: %d</string>
+    <string name="num_peers">Number Peers: %d</string>
+    <string name="slowest_time">Slowest time: %f s</string>
+    <string name="fastest_time">Fastest time: %f s</string>
+    <string name="average_time">Average time: %f s</string>
+    <string name="num_packet_lost">Number Lost: %d</string>
+
+
+
 
 </resources>

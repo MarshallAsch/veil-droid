@@ -155,7 +155,8 @@
         app:backgroundTint="?themePrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_add_black_24dp" />
+        app:srcCompat="@drawable/ic_add_black_24dp"
+        android:focusable="true"/>
 
     <ImageButton
         android:id="@+id/edit_profile_button"

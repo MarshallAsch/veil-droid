@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.preference.PreferenceManager;
+import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.Size;
@@ -30,6 +31,7 @@ import ca.marshallasch.veil.database.KnownPostsContract.KnownPostsEntry;
 import ca.marshallasch.veil.database.NotificationContract.NotificationEntry;
 import ca.marshallasch.veil.database.PeerListContract.PeerListEntry;
 import ca.marshallasch.veil.database.UserContract.UserEntry;
+import ca.marshallasch.veil.database.SyncStatsContract.SyncStatsEntry;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.utilities.Util;
 
@@ -51,13 +53,13 @@ import ca.marshallasch.veil.utilities.Util;
 public class Database extends SQLiteOpenHelper
 {
     private static String DATABASE_NAME = "contentDiscoveryTables";
-    private static final int DATABASE_VERSION = 8;
+    private static final int DATABASE_VERSION = 9;
 
     // this is for the singleton
     private static Database instance = null;
     private static final AtomicInteger openCounter = new AtomicInteger();
 
-    private Context context;
+    private final Context context;
 
     private Database(final Context context)
     {
@@ -134,10 +136,11 @@ public class Database extends SQLiteOpenHelper
         db.execSQL(UserContract.SQL_CREATE_USERS);
         db.execSQL(KnownPostsContract.SQL_CREATE_KNOWN_POSTS);
         db.execSQL(PeerListContract.SQL_CREATE_PEER_LIST);
+        db.execSQL(SyncStatsContract.SQL_CREATE_SYNC_STATS);
     }
 
     /**
-     * Do the apropreate upgrade path for the database
+     * Do the appropriate upgrade path for the database
      * @param db the database to be upgraded
      * @param oldVersion the old version of the DB
      * @param newVersion the new version of the DB
@@ -162,7 +165,15 @@ public class Database extends SQLiteOpenHelper
         if (oldVersion < 8) {
             Migrations.upgradeV8(db);
         }
+
+        if (oldVersion < 9) {
+            Migrations.upgradeV9(db);
+        }
     }
+
+    @Override
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion)
+    { }
 
     /**
      * Will add a row to the block user table. If a user is already in the table then it will
@@ -350,15 +361,15 @@ public class Database extends SQLiteOpenHelper
      * This will add a entry to the table to make it easier for look up later.
      * Since this calls {@link #getWritableDatabase()}, do not call this from the main thread
      *
-     * @param posthash The SHA256 hash of the post object
+     * @param postHash The SHA256 hash of the post object
      * @param commentHash the SHA256 hash of the comment object
-     * @return
+     * @return <code>true</code> if it is successfully inserted, <code>false</code> otherwise
      */
     @WorkerThread
-    public boolean insertKnownPost(@Size(max = 36) String posthash, @Nullable @Size(max = 36) String commentHash) {
+    public boolean insertKnownPost(@Size(max = 36) String postHash, @Nullable @Size(max = 36) String commentHash) {
 
         // the post hash has to be set but the comment hash can be null, if the post hash is empty return false too.
-        if (posthash == null || posthash.isEmpty()) {
+        if (postHash == null || postHash.isEmpty()) {
             return false;
         }
 
@@ -366,7 +377,7 @@ public class Database extends SQLiteOpenHelper
 
         ContentValues values = new ContentValues();
 
-        values.put(KnownPostsEntry.COLUMN_POST_HASH, posthash);
+        values.put(KnownPostsEntry.COLUMN_POST_HASH, postHash);
         values.put(KnownPostsEntry.COLUMN_COMMENT_HASH, commentHash);
         values.put(KnownPostsEntry.COLUMN_TIME_INSERTED, new Date().getTime());
 
@@ -377,7 +388,7 @@ public class Database extends SQLiteOpenHelper
             id = getWritableDatabase().insert(KnownPostsEntry.TABLE_NAME, null, values);
         }
 
-        Log.d("INSERT", "ID: " + id + " POST: " + posthash);
+        Log.d("INSERT", "ID: " + id + " POST: " + postHash);
         return id != -1;
     }
 
@@ -512,7 +523,7 @@ public class Database extends SQLiteOpenHelper
      * restarts itself.
      *
      * Since this calls {@link #getReadableDatabase()}, do not call this from the main thread
-     * @param uuid the id of the user to loggin
+     * @param uuid the id of the user to login
      * @return {@link DhtProto.User} object that contains all the account information for the user.
      */
     @Nullable
@@ -1062,8 +1073,6 @@ public class Database extends SQLiteOpenHelper
     @WorkerThread
     public boolean markRead(String postHash, boolean read) {
 
-        String[] projection = { KnownPostsEntry.COLUMN_READ };
-
         String selection = KnownPostsEntry.COLUMN_POST_HASH + " = ? AND " +
                 KnownPostsEntry.COLUMN_COMMENT_HASH + " == \"\" ";
         String[] selectionArgs = { postHash };
@@ -1132,4 +1141,312 @@ public class Database extends SQLiteOpenHelper
     public int getCount(@NonNull String tableName) {
         return getCount(tableName, null, null);
     }
+
+    /**
+     * This function is used to enter the first entry into the statistics collector. The record in
+     * the database will need to be updated later on when the sync response has been received to
+     * include the rest of the content.
+     *
+     * Since this calls {@link #getWritableDatabase()}, do not call this from the main thread
+     * @param uuid the unique identifier for the data record. just needs to be unique per device.
+     * @param peer the peer that the data is being gotten from
+     * @param totalSize the total number of bytes that are being sent to the peer
+     * @param type the protocol version that the entry is for.
+     * @return <code>true</code> if it was inserted successfully, <code>false</code> otherwise
+     */
+    @WorkerThread
+    public boolean logSync(@NonNull String uuid, @NonNull String peer, int totalSize, @IntRange(from = 0, to = 3) int type) {
+
+        ContentValues values = new ContentValues();
+
+        values.put(SyncStatsEntry.COLUMN_DATA_SEND_ID, uuid);
+        values.put(SyncStatsEntry.COLUMN_PEER_ID, peer);
+        values.put(SyncStatsEntry.COLUMN_PACKET_SIZE, totalSize);
+        values.put(SyncStatsEntry.COLUMN_MESSAGE_TYPE, type);
+        values.put(SyncStatsEntry.COLUMN_TIMESTAMP_SENT, new Date().getTime());
+
+        // note this is a potentially long running operation.
+        long id;
+        synchronized (this) {
+            id = getWritableDatabase().insert(SyncStatsEntry.TABLE_NAME, null, values);
+        }
+
+        // check if the creation was successful, return the user if it was
+        return id != -1;
+    }
+
+    /**
+     * This function is called after the response to the data sync request is sent. This will update
+     * when the data was received to check the time it takes, as well as capturing any lost messages.
+     *
+     * Since this calls {@link #getWritableDatabase()}, do not call this from the main thread
+     * @param uuid the unique ID for the data request
+     * @param additionalSize the additional size of the messages that was sent across the network
+     * @param numRecords the number of records that are being inserted
+     * @return <code>true</code> if the update was successful, <code>false</code> otherwise
+     */
+    @WorkerThread
+    public boolean updateLogSync(@NonNull String uuid, int additionalSize, int numRecords) {
+
+        String selection = SyncStatsEntry.COLUMN_DATA_SEND_ID + " = ?";
+        String[] selectionArgs = { uuid };
+
+        String[] projection = { SyncStatsEntry.COLUMN_PACKET_SIZE };
+
+        Cursor cursor;
+        synchronized (this) {
+            cursor = getReadableDatabase().query(
+                    SyncStatsEntry.TABLE_NAME,   // The table to query
+                    projection,             // The array of columns to return (pass null to get all)
+                    selection,              // The columns for the WHERE clause
+                    selectionArgs,          // The values for the WHERE clause
+                    null,          // don't group the rows
+                    null,           // don't filter by row groups
+                    null          // don't sort
+            );
+        }
+
+        int currentSize = 0;
+
+        // get the size of the data that was already sent
+        while(cursor.moveToNext()) {
+            currentSize = cursor.getInt(cursor.getColumnIndexOrThrow(SyncStatsEntry.COLUMN_PACKET_SIZE));
+        }
+        cursor.close();
+
+
+        ContentValues values = new ContentValues();
+        values.put(SyncStatsEntry.COLUMN_TIMESTAMP_RECEIVED, new Date().getTime());
+        values.put(SyncStatsEntry.COLUMN_NUM_RECORDS, numRecords);
+        values.put(SyncStatsEntry.COLUMN_PACKET_SIZE, currentSize + additionalSize);
+
+        int numUpdated;
+
+        synchronized (this) {
+            numUpdated = getWritableDatabase().update(
+                    SyncStatsEntry.TABLE_NAME,
+                    values,
+                    selection,
+                    selectionArgs
+            );
+        }
+
+        return  numUpdated == 1;
+    }
+
+
+    public int getNumMessages(@IntRange(from = 0, to = 3) int protocolVersion) {
+
+        String where = SyncStatsEntry.COLUMN_MESSAGE_TYPE + " = ?";
+        String[] whereArgs = {String.valueOf(protocolVersion)};
+
+        return getCount(SyncStatsEntry.TABLE_NAME, where, whereArgs);
+    }
+
+    public int getTotalMessageSize(@IntRange(from = 0, to = 3) int protocolVersion) {
+
+        String selection = SyncStatsEntry.COLUMN_MESSAGE_TYPE + " = ?";
+        String[] selectionArgs = {String.valueOf(protocolVersion)};
+
+        String[] projection = { "SUM(" + SyncStatsEntry.COLUMN_PACKET_SIZE + ")"};
+
+        Cursor c;
+        synchronized (this) {
+            c = getReadableDatabase().query(
+                    SyncStatsEntry.TABLE_NAME,   // The table to query
+                    projection,             // The array of columns to return (pass null to get all)
+                    selection,              // The columns for the WHERE clause
+                    selectionArgs,          // The values for the WHERE clause
+                    null,          // don't group the rows
+                    null,           // don't filter by row groups
+                    null          // don't sort
+            );
+        }
+
+        int totalSize = c.moveToFirst() ? c.getInt(0) : 0;
+        c.close();
+
+        return totalSize;
+    }
+
+    public float getAverageMessageSize(@IntRange(from = 0, to = 3) int protocolVersion) {
+
+        String selection = SyncStatsEntry.COLUMN_MESSAGE_TYPE + " = ? AND " +
+                SyncStatsEntry.COLUMN_TIMESTAMP_RECEIVED  + " not NULL";
+
+        String[] selectionArgs = {String.valueOf(protocolVersion)};
+
+        String[] projection = { "AVG(" + SyncStatsEntry.COLUMN_PACKET_SIZE + ")"};
+
+        Cursor c;
+        synchronized (this) {
+            c = getReadableDatabase().query(
+                    SyncStatsEntry.TABLE_NAME,   // The table to query
+                    projection,             // The array of columns to return (pass null to get all)
+                    selection,              // The columns for the WHERE clause
+                    selectionArgs,          // The values for the WHERE clause
+                    null,          // don't group the rows
+                    null,           // don't filter by row groups
+                    null          // don't sort
+            );
+        }
+
+        float averageSize = c.moveToFirst() ? c.getFloat(0) : 0;
+        c.close();
+
+        return averageSize;
+    }
+
+    public int getTotalEntries(@IntRange(from = 0, to = 3) int protocolVersion) {
+
+        String selection = SyncStatsEntry.COLUMN_MESSAGE_TYPE + " = ?";
+        String[] selectionArgs = {String.valueOf(protocolVersion)};
+
+        String[] projection = { "SUM(" + SyncStatsEntry.COLUMN_NUM_RECORDS + ")"};
+
+        Cursor c;
+        synchronized (this) {
+            c = getReadableDatabase().query(
+                    SyncStatsEntry.TABLE_NAME,   // The table to query
+                    projection,             // The array of columns to return (pass null to get all)
+                    selection,              // The columns for the WHERE clause
+                    selectionArgs,          // The values for the WHERE clause
+                    null,          // don't group the rows
+                    null,           // don't filter by row groups
+                    null          // don't sort
+            );
+        }
+
+        int numRecords = c.moveToFirst() ? c.getInt(0) : 0;
+        c.close();
+
+        return numRecords;
+    }
+
+    public int getTotalEntries() {
+        return getCount(KnownPostsEntry.TABLE_NAME);
+    }
+
+    public int getTotalNumPeers(@IntRange(from = 0, to = 3) int protocolVersion) {
+
+        String selection = SyncStatsEntry.COLUMN_MESSAGE_TYPE + " = ?";
+        String[] selectionArgs = {String.valueOf(protocolVersion)};
+
+        String[] projection = { SyncStatsEntry.COLUMN_PEER_ID };
+
+        Cursor c;
+        synchronized (this) {
+            c = getReadableDatabase().query(
+                    true,                   //distinct
+                    SyncStatsEntry.TABLE_NAME,   // The table to query
+                    projection,             // The array of columns to return (pass null to get all)
+                    selection,              // The columns for the WHERE clause
+                    selectionArgs,          // The values for the WHERE clause
+                    null,          // don't group the rows
+                    null,           // don't filter by row groups
+                    null,          // don't sort
+                    null
+            );
+        }
+
+        int numPeers = c.getCount();
+        c.close();
+
+        return numPeers;
+    }
+
+    public double getSlowestTime(@IntRange(from = 0, to = 3) int protocolVersion) {
+
+        String selection = SyncStatsEntry.COLUMN_MESSAGE_TYPE + " = ? AND " +
+                SyncStatsEntry.COLUMN_TIMESTAMP_RECEIVED  + " not NULL";
+
+        String[] selectionArgs = {String.valueOf(protocolVersion)};
+
+        String[] projection = { "MAX(" + SyncStatsEntry.COLUMN_TIMESTAMP_RECEIVED + " - " + SyncStatsEntry.COLUMN_TIMESTAMP_SENT + ")"};
+
+        Cursor c;
+        synchronized (this) {
+            c = getReadableDatabase().query(
+                    SyncStatsEntry.TABLE_NAME,   // The table to query
+                    projection,             // The array of columns to return (pass null to get all)
+                    selection,              // The columns for the WHERE clause
+                    selectionArgs,          // The values for the WHERE clause
+                    null,          // don't group the rows
+                    null,           // don't filter by row groups
+                    null          // don't sort
+            );
+        }
+
+        long longestTime = c.moveToFirst() ? c.getLong(0) : 0;
+        c.close();
+
+        return (double)longestTime / 1000.0;
+    }
+
+    public double getFastestTime(@IntRange(from = 0, to = 3) int protocolVersion) {
+
+        String selection = SyncStatsEntry.COLUMN_MESSAGE_TYPE + " = ? AND " +
+                SyncStatsEntry.COLUMN_TIMESTAMP_RECEIVED  + " not NULL";
+
+        String[] selectionArgs = {String.valueOf(protocolVersion)};
+
+        String[] projection = { "MIN(" + SyncStatsEntry.COLUMN_TIMESTAMP_RECEIVED + " - " + SyncStatsEntry.COLUMN_TIMESTAMP_SENT + ")"};
+
+        Cursor c;
+        synchronized (this) {
+            c = getReadableDatabase().query(
+                    SyncStatsEntry.TABLE_NAME,   // The table to query
+                    projection,             // The array of columns to return (pass null to get all)
+                    selection,              // The columns for the WHERE clause
+                    selectionArgs,          // The values for the WHERE clause
+                    null,          // don't group the rows
+                    null,           // don't filter by row groups
+                    null          // don't sort
+            );
+        }
+
+        long shortestTime = c.moveToFirst() ? c.getLong(0) : 0;
+        c.close();
+
+        return (double) shortestTime / 1000.0;
+    }
+
+    public double getAverageTime(@IntRange(from = 0, to = 3) int protocolVersion) {
+
+        String selection = SyncStatsEntry.COLUMN_MESSAGE_TYPE + " = ? AND " +
+                SyncStatsEntry.COLUMN_TIMESTAMP_RECEIVED  + " not NULL";
+
+        String[] selectionArgs = {String.valueOf(protocolVersion)};
+
+        String[] projection = { "AVG(" + SyncStatsEntry.COLUMN_TIMESTAMP_RECEIVED + " - " + SyncStatsEntry.COLUMN_TIMESTAMP_SENT + ")"};
+
+        Cursor c;
+        synchronized (this) {
+            c = getReadableDatabase().query(
+                    SyncStatsEntry.TABLE_NAME,   // The table to query
+                    projection,             // The array of columns to return (pass null to get all)
+                    selection,              // The columns for the WHERE clause
+                    selectionArgs,          // The values for the WHERE clause
+                    null,          // don't group the rows
+                    null,           // don't filter by row groups
+                    null          // don't sort
+            );
+        }
+
+        double avgTime = c.moveToFirst() ? c.getDouble(0) : 0;
+        c.close();
+
+        return avgTime / 1000;
+    }
+
+    public int getNumLost(@IntRange(from = 0, to = 3) int protocolVersion) {
+
+        String selection = SyncStatsEntry.COLUMN_MESSAGE_TYPE + " = ? AND " +
+                SyncStatsEntry.COLUMN_TIMESTAMP_RECEIVED  + " is NULL";
+
+        String[] selectionArgs = {String.valueOf(protocolVersion)};
+
+        return getCount(SyncStatsEntry.TABLE_NAME, selection, selectionArgs);
+    }
+
 }

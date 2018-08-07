@@ -21,6 +21,7 @@ import ca.marshallasch.veil.comparators.CommentComparator;
 import ca.marshallasch.veil.comparators.PostAgeComparator;
 import ca.marshallasch.veil.database.Database;
 import ca.marshallasch.veil.database.KnownPostsContract;
+import ca.marshallasch.veil.database.SyncStatsContract;
 import ca.marshallasch.veil.exceptions.TooManyResultsException;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.proto.Sync;
@@ -35,8 +36,8 @@ import io.left.rightmesh.id.MeshId;
  */
 public class DataStore
 {
-    private Database db;
-    private HashTableStore hashTableStore;
+    private final Database db;
+    private final HashTableStore hashTableStore;
 
     private static DataStore instance;
     private static final AtomicInteger openCounter = new AtomicInteger();
@@ -165,33 +166,23 @@ public class DataStore
     /**
      * This function will take a comment and associate it with the post in the data store.
      * The comment's UUID field must be set to the has for the comment.
-     * The this will set the comments PostId field in the one that gets stored, but not in the one
-     * that was passed in.
+     * The comments postID field must be set for the comment.
      *
      * @param comment the comment object to insert
-     * @param forPost the post the the comment is associated with
      * @return the updated comment object
      */
-    @Nullable
-    public DhtProto.Comment saveComment(@Nullable DhtProto.Comment comment, DhtProto.Post forPost){
+    public boolean saveComment(@Nullable DhtProto.Comment comment){
 
         // make sure args are given
-        if (comment == null || forPost == null) {
-            return comment;
+        if (comment == null || comment.getPostId().isEmpty()  || comment.getUuid().isEmpty()) {
+            return false;
         }
 
-        // put the post ID into the comment
-        comment = DhtProto.Comment.newBuilder(comment)
-                .setPostId(forPost.getUuid())
-                .build();
-
         // insert into the data store
-        hashTableStore.insertComment(comment, forPost.getUuid());
+        hashTableStore.insertComment(comment, comment.getPostId());
 
         // insert the comment for mapping
-        db.insertKnownPost(forPost.getUuid(), comment.getUuid());
-
-        return comment;
+        return db.insertKnownPost(comment.getPostId(), comment.getUuid());
     }
 
     /**
@@ -233,126 +224,28 @@ public class DataStore
     }
 
     /**
-     * Generate the object for syncing the database between devices.
-     * @return the mapping object
-     * @deprecated  This is being kept in for backwards compatibility and for the stats
-     */
-    @Deprecated
-    public Sync.MappingMessage getDatabase() {
-
-        List<Pair<String, String>> knownPosts = db.dumpKnownPosts();
-
-        Sync.MappingMessage.Builder builder = Sync.MappingMessage.newBuilder();
-
-        Sync.CommentMapping.Builder commentBuilder;
-        // add it to the list
-        for (Pair<String, String> pair: knownPosts) {
-
-            commentBuilder = Sync.CommentMapping.newBuilder();
-
-            // handle nulls
-            if (pair.first != null) {
-                commentBuilder.setPostHash(pair.first);
-            }
-
-            if (pair.second != null) {
-                commentBuilder.setCommentHash(pair.second);
-            }
-
-            builder.addMappings(commentBuilder.build());
-        }
-
-        // build the message to send to other devices
-        return builder.build();
-    }
-
-    /**
-     * Generate the syncing object for the data store. It will contain all of the objects
-     * for the posts and the comments only.
-     * @return the message object
-     * @deprecated  This is being kept in for backwards compatibility and for the stats
-     */
-    @Deprecated
-    public Sync.HashData getDataStore() {
-
-        List<Pair<String, DhtProto.DhtWrapper>> data = hashTableStore.getData();
-
-
-        Sync.HashData.Builder builder = Sync.HashData.newBuilder();
-
-        // generate the list
-        for(Pair<String, DhtProto.DhtWrapper> pair: data) {
-
-            builder.addEntries(Sync.HashPair.newBuilder()
-                    .setHash(pair.first)
-                    .setEntry(pair.second)
-                    .build());
-        }
-
-        return builder.build();
-    }
-
-    /**
-     * Will insert the database sync object into the database.
-     * @param message the message to insert
-     * @deprecated  This is being kept in for backwards compatibility and for the stats
-     */
-    @Deprecated
-    public void syncDatabase(Sync.MappingMessage message) {
-
-        List<Sync.CommentMapping> mapping = message.getMappingsList();
-        List<Sync.CommentMapping> oldMappings = getDatabase().getMappingsList();
-
-        Log.d("MAPPING", "LEN: " + mapping.size());
-
-        // insert all of the mappings
-        for (Sync.CommentMapping entry: mapping) {
-
-            // skip if we alrey have the entry
-            if (oldMappings.contains(entry)) {
-                continue;
-            }
-
-            Log.d("MAPPING", "post: " + entry.getPostHash());
-            db.insertKnownPost(entry.getPostHash(), entry.getCommentHash());
-        }
-    }
-
-    /**
-     * Will insert all of the synced data from another device. This will update the saved file.
-     * @param message the data sync object.
-     * @deprecated  This is being kept in for backwards compatibility and for the stats
-     */
-    @Deprecated
-    public void syncData(Sync.HashData message) {
-
-        List<Sync.HashPair> mapping = message.getEntriesList();
-
-        // insert all of the mappings
-        for (Sync.HashPair entry: mapping) {
-            Log.d("PAIRS", "e: " + entry.getEntry().getType().getNumber() + " :: " + entry.getHash());
-            hashTableStore.insert (entry.getEntry(), entry.getHash());
-        }
-
-        hashTableStore.save();
-    }
-
-    /**
      * This will generate a data synchronization message for the given peer.
-     * This is the version 2 of the data synchronization protocol.
+     * This is the either versions message of the data synchronization protocol.
      * @param peer the {@link MeshId} for the peer to send the sync message too
+     * @param version specify the version that it should get the sync message for
      * @return a sync message that is filled with the data for that peer
      */
     @NonNull
-    public Sync.SyncMessage getSyncFor(MeshId peer) {
+    public Sync.SyncMessage getSync(MeshId peer, int version) {
 
         // get time last sent data
         Sync.SyncMessage.Builder builder = Sync.SyncMessage.newBuilder();
 
-        Date timeLastSentData = db.getTimeLastSentData(peer.toString());
 
         // get the list of comments and post hashes since the given time.
-        List<Pair<String, String>> mapping = db.dumpKnownPosts(timeLastSentData);
+        List<Pair<String, String>> mapping;
+
+        if (version == SyncStatsContract.SYNC_MESSAGE_V2 ) {
+            Date timeLastSentData = db.getTimeLastSentData(peer.toString());
+            mapping = db.dumpKnownPosts(timeLastSentData);
+        } else {
+            mapping = db.dumpKnownPosts();
+        }
 
         Set<String> hashes = new ArraySet<>();
 

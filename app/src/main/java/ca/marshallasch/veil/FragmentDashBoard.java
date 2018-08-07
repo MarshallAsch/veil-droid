@@ -39,12 +39,13 @@ public class FragmentDashBoard extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
+        Activity activity = getActivity();
+
         // return the action bar.
-        ((MainActivity) getActivity()).getSupportActionBar().show();
+        ((MainActivity) activity).getSupportActionBar().show();
 
         View view = inflater.inflate(R.layout.fragment_dash_board, container,false);
 
-        Activity activity = getActivity();
         ActionBar actionBar = ((MainActivity) activity).getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(false);
 

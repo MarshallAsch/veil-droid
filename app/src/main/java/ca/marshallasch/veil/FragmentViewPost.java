@@ -133,7 +133,7 @@ public class FragmentViewPost extends Fragment {
      * This listener will refresh the list of comments for the post when the user navigates
      * back to the post view fragment after creating a new comment.
      */
-    private FragmentManager.OnBackStackChangedListener listener = new FragmentManager.OnBackStackChangedListener() {
+    private final FragmentManager.OnBackStackChangedListener listener = new FragmentManager.OnBackStackChangedListener() {
         @Override
         public void onBackStackChanged()
         {

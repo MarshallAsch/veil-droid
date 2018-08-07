@@ -38,7 +38,7 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private List<DhtProto.Post> posts;
     private List<DhtProto.Post> postsFiltered;
 
-    private Activity activity;
+    private final Activity activity;
 
     private CharSequence lastFilter = "";
 
@@ -61,7 +61,7 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         /**
          * constructor for the ViewHolder class
-         * @param itemsView the XML layout for the cell. Currently is a post_list_cell.xmll.xml
+         * @param itemsView the XML layout for the cell. Currently is a post_list_cell.xml
          */
         ViewHolder0(View itemsView){
             super(itemsView);
@@ -72,16 +72,16 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
      * This is the cell for each post in the list.
      */
     private static class ViewHolder1 extends RecyclerView.ViewHolder {
-        private TextView title;
-        private TextView contentPreview;
-        private TextView commentCount;
-        private TextView authorName;
-        private TextView timeStamp;
-        private ImageView readMarker;
+        private final TextView title;
+        private final TextView contentPreview;
+        private final TextView commentCount;
+        private final TextView authorName;
+        private final TextView timeStamp;
+        private final ImageView readMarker;
 
         /**
          * constructor for the ViewHolder class
-         * @param itemsView the XML layout for the cell. Currently is a post_list_cell.xmll.xml
+         * @param itemsView the XML layout for the cell. Currently is a post_list_cell.xml
          */
         ViewHolder1(View itemsView){
             super(itemsView);
@@ -247,7 +247,7 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public Filter getFilter()
     {
-        /**
+        /*
          * This class is the tag filter. The CharSequence must be a list of tags that are
          * denominated with a ':' character.
          */

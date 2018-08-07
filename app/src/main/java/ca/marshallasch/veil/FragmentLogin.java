@@ -60,7 +60,7 @@ public class FragmentLogin extends Fragment {
         view.setOnKeyListener((v, keyCode, event) -> {
             if (event.getAction() == KeyEvent.ACTION_DOWN) {
                 if(keyCode == KeyEvent.KEYCODE_BACK) {
-                    ((MainActivity) getActivity()).navigateTo(new FragmentLanding(), false);
+                    ((MainActivity) activity).navigateTo(new FragmentLanding(), false);
                     return true;
                 }
             }

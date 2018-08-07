@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/textView11"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/protocol_v1"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        app:layout_constraintEnd_toStartOf="@+id/divider2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/textView13"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/protocol_v2"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/divider2"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <View
+        android:id="@+id/divider2"
+        android:layout_width="2dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/num_packet_v1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        android:text="@string/num_packets"
+        app:layout_constraintEnd_toStartOf="@+id/divider2"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView11"/>
+
+    <TextView
+        android:id="@+id/total_size_v1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/total_size"
+        app:layout_constraintStart_toStartOf="@+id/num_packet_v1"
+        app:layout_constraintTop_toBottomOf="@+id/num_packet_v1"/>
+
+    <TextView
+        android:id="@+id/average_size_v1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/average_size"
+        app:layout_constraintStart_toStartOf="@+id/total_size_v1"
+        app:layout_constraintTop_toBottomOf="@+id/total_size_v1"/>
+
+    <TextView
+        android:id="@+id/total_entries_received_v1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/total_entries_received"
+        app:layout_constraintStart_toStartOf="@+id/average_size_v1"
+        app:layout_constraintTop_toBottomOf="@+id/average_size_v1"/>
+
+    <TextView
+        android:id="@+id/total_entries_stored_v1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/total_entries_stored"
+        app:layout_constraintStart_toStartOf="@+id/total_entries_received_v1"
+        app:layout_constraintTop_toBottomOf="@+id/total_entries_received_v1"/>
+
+    <TextView
+        android:id="@+id/num_peers_v1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/num_peers"
+        app:layout_constraintStart_toStartOf="@+id/total_entries_stored_v1"
+        app:layout_constraintTop_toBottomOf="@+id/total_entries_stored_v1"/>
+
+    <TextView
+        android:id="@+id/slow_time_v1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/slowest_time"
+        app:layout_constraintStart_toStartOf="@+id/num_peers_v1"
+        app:layout_constraintTop_toBottomOf="@+id/num_peers_v1"/>
+
+    <TextView
+        android:id="@+id/fast_time_v1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/fastest_time"
+        app:layout_constraintStart_toStartOf="@+id/slow_time_v1"
+        app:layout_constraintTop_toBottomOf="@+id/slow_time_v1"/>
+
+    <TextView
+        android:id="@+id/avg_time_v1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/average_time"
+        app:layout_constraintStart_toStartOf="@+id/fast_time_v1"
+        app:layout_constraintTop_toBottomOf="@+id/fast_time_v1"/>
+
+    <TextView
+        android:id="@+id/num_lost_v1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/num_packet_lost"
+        app:layout_constraintStart_toStartOf="@+id/avg_time_v1"
+        app:layout_constraintTop_toBottomOf="@+id/avg_time_v1"/>
+
+
+    <TextView
+        android:id="@+id/num_packet_v2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        android:text="@string/num_packets"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/divider2"
+        app:layout_constraintTop_toBottomOf="@+id/textView13"/>
+
+    <TextView
+        android:id="@+id/total_size_v2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/total_size"
+        app:layout_constraintStart_toStartOf="@+id/num_packet_v2"
+        app:layout_constraintTop_toBottomOf="@+id/num_packet_v2"/>
+
+    <TextView
+        android:id="@+id/average_size_v2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/average_size"
+        app:layout_constraintStart_toStartOf="@+id/total_size_v2"
+        app:layout_constraintTop_toBottomOf="@+id/total_size_v2"/>
+
+    <TextView
+        android:id="@+id/total_entries_received_v2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/total_entries_received"
+        app:layout_constraintStart_toStartOf="@+id/average_size_v2"
+        app:layout_constraintTop_toBottomOf="@+id/average_size_v2"/>
+
+    <TextView
+        android:id="@+id/total_entries_stored_v2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/total_entries_stored"
+        app:layout_constraintStart_toStartOf="@+id/total_entries_received_v2"
+        app:layout_constraintTop_toBottomOf="@+id/total_entries_received_v2"/>
+
+    <TextView
+        android:id="@+id/num_peers_v2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/num_peers"
+        app:layout_constraintStart_toStartOf="@+id/total_entries_stored_v2"
+        app:layout_constraintTop_toBottomOf="@+id/total_entries_stored_v2"/>
+
+    <TextView
+        android:id="@+id/slow_time_v2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/slowest_time"
+        app:layout_constraintStart_toStartOf="@+id/num_peers_v2"
+        app:layout_constraintTop_toBottomOf="@+id/num_peers_v2"/>
+
+    <TextView
+        android:id="@+id/fast_time_v2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/fastest_time"
+        app:layout_constraintStart_toStartOf="@+id/slow_time_v2"
+        app:layout_constraintTop_toBottomOf="@+id/slow_time_v2"/>
+
+    <TextView
+        android:id="@+id/avg_time_v2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/average_time"
+        app:layout_constraintStart_toStartOf="@+id/fast_time_v2"
+        app:layout_constraintTop_toBottomOf="@+id/fast_time_v2"/>
+
+    <TextView
+        android:id="@+id/num_lost_v2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/num_packet_lost"
+        app:layout_constraintStart_toStartOf="@+id/avg_time_v2"
+        app:layout_constraintTop_toBottomOf="@+id/avg_time_v2"/>
+
+
+</android.support.constraint.ConstraintLayout>

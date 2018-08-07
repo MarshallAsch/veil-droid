@@ -45,13 +45,6 @@ public class FragmentPeerList extends Fragment
     {
         View view = inflater.inflate(R.layout.fragment_peer_list, container,false);
 
-        /**
-         * registering broadcast recevier to recevier messages
-         * from {@link ca.marshallasch.veil.services.VeilService}
-         */
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
-                broadcastReceiver, new IntentFilter(RightMeshController.GET_PEERS_BROADCAST));
-
         Activity activity = getActivity();
         ActionBar actionBar = ((MainActivity) activity).getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -65,6 +58,9 @@ public class FragmentPeerList extends Fragment
         // refresh the list when the button is pressed
         refresh.setOnClickListener(view1 -> refreshList());
 
+        LocalBroadcastManager.getInstance(activity).registerReceiver(
+                broadcastReceiver, new IntentFilter(RightMeshController.GET_PEERS_BROADCAST));
+
         return view;
     }
 
@@ -77,7 +73,7 @@ public class FragmentPeerList extends Fragment
 
     }
 
-    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Set<MeshId> peers = (Set<MeshId>) intent.getSerializableExtra(RightMeshController.EXTRA_PEERS_LIST);

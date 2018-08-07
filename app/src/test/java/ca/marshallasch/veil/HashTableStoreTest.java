@@ -23,7 +23,7 @@ import static org.junit.Assert.*;
 public class HashTableStoreTest
 {
 
-    DhtProto.User author = DhtProto.User.newBuilder()
+    private final DhtProto.User author = DhtProto.User.newBuilder()
             .setFirstName("User")
             .setLastName("LastName")
             .build();
@@ -186,7 +186,7 @@ public class HashTableStoreTest
         assertNotNull(postHash);
 
 
-        DhtProto.Comment comment = Util.createComment("Comment on the odd post", author);
+        DhtProto.Comment comment = Util.createComment("Comment on the odd post", author, postHash);
 
         // check that the comment works
         String hash = hashTableStore.insertComment(comment, postHash);
@@ -199,7 +199,7 @@ public class HashTableStoreTest
         assertEquals(hash, hash2);
 
         // check that a second comment for the post can be added
-        comment =  Util.createComment("Another comment for the post", author);
+        comment =  Util.createComment("Another comment for the post", author, postHash);
 
         // check that the comment works
         hash = hashTableStore.insertComment(comment, postHash);
@@ -220,8 +220,8 @@ public class HashTableStoreTest
         assertNotNull(postHash);
 
 
-        DhtProto.Comment comment2 = Util.createComment("This is the second comment on post 7", author);
-        DhtProto.Comment comment = Util.createComment("This is the first comment on post 7", author);
+        DhtProto.Comment comment2 = Util.createComment("This is the second comment on post 7", author, postHash);
+        DhtProto.Comment comment = Util.createComment("This is the first comment on post 7", author, postHash);
 
         // check that the comment works
         String hash1 = hashTableStore.insertComment(comment, postHash);
@@ -284,42 +284,42 @@ public class HashTableStoreTest
         String hash1 = hashTableStore.insertComment(comment, postHash);
         assertNotNull(hash1);
 
-        DhtProto.Comment commentResponce = null;
+        DhtProto.Comment commentResponse = null;
         try {
-            commentResponce = hashTableStore.findCommentByHash(hash1);
+            commentResponse = hashTableStore.findCommentByHash(hash1);
         }
         catch (TooManyResultsException e) {
             e.printStackTrace();
             assert false;
         }
 
-        assertNotNull(commentResponce);
-        assertEquals(hash1, commentResponce.getUuid());
+        assertNotNull(commentResponse);
+        assertEquals(hash1, commentResponse.getUuid());
 
 
         // null search
-        commentResponce = null;
+        commentResponse = null;
         try {
-            commentResponce = hashTableStore.findCommentByHash(null);
+            commentResponse = hashTableStore.findCommentByHash(null);
         }
         catch (TooManyResultsException e) {
             e.printStackTrace();
             assert false;
         }
 
-        assertNull(commentResponce);
+        assertNull(commentResponse);
 
         // no matches
-        commentResponce = null;
+        commentResponse = null;
         try {
-            commentResponce = hashTableStore.findCommentByHash(postHash);
+            commentResponse = hashTableStore.findCommentByHash(postHash);
         }
         catch (TooManyResultsException e) {
             e.printStackTrace();
             assert false;
         }
 
-        assertNull(commentResponce);
+        assertNull(commentResponse);
     }
 
     @Test
@@ -424,7 +424,7 @@ public class HashTableStoreTest
         hash = hashTableStore.insertUser(user2);
         assertNotNull(hash);
 
-        List<Pair<String, DhtProto.User>> list = null;
+        List<Pair<String, DhtProto.User>> list;
         list = hashTableStore.findUsersByName("john doe");
 
         assertNotNull(list);
