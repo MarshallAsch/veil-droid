@@ -34,6 +34,7 @@ import io.left.rightmesh.mesh.MeshManager;
 import io.left.rightmesh.mesh.MeshStateListener;
 import io.left.rightmesh.util.RightMeshException;
 
+import static ca.marshallasch.veil.database.SyncStatsContract.SYNC_MESSAGE_V1;
 import static ca.marshallasch.veil.database.SyncStatsContract.SYNC_MESSAGE_V2;
 import static ca.marshallasch.veil.proto.Sync.SyncMessageType.REQUEST_DATA_V1;
 import static ca.marshallasch.veil.proto.Sync.SyncMessageType.REQUEST_DATA_V2;
@@ -176,7 +177,7 @@ public class RightMeshController implements MeshStateListener{
                 Log.d("REQUEST_DATA_V1", "received request for data");
                 // if someone sent a message asking for data send a response with everything
 
-                syncMessage = dataStore.getSyncV1();
+                syncMessage = dataStore.getSync(event.peerUuid, SYNC_MESSAGE_V1);
 
                 // send messages to the peer.
                 toSend = Sync.Message.newBuilder()
@@ -198,7 +199,7 @@ public class RightMeshController implements MeshStateListener{
                 Log.d("REQUEST_DATA_V2", "received request for data");
                 // if someone sent a message asking for data send a response with everything
 
-                syncMessage = dataStore.getSyncFor(event.peerUuid);
+                syncMessage = dataStore.getSync(event.peerUuid, SYNC_MESSAGE_V2);
 
                 // send messages to the peer.
                 toSend = Sync.Message.newBuilder()

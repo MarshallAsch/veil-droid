@@ -21,6 +21,7 @@ import ca.marshallasch.veil.comparators.CommentComparator;
 import ca.marshallasch.veil.comparators.PostAgeComparator;
 import ca.marshallasch.veil.database.Database;
 import ca.marshallasch.veil.database.KnownPostsContract;
+import ca.marshallasch.veil.database.SyncStatsContract;
 import ca.marshallasch.veil.exceptions.TooManyResultsException;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.proto.Sync;
@@ -223,68 +224,28 @@ public class DataStore
     }
 
     /**
-     * This will generate a data synchronization message containing all the data.
-     * This is the version 1 of the data synchronization protocol.
-     * @return a sync message that is filled with the data for the remote peer
-     */
-    @NonNull
-    public Sync.SyncMessage getSyncV1() {
-
-        // get time last sent data
-        Sync.SyncMessage.Builder builder = Sync.SyncMessage.newBuilder();
-
-        // get the list of comments and post hashes since the given time.
-        List<Pair<String, String>> mapping = db.dumpKnownPosts();
-
-        Set<String> hashes = new ArraySet<>();
-
-        for (Pair<String, String> pair: mapping) {
-            hashes.add(pair.first);
-            hashes.add(pair.second);
-
-            builder.addMappings(Sync.CommentMapping.newBuilder()
-                    .setPostHash(pair.first)
-                    .setCommentHash(pair.second)
-                    .build());
-        }
-        // remove the empty string from the empty comment hashes
-        hashes.remove("");
-
-        DhtProto.DhtWrapper wrapper;
-
-        for (String hash: hashes) {
-
-            // search for the comment or post
-            wrapper = hashTableStore.getPostOrComment(hash);
-
-            // insert into the list
-            if (wrapper != null) {
-                builder.addEntries(Sync.HashPair.newBuilder()
-                        .setHash(hash)
-                        .setEntry(wrapper)
-                        .build());
-            }
-        }
-
-        return builder.build();
-    }
-
-    /**
      * This will generate a data synchronization message for the given peer.
-     * This is the version 2 of the data synchronization protocol.
+     * This is the ether versions message of the data synchronization protocol.
      * @param peer the {@link MeshId} for the peer to send the sync message too
+     * @param version specify the version that it should get the sync message for
      * @return a sync message that is filled with the data for that peer
      */
     @NonNull
-    public Sync.SyncMessage getSyncFor(MeshId peer) {
+    public Sync.SyncMessage getSync(MeshId peer, int version) {
 
         // get time last sent data
         Sync.SyncMessage.Builder builder = Sync.SyncMessage.newBuilder();
 
-        Date timeLastSentData = db.getTimeLastSentData(peer.toString());
 
         // get the list of comments and post hashes since the given time.
-        List<Pair<String, String>> mapping = db.dumpKnownPosts(timeLastSentData);
+        List<Pair<String, String>> mapping;
+
+        if (version == SyncStatsContract.SYNC_MESSAGE_V2 ) {
+            Date timeLastSentData = db.getTimeLastSentData(peer.toString());
+            mapping = db.dumpKnownPosts(timeLastSentData);
+        } else {
+            mapping = db.dumpKnownPosts();
+        }
 
         Set<String> hashes = new ArraySet<>();
 
