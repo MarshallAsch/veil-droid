@@ -225,7 +225,7 @@ public class DataStore
 
     /**
      * This will generate a data synchronization message for the given peer.
-     * This is the ether versions message of the data synchronization protocol.
+     * This is the either versions message of the data synchronization protocol.
      * @param peer the {@link MeshId} for the peer to send the sync message too
      * @param version specify the version that it should get the sync message for
      * @return a sync message that is filled with the data for that peer
