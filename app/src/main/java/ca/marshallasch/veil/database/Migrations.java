@@ -177,19 +177,16 @@ final class Migrations
             commentHash = cursor.getString(cursor.getColumnIndexOrThrow(KnownPostsContract.KnownPostsEntry.COLUMN_COMMENT_HASH));
             millis = cursor.getLong(cursor.getColumnIndexOrThrow(KnownPostsContract.KnownPostsEntry.COLUMN_TIME_INSERTED));
 
-
             ContentValues contentValues = new ContentValues();
             contentValues.put(KnownPostsContract.KnownPostsEntry.COLUMN_POST_HASH, postHash);
             contentValues.put(KnownPostsContract.KnownPostsEntry.COLUMN_COMMENT_HASH, commentHash);
             contentValues.put(KnownPostsContract.KnownPostsEntry.COLUMN_READ, 0);
             contentValues.put(KnownPostsContract.KnownPostsEntry.COLUMN_TIME_INSERTED, millis);
 
-
             // add the hash to the list
             knownPosts.add(contentValues);
         }
         cursor.close();
-
 
         db.execSQL("DROP TABLE IF EXISTS " + KnownPostsContract.KnownPostsEntry.TABLE_NAME);
         db.execSQL(KnownPostsContract.SQL_CREATE_KNOWN_POSTS);
@@ -201,5 +198,9 @@ final class Migrations
             db.insert(KnownPostsContract.KnownPostsEntry.TABLE_NAME, null, values);
 
         }
+    }
+
+    static void upgradeV9(SQLiteDatabase db) {
+        db.execSQL(SyncStatsContract.SQL_CREATE_SYNC_STATS);
     }
 }

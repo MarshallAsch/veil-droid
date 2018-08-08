@@ -153,7 +153,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.991"
-        app:srcCompat="?attr/imageCommentBar" />
+        app:srcCompat="?attr/imageCommentBar"
+        android:contentDescription="@string/add_comment_content_description"/>
 
     <View
         android:id="@+id/comment_bar_divider"

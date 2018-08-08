@@ -27,16 +27,16 @@ import ca.marshallasch.veil.proto.DhtProto;
 public interface ForumStorage
 {
 
-    /*******************************************************
-     * Need to be able to do the following for posts:
-     * results should include the the hash of the entry so it can be cached and not searched for
-     * again.
-     *
-     * - insert a new post
-     * - search for a post by hash directly
-     * - search for a list of posts that match a keyword
-     *
-     *******************************************************/
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    // Need to be able to do the following for posts:
+    // results should include the the hash of the entry so it can be cached and not searched for
+    // again.
+    //
+    // - insert a new post
+    // - search for a post by hash directly
+    // - search for a list of posts that match a keyword
+    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * Insert a new post into the data store. This should also add any necessary indexing records.
@@ -63,16 +63,16 @@ public interface ForumStorage
     List<DhtProto.Post> findPostsByKeyword(String keyword);
 
 
-    /*******************************************************
-     * Need to be able to do the following for comments:
-     * results should include the the hash of the entry so it can be cached and not searched for
-     * again.
-     *
-     * - insert a new comment
-     * - search for a comment by hash directly
-     * - search for a list of comments that are for a post
-     *
-     *******************************************************/
+    ///////////////////////////////////////////////////////////////////////////
+    // Need to be able to do the following for comments:
+    // results should include the the hash of the entry so it can be cached and not searched for
+    // again.
+    //
+    // - insert a new comment
+    // - search for a comment by hash directly
+    // - search for a list of comments that are for a post
+    //
+    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * This will add a new comment to the data store.
@@ -98,15 +98,15 @@ public interface ForumStorage
     DhtProto.Comment findCommentByHash(String hash) throws TooManyResultsException;
 
 
-    /*******************************************************
-     * Need to be able to do the following for users:
-     *
-     * - insert a new user
-     * - search for a user by name or by email or by the hash directly.
-     * - update a user entry
-     *
-     * Can there be multiple users with the same ID? there should not be
-     *******************************************************/
+    ///////////////////////////////////////////////////////////////////////////
+    // Need to be able to do the following for users:
+    //
+    // - insert a new user
+    // - search for a user by name or by email or by the hash directly.
+    // - update a user entry
+    //
+    // Can there be multiple users with the same ID? there should not be
+    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * Inserts a public user object into the data storage unit.

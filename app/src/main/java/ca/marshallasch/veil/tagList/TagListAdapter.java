@@ -25,8 +25,8 @@ import ca.marshallasch.veil.R;
  */
 public class TagListAdapter extends ArrayAdapter<ListState>
 {
-    private Context context;
-    private ArrayList<ListState> tagList;
+    private final Context context;
+    private final ArrayList<ListState> tagList;
     private boolean isFromView = false;
 
     /**
@@ -85,7 +85,7 @@ public class TagListAdapter extends ArrayAdapter<ListState>
 
         ViewHolder holder;
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.tag_list_item, null);
+            convertView = LayoutInflater.from(context).inflate(R.layout.tag_list_item, parent, false);
             holder = new ViewHolder();
             holder.textView = convertView.findViewById(R.id.tag_name);
             holder.checkBox = convertView.findViewById(R.id.tag_selected);

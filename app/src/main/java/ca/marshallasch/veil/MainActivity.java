@@ -20,6 +20,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import ca.marshallasch.veil.controllers.RightMeshController;
 import ca.marshallasch.veil.database.Database;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.services.VeilService;
@@ -30,20 +31,20 @@ public class MainActivity extends AppCompatActivity {
     public static final String EXTRA_LOGGED_IN_USER_ID = "ca.marshallasch.veil.EXTRA_LOGGED_IN_USER_ID";
     public static final String EXTRA_LOGGED_IN_RAND = "ca.marshallasch.veil.EXTRA_LOGGED_IN_RAND";
 
-    //MemoryStore instance - for storing data in local hashtable
-    DataStore dataStore = null;
+    //MemoryStore instance - for storing data in local hash table
+    private DataStore dataStore = null;
 
     /** messenger for communicating with {@link VeilService} **/
-    Messenger messengerService = null;
+    private Messenger messengerService = null;
 
     // flag for indicating if we have called bind on service
-    boolean isBound;
+    private boolean isBound;
     private DhtProto.User currentUser = null;
 
     /**
      * Class for interacting with {@link VeilService}
      */
-    private ServiceConnection serviceConnection = new ServiceConnection() {
+    private final ServiceConnection serviceConnection = new ServiceConnection() {
         /**
          * Called when connection to service has been established.
          * @param componentName
@@ -76,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         String userID = startedIntent.getStringExtra(EXTRA_LOGGED_IN_USER_ID);
         int randCheck = preferences.getInt(FragmentSettings.PREF_LOGIN_RAND_VAL, 0);
 
-        // remove the random value to protect against a replay attack incase the intent gets duplicated
+        // remove the random value to protect against a replay attack in case the intent gets duplicated
         SharedPreferences.Editor editor = preferences.edit();
         editor.remove(FragmentSettings.PREF_LOGIN_RAND_VAL);
         editor.apply();
@@ -112,6 +113,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        Intent intent = getIntent();
+        if(intent.getAction().equals(RightMeshController.NOTIFICATION_ACTION)){
+            navigateTo(new FragmentDiscoverForums(), false);
+        }
         sendServiceMessage( VeilService.ACTION_MAIN_RESUME_MESH, null);
 
     }
@@ -193,6 +198,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.setup:
                 sendServiceMessage(VeilService.ACTION_VIEW_MESH_SETTINGS, null);
                 return true;
+            case R.id.stats:
+                frag = new FragmentStats();
+                break;
             default:
                 return super.onOptionsItemSelected(item);
         }

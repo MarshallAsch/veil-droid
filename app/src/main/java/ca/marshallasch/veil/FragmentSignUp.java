@@ -146,7 +146,7 @@ public class FragmentSignUp extends Fragment
         }
 
         /**
-         * This function gets called to do the work in a seperate thread. It MUST be given 4
+         * This function gets called to do the work in a separate thread. It MUST be given 4
          * arguments:
          * FirstName
          * LastName

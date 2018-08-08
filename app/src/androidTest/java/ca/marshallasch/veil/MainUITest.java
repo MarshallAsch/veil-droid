@@ -269,7 +269,7 @@ public class MainUITest {
 
     /**
      * This is a helper functions for accessing child views.
-     * @param parentMatcher the matcher that holds thes child views
+     * @param parentMatcher the matcher that holds the child views
      * @param position the index at which child view is to be used
      * @return
      */

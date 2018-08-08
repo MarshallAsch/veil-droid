@@ -1,7 +1,12 @@
 package ca.marshallasch.veil.controllers;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
@@ -12,11 +17,16 @@ import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.io.Serializable;
 import java.util.Set;
+import java.util.UUID;
 
 import ca.marshallasch.veil.DataStore;
+import ca.marshallasch.veil.FragmentSettings;
+import ca.marshallasch.veil.MainActivity;
 import ca.marshallasch.veil.R;
+import ca.marshallasch.veil.database.Database;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.proto.Sync;
+import ca.marshallasch.veil.utilities.Util;
 import io.left.rightmesh.android.AndroidMeshManager;
 import io.left.rightmesh.android.MeshService;
 import io.left.rightmesh.id.MeshId;
@@ -24,6 +34,11 @@ import io.left.rightmesh.mesh.MeshManager;
 import io.left.rightmesh.mesh.MeshStateListener;
 import io.left.rightmesh.util.RightMeshException;
 
+import static ca.marshallasch.veil.database.SyncStatsContract.SYNC_MESSAGE_V1;
+import static ca.marshallasch.veil.database.SyncStatsContract.SYNC_MESSAGE_V2;
+import static ca.marshallasch.veil.proto.Sync.SyncMessageType.REQUEST_DATA_V1;
+import static ca.marshallasch.veil.proto.Sync.SyncMessageType.REQUEST_DATA_V2;
+import static android.content.Context.NOTIFICATION_SERVICE;
 import static io.left.rightmesh.mesh.MeshManager.DATA_RECEIVED;
 import static io.left.rightmesh.mesh.MeshManager.PEER_CHANGED;
 import static io.left.rightmesh.mesh.MeshManager.REMOVED;
@@ -41,7 +56,7 @@ public class RightMeshController implements MeshStateListener{
     public static final String NEW_DATA_BROADCAST = "ca.marshallasch.veil.controllers.NEW_DATA_BROADCAST";
     public static final String GET_PEERS_BROADCAST = "ca.marshallasch.veil.controllers.GET_PEERS_BROADCAST";
 
-    //the key for access the list of peers in the broadcasted message
+    //the key for access the list of peers in the broadcast message
     public static final String EXTRA_PEERS_LIST = "ca.marshallasch.veil.controllers.EXTRA_PEERS_LIST";
 
     private static final int DATA_PORT = 9182;
@@ -51,6 +66,10 @@ public class RightMeshController implements MeshStateListener{
     private Context serviceContext = null;
 
     private DataStore dataStore = null;
+
+
+    //Notification intent action
+    public static final String NOTIFICATION_ACTION = "NOTIFICATION_ACTION";
 
     /**
      * Get a {@link AndroidMeshManager} instance and/or start RightMesh if it isn't already
@@ -96,76 +115,72 @@ public class RightMeshController implements MeshStateListener{
 
         Intent intent = new Intent(NEW_DATA_BROADCAST);
         Sync.Message toSend;
+        Sync.SyncMessage syncMessage;
 
         // check what message was received and do the appropriate action.
         switch (message.getType()){
-            case HASH_DATA:
-                Log.d("DATA_RECEIVE", message.getData().toString());
-                dataStore.syncData(message.getData());
-                break;
-            case SYNC_DATA:
-                Log.d("DATA_SYNC", "received data sync message");
+            case SYNC_DATA_V1:
+                Log.d("SYNC_DATA_V1", "received data sync message");
+            case SYNC_DATA_V2:
+                Log.d("SYNC_DATA_V2", "received data sync message (v2 or v1)");
 
-                dataStore.insertSync(message.getSyncMessage());
+                syncMessage = message.getSyncMessage();
+                Database.getInstance(serviceContext).updateLogSync(message.getDataID(), message.getSerializedSize(), syncMessage.getEntriesCount());
+                dataStore.insertSync(syncMessage);
                 LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
                 break;
             case NEW_CONTENT:
-
                 Log.d("NEW_CONTENT", "received new content");
-
                 Sync.NewContent newContent = message.getNewContent();
 
                 // get the post or comment from the message
                 DhtProto.Post post = newContent.getPost();
                 DhtProto.Comment comment = newContent.getComment();
 
-                if (comment == null && post != null) {
+                if (post != null) {
                     dataStore.savePost(post);
 
-                    // notify anyone interested that the data store has been updated.
-                    LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
-                } else if (comment != null && post != null) {
-                    dataStore.saveComment(comment, post);
+                    if(post.getAnonymous()){
+                        showNotification(post.getTitle(), serviceContext.getString(R.string.anonymous));
+                    }else{
+                        showNotification(post.getTitle(), post.getAuthorName());
+                    }
 
                     // notify anyone interested that the data store has been updated.
                     LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
+                } else if (comment != null) {
+                    dataStore.saveComment(comment);
+
+                    // notify anyone interested that the data store has been updated.
+                    LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
+
+                    if(comment.getAnonymous()){
+                        showNotification(comment.getMessage(), serviceContext.getString(R.string.anonymous));
+                    }else{
+                        showNotification(comment.getMessage(), comment.getAuthorName());
+                    }
                 }
                 else {
                     Log.d("INVALID_CONTENT", "New content message is missing content");
                 }
 
                 break;
-            case MAPPING_MESSAGE:
-                Log.d("DATA_RECEIVE_MAP", message.getMapping().toString());
-                dataStore.syncDatabase(message.getMapping());
-
-                // notify anyone interested that the data store has been updated.
-                LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
-                break;
             case REQUEST_DATA_V1:
 
-                Log.d("DATA_REQUEST", "received request for data");
-                // if someone sent a message asking for data send a responce with everything
+                Log.d("REQUEST_DATA_V1", "received request for data");
+                // if someone sent a message asking for data send a response with everything
 
-                Sync.HashData hashData = dataStore.getDataStore();
-                Sync.MappingMessage mappingMessage = dataStore.getDatabase();
+                syncMessage = dataStore.getSync(event.peerUuid, SYNC_MESSAGE_V1);
 
                 // send messages to the peer.
                 toSend = Sync.Message.newBuilder()
-                        .setType(Sync.SyncMessageType.HASH_DATA)
-                        .setData(hashData)
+                        .setType(Sync.SyncMessageType.SYNC_DATA_V1)
+                        .setSyncMessage(syncMessage)
+                        .setDataID(message.getDataID())
                         .build();
 
                 try {
                     meshManager.sendDataReliable(event.peerUuid, DATA_PORT, toSend.toByteArray());
-
-                    toSend = Sync.Message.newBuilder()
-                            .setType(Sync.SyncMessageType.MAPPING_MESSAGE)
-                            .setMapping(mappingMessage)
-                            .build();
-
-                    meshManager.sendDataReliable(event.peerUuid, DATA_PORT, toSend.toByteArray());
-
                 }
                 catch (RightMeshException e1) {
                     e1.printStackTrace();
@@ -174,15 +189,16 @@ public class RightMeshController implements MeshStateListener{
                 break;
             case REQUEST_DATA_V2:
 
-                Log.d("DATA_REQUEST_v2", "received request for data");
+                Log.d("REQUEST_DATA_V2", "received request for data");
                 // if someone sent a message asking for data send a response with everything
 
-                Sync.SyncMessage syncMessage = dataStore.getSyncFor(event.peerUuid);
+                syncMessage = dataStore.getSync(event.peerUuid, SYNC_MESSAGE_V2);
 
                 // send messages to the peer.
                 toSend = Sync.Message.newBuilder()
-                        .setType(Sync.SyncMessageType.SYNC_DATA)
+                        .setType(Sync.SyncMessageType.SYNC_DATA_V2)
                         .setSyncMessage(syncMessage)
+                        .setDataID(message.getDataID())
                         .build();
 
                 try {
@@ -192,8 +208,8 @@ public class RightMeshController implements MeshStateListener{
                     e1.printStackTrace();
                 }
                 break;
-                default:
-                    Log.d("UNKNOWN_COMMAND", "handleDataReceived: unknown command recived");
+            default:
+                Log.d("UNKNOWN_COMMAND", "handleDataReceived: unknown command received");
         }
     }
 
@@ -249,9 +265,16 @@ public class RightMeshController implements MeshStateListener{
             // send messages to the peer.
             try {
 
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(serviceContext);
+                int syncVersion = preferences.getInt(FragmentSettings.PREF_SYNC_VERSION, SYNC_MESSAGE_V2);
+
                 Sync.Message message = Sync.Message.newBuilder()
-                        .setType(Sync.SyncMessageType.REQUEST_DATA_V2)
+                        .setType(syncVersion == SYNC_MESSAGE_V2 ? REQUEST_DATA_V2 : REQUEST_DATA_V1)
+                        .setDataID(UUID.randomUUID().toString())
                         .build();
+
+                Database.getInstance(serviceContext).logSync(message.getDataID(), event.peerUuid.toString(), message.getSerializedSize(), syncVersion);
+
                 meshManager.sendDataReliable(event.peerUuid, DATA_PORT, message.toByteArray());
             }
             catch (RightMeshException e1) {
@@ -269,7 +292,13 @@ public class RightMeshController implements MeshStateListener{
             MeshManager manager = this.meshManager;
             Set<MeshId> peers = manager.getPeers(DATA_PORT);
 
-            Sync.Message dataRequest = Sync.Message.newBuilder().setType(Sync.SyncMessageType.REQUEST_DATA_V2).build();
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(serviceContext);
+            int syncVersion = preferences.getInt(FragmentSettings.PREF_SYNC_VERSION, SYNC_MESSAGE_V2);
+
+            Sync.Message dataRequest = Sync.Message.newBuilder()
+                    .setType(syncVersion == SYNC_MESSAGE_V2 ? REQUEST_DATA_V2 : REQUEST_DATA_V1)
+                    .setDataID(UUID.randomUUID().toString())
+                    .build();
 
             // request an update from everyone
             for (MeshId peer: peers) {
@@ -278,6 +307,8 @@ public class RightMeshController implements MeshStateListener{
                 if (peer.equals(manager.getUuid())) {
                     continue;
                 }
+
+                Database.getInstance(serviceContext).logSync(dataRequest.getDataID(), peer.toString(), dataRequest.getSerializedSize(), syncVersion);
                 manager.sendDataReliable(peer, DATA_PORT, dataRequest.toByteArray());
             }
 
@@ -285,8 +316,6 @@ public class RightMeshController implements MeshStateListener{
         catch (RightMeshException e) {
             e.printStackTrace();
         }
-        Intent intent = new Intent(RightMeshController.NEW_DATA_BROADCAST);
-        LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
     }
 
     /**
@@ -370,5 +399,36 @@ public class RightMeshController implements MeshStateListener{
         } catch (RightMeshException e){
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Sends a notification to the foreground.
+     * @param postTitle the title of the notification
+     * @param postAuthor the content of the notification
+     */
+    private void showNotification(String postTitle, String postAuthor){
+        //create intent that will start the application
+        Intent showAppIntent = new Intent(serviceContext.getApplicationContext(), MainActivity.class);
+        showAppIntent.setAction(NOTIFICATION_ACTION);
+        showAppIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+        showAppIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        PendingIntent contentIntent = PendingIntent.getActivity(
+                serviceContext.getApplicationContext(),
+                Util.getRandomRequestCode(),
+                showAppIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        NotificationManager mNotifyManager = (NotificationManager) serviceContext.getSystemService(NOTIFICATION_SERVICE);
+
+        Notification newContentNotification = new Notification.Builder(serviceContext.getApplicationContext())
+                .setContentTitle(postTitle)
+                .setContentText(serviceContext.getString(R.string.by) +" "+ postAuthor)
+                .setSmallIcon(R.drawable.ic_alert)
+                .setWhen(System.currentTimeMillis())
+                .setContentIntent(contentIntent)
+                .setAutoCancel(true)
+                .build();
+        mNotifyManager.notify(Util.getRandomRequestCode(), newContentNotification);
+
     }
 }
