@@ -203,4 +203,12 @@ final class Migrations
     static void upgradeV9(SQLiteDatabase db) {
         db.execSQL(SyncStatsContract.SQL_CREATE_SYNC_STATS);
     }
+
+    /**
+     * Added in status column to the KnownPosts table.
+     * @param db the database object
+     */
+    static void upgradeV10(SQLiteDatabase db){
+        db.execSQL(KnownPostsContract.SQL_CREATE_KNOWN_POSTS);
+    }
 }

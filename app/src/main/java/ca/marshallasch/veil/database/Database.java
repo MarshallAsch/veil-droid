@@ -169,6 +169,10 @@ public class Database extends SQLiteOpenHelper
         if (oldVersion < 9) {
             Migrations.upgradeV9(db);
         }
+
+        if (oldVersion < 10){
+            Migrations.upgradeV10(db);
+        }
     }
 
     @Override
