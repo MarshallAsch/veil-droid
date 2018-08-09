@@ -245,16 +245,14 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     @Override
-    public Filter getFilter()
-    {
+    public Filter getFilter() {
         /*
          * This class is the tag filter. The CharSequence must be a list of tags that are
          * denominated with a ':' character.
          */
         return new Filter() {
             @Override
-            protected FilterResults performFiltering(CharSequence charSequence)
-            {
+            protected FilterResults performFiltering(CharSequence charSequence) {
 
                 lastFilter = charSequence;
                 List<DhtProto.Post> filteredList = new ArrayList<>();
@@ -284,8 +282,7 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             }
 
             @Override
-            protected void publishResults(CharSequence charSequence, FilterResults filterResults)
-            {
+            protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
                 postsFiltered = (ArrayList<DhtProto.Post>) filterResults.values;
                 notifyDataSetChanged();
             }
