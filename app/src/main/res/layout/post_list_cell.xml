@@ -1,131 +1,162 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+
+<com.chauthai.swipereveallayout.SwipeRevealLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/swipe_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:layout_editor_absoluteY="81dp">
+    android:padding="0dp"
+    app:dragEdge="right"
+    app:mode="same_level">
 
-    <ImageView
-        android:id="@+id/profile_img2"
-        android:layout_width="35dp"
-        android:layout_height="30dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        android:contentDescription="@string/profile_picture_description"
-        android:src="@drawable/profile_picture"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
-
-    <TextView
-        android:id="@+id/title"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:text="@string/title_place_holder"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:textColor="?themeAccent"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/profile_img2"
-        app:layout_constraintTop_toBottomOf="@+id/time_stamp"/>
-
-    <TextView
-        android:id="@+id/content_preview"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:ellipsize="end"
-        android:maxLength="40"
-        android:maxLines="1"
-        android:singleLine="true"
-        android:text="@string/preview_place_holder"
-        android:textColor="@android:color/darker_gray"
-        app:layout_constraintBottom_toBottomOf="@+id/view_btn"
-        app:layout_constraintEnd_toStartOf="@+id/view_btn"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/title"
-        app:layout_constraintTop_toTopOf="@+id/view_btn"
-        app:layout_constraintVertical_bias="0.56"/>
-
-    <TextView
-        android:id="@+id/comments"
+    <LinearLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:ellipsize="end"
-        android:maxLength="60"
-        android:maxLines="1"
-        android:text="@string/num_comments"
-        android:textColor="@android:color/darker_gray"
-        app:layout_constraintBottom_toBottomOf="@+id/time_stamp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/time_stamp"/>
+        android:layout_height="match_parent">
 
-    <android.support.design.button.MaterialButton
-        android:id="@+id/view_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="32dp"
-        android:layout_alignParentTop="true"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:background="#09c21b"
-        android:text="@string/view"
-        android:textColor="@color/white"
-        android:textSize="9sp"
-        app:backgroundTint="?themePrimary"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/title"
-        app:layout_constraintVertical_bias="0.0"/>
+        <android.support.design.button.MaterialButton
+            android:id="@+id/protect_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/protect"
+            android:textColor="@color/white"
+            app:backgroundTint="?themePrimary"
+            android:layout_marginLeft="-5dip"
+            android:layout_marginRight="-5dip"
+            android:layout_marginTop="-5dip"
+            android:layout_marginBottom="-5dip"/>
+    </LinearLayout>
 
-    <View
-        android:id="@+id/divider"
+
+    <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="?android:attr/listDivider"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/author_name"
-        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:textColor="?themeAccent"
-        android:text="@string/author_name_place_holder"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/profile_img2"
-        app:layout_constraintTop_toTopOf="@+id/profile_img2"/>
+        tools:layout_editor_absoluteY="81dp">
 
-    <TextView
-        android:id="@+id/time_stamp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/placeholder_date"
-        android:textColor="?themeAccent"
-        app:layout_constraintStart_toStartOf="@+id/author_name"
-        app:layout_constraintTop_toBottomOf="@+id/author_name"/>
+        <ImageView
+            android:id="@+id/profile_img2"
+            android:layout_width="35dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:contentDescription="@string/profile_picture_description"
+            android:src="@drawable/profile_picture"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/unread_marker"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/title"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/unread_icon"
-        android:contentDescription="@string/unread_content_description"/>
-</android.support.constraint.ConstraintLayout>
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:text="@string/title_place_holder"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textColor="?themeAccent"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/profile_img2"
+            app:layout_constraintTop_toBottomOf="@+id/time_stamp" />
+
+        <TextView
+            android:id="@+id/content_preview"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:ellipsize="end"
+            android:maxLength="40"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:text="@string/preview_place_holder"
+            android:textColor="@android:color/darker_gray"
+            app:layout_constraintBottom_toBottomOf="@+id/view_btn"
+            app:layout_constraintEnd_toStartOf="@+id/view_btn"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/title"
+            app:layout_constraintTop_toTopOf="@+id/view_btn"
+            app:layout_constraintVertical_bias="0.56" />
+
+        <TextView
+            android:id="@+id/comments"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:ellipsize="end"
+            android:maxLength="60"
+            android:maxLines="1"
+            android:text="@string/num_comments"
+            android:textColor="@android:color/darker_gray"
+            app:layout_constraintBottom_toBottomOf="@+id/time_stamp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/time_stamp" />
+
+        <android.support.design.button.MaterialButton
+            android:id="@+id/view_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:layout_alignParentTop="true"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:background="#09c21b"
+            android:text="@string/view"
+            android:textColor="@color/white"
+            android:textSize="9sp"
+            app:backgroundTint="?themePrimary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/title"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?android:attr/listDivider"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/author_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/author_name_place_holder"
+            android:textColor="?themeAccent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/profile_img2"
+            app:layout_constraintTop_toTopOf="@+id/profile_img2" />
+
+        <TextView
+            android:id="@+id/time_stamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/placeholder_date"
+            android:textColor="?themeAccent"
+            app:layout_constraintStart_toStartOf="@+id/author_name"
+            app:layout_constraintTop_toBottomOf="@+id/author_name" />
+
+        <ImageView
+            android:id="@+id/unread_marker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:contentDescription="@string/unread_content_description"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/unread_icon" />
+    </android.support.constraint.ConstraintLayout>
+
+
+</com.chauthai.swipereveallayout.SwipeRevealLayout>

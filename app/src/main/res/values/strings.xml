@@ -162,6 +162,8 @@
     <string name="average_time">Average time: %f s</string>
     <string name="num_packet_lost">Number Lost: %d</string>
 
+    <!-- misc -->
+    <string name="protect">Protect</string>
 
 
 

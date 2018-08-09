@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
+import android.support.design.button.MaterialButton;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -196,6 +198,10 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             fragViewPost.setArguments(bundle);
             ((MainActivity) activity).navigateTo(fragViewPost, true);
+        });
+
+        viewHolder.itemView.findViewById(R.id.protect_button).setOnClickListener(view -> {
+            //TODO: [AUG 9, 2018] add in logic for protecting a post
         });
     }
 
