@@ -81,6 +81,7 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         private final TextView authorName;
         private final TextView timeStamp;
         private final ImageView readMarker;
+        private final ImageView protectedMarker;
 
         /**
          * constructor for the ViewHolder class
@@ -94,6 +95,7 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             authorName = itemsView.findViewById(R.id.author_name);
             timeStamp = itemsView.findViewById(R.id.time_stamp);
             readMarker = itemsView.findViewById(R.id.unread_marker);
+            protectedMarker = itemsView.findViewById(R.id.protected_image);
         }
     }
 
@@ -178,6 +180,10 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         viewHolder.commentCount.setText(activity.getString(R.string.num_comments, numComments));
         viewHolder.authorName.setText(authorName);
 
+        //set or unset the protected marker
+        updatePostStatus(viewHolder, post);
+
+
         // show or hide the read marker
         viewHolder.readMarker.setVisibility(read ? View.INVISIBLE : View.VISIBLE);
 
@@ -202,7 +208,17 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         });
 
         viewHolder.itemView.findViewById(R.id.protect_button).setOnClickListener(view -> {
-            DataStore.getInstance(activity).setPostStatus(post.getUuid(), KnownPostsContract.POST_PROTECTED);
+            int postStatus = DataStore.getInstance(activity).getPostStatus(post.getUuid());
+
+            if(postStatus == KnownPostsContract.POST_PROTECTED){
+                DataStore.getInstance(activity).setPostStatus(post.getUuid(), KnownPostsContract.POST_NORMAL);
+                updatePostStatus(viewHolder, post);
+            }
+            else if(postStatus == KnownPostsContract.POST_NORMAL){
+                DataStore.getInstance(activity).setPostStatus(post.getUuid(), KnownPostsContract.POST_PROTECTED);
+                updatePostStatus(viewHolder, post);
+            }
+
         });
     }
 
@@ -294,5 +310,15 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 notifyDataSetChanged();
             }
         };
+    }
+
+    private void updatePostStatus(ViewHolder1 viewHolder, DhtProto.Post post){
+        int postStatus = DataStore.getInstance(activity).getPostStatus(post.getUuid());
+
+        if(postStatus == KnownPostsContract.POST_NORMAL){
+            viewHolder.protectedMarker.setImageResource(R.drawable.ic_unprotected);
+        } else if(postStatus == KnownPostsContract.POST_PROTECTED){
+            viewHolder.protectedMarker.setImageResource(R.drawable.ic_protected);
+        }
     }
 }

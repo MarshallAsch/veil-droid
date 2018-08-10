@@ -122,7 +122,6 @@ public class FragmentDiscoverForums extends Fragment implements SwipeRefreshLayo
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-
         // unregister receiver
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(broadcastReceiver);
     }

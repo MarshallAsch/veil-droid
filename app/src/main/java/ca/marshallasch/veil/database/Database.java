@@ -1516,7 +1516,7 @@ public class Database extends SQLiteOpenHelper
         }
         int status = 0;
         while(cursor.moveToNext()) {
-            status = cursor.getInt(cursor.getColumnIndexOrThrow(KnownPostsEntry.COLUMN_POST_HASH));
+            status = cursor.getInt(cursor.getColumnIndexOrThrow(KnownPostsEntry.COLUMN_STATUS));
         }
         cursor.close();
 
