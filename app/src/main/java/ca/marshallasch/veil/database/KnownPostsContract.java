@@ -25,7 +25,7 @@ public final class KnownPostsContract {
             KnownPostsEntry.COLUMN_POST_HASH + " VARCHAR(36)," +
             KnownPostsEntry.COLUMN_TIME_INSERTED + " DATETIME," +
             KnownPostsEntry.COLUMN_READ + " INTEGER DEFAULT 0," +
-            KnownPostsEntry.COLUMN_STATUS + " INTEGER DEFAULT 0" +
+            KnownPostsEntry.COLUMN_STATUS + " INTEGER DEFAULT 0," +
             "UNIQUE(" + KnownPostsEntry.COLUMN_POST_HASH + ", " + KnownPostsEntry.COLUMN_COMMENT_HASH + ")" +
             ");";
 

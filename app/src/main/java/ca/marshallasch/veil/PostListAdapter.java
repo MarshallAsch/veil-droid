@@ -23,6 +23,7 @@ import java.util.List;
 import ca.marshallasch.veil.comparators.PostAgeComparator;
 import ca.marshallasch.veil.comparators.PostAuthorComparator;
 import ca.marshallasch.veil.comparators.PostTitleComparator;
+import ca.marshallasch.veil.database.KnownPostsContract;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.utilities.Util;
 
@@ -201,7 +202,7 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         });
 
         viewHolder.itemView.findViewById(R.id.protect_button).setOnClickListener(view -> {
-            //TODO: [AUG 9, 2018] add in logic for protecting a post
+            DataStore.getInstance(activity).setPostStatus(post.getUuid(), KnownPostsContract.POST_PROTECTED);
         });
     }
 

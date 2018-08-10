@@ -589,14 +589,6 @@ public class Database extends SQLiteOpenHelper
         return user;
     }
 
-    @WorkerThread
-    public boolean updatePostStatus(int status){
-
-
-        return true;
-    }
-
-
     /**
      * This function will find the user with the username and password then update the password.
      *
@@ -1470,8 +1462,9 @@ public class Database extends SQLiteOpenHelper
      * @param status 0,1,2 as describe in the comment
      * @return
      */
+    @WorkerThread
     public boolean setPostStatus(String postHash, int status) {
-        String selection = KnownPostsEntry.COLUMN_POST_HASH + " =  ? AND " +
+        String selection = KnownPostsEntry.COLUMN_POST_HASH + " = ? AND " +
                 KnownPostsEntry.COLUMN_COMMENT_HASH + " == \"\" ";
 
         String[] selectionArgs = { postHash };
@@ -1493,5 +1486,41 @@ public class Database extends SQLiteOpenHelper
         return numUpdated == 1;
     }
 
+    /**
+     * Returns the post status as
+     * 0 = normal
+     * 1 = protected
+     * 2 = dead
+     *
+     * @param postHash the hash of the post you wish to check
+     * @return
+     */
+    public int getPostStatus(String postHash) {
+        String[] projection = {KnownPostsEntry.COLUMN_STATUS};
+
+        String selection = KnownPostsEntry.COLUMN_POST_HASH + " = ? AND " +
+                KnownPostsEntry.COLUMN_COMMENT_HASH + " == \"\" ";
+        String[] selectionArgs = {postHash};
+
+        Cursor cursor;
+        synchronized (this) {
+            cursor = getReadableDatabase().query(
+                    KnownPostsEntry.TABLE_NAME, //Table to query
+                    projection, // Array of columns to return
+                    selection, // The columns for the WHERE clause
+                    selectionArgs, // the values for the WHERE clause
+                    null, // no row grouping
+                    null, // no filter by row groups
+                    null // don't sort
+            );
+        }
+        int status = 0;
+        while(cursor.moveToNext()) {
+            status = cursor.getInt(cursor.getColumnIndexOrThrow(KnownPostsEntry.COLUMN_POST_HASH));
+        }
+        cursor.close();
+
+        return status;
+    }
 
 }
