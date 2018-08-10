@@ -589,6 +589,13 @@ public class Database extends SQLiteOpenHelper
         return user;
     }
 
+    @WorkerThread
+    public boolean updatePostStatus(int status){
+
+
+        return true;
+    }
+
 
     /**
      * This function will find the user with the username and password then update the password.
@@ -1452,5 +1459,39 @@ public class Database extends SQLiteOpenHelper
 
         return getCount(SyncStatsEntry.TABLE_NAME, selection, selectionArgs);
     }
+
+    /**
+     * Updates the status for the post Where
+     *  0 = normal
+     *  1 = protected
+     *  2 = dead
+     *
+     * @param postHash the hash of the post item being marked
+     * @param status 0,1,2 as describe in the comment
+     * @return
+     */
+    public boolean setPostStatus(String postHash, int status) {
+        String selection = KnownPostsEntry.COLUMN_POST_HASH + " =  ? AND " +
+                KnownPostsEntry.COLUMN_COMMENT_HASH + " == \"\" ";
+
+        String[] selectionArgs = { postHash };
+
+        ContentValues values = new ContentValues();
+        values.put(KnownPostsEntry.COLUMN_STATUS, status);
+
+        int numUpdated;
+
+        synchronized (this) {
+            numUpdated = getWritableDatabase().update(
+                    KnownPostsEntry.TABLE_NAME,
+                    values,
+                    selection,
+                    selectionArgs
+            );
+        }
+
+        return numUpdated == 1;
+    }
+
 
 }

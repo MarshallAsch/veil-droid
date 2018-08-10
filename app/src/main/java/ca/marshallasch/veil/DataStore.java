@@ -320,6 +320,10 @@ public class DataStore
         hashTableStore.save();
     }
 
+    public void updatePostStatus(int status){
+        
+    }
+
     /**
      * This task will be run every 10 minutes to try to save the has table store if it has been modified.
      */
