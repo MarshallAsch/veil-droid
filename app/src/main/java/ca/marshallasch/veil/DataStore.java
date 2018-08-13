@@ -243,6 +243,7 @@ public class DataStore
         if (version == SyncStatsContract.SYNC_MESSAGE_V2 ) {
             Date timeLastSentData = db.getTimeLastSentData(peer.toString());
             mapping = db.dumpKnownPosts(timeLastSentData);
+            db.updateTimeLastSentData(peer.toString());
         } else {
             mapping = db.dumpKnownPosts();
         }
