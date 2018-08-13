@@ -343,4 +343,22 @@ public class DataStore
             }
         }
     }
+
+
+    public void clearEntries() {
+
+        synchronized (hashTableStore.hashMap) {
+            hashTableStore.hashMap.clear();
+        }
+
+        db.clearKnownPosts();
+    }
+
+    public void clearSyncStats() {
+        db.clearSyncStats();
+    }
+
+    public void clearPeers() {
+        db.clearPeers();
+    }
 }
