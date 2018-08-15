@@ -26,7 +26,7 @@ public class FragmentDeletion extends Fragment
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
-        View view = inflater.inflate(R.layout.fragment_data_clear, container, false);
+        View view = inflater.inflate(R.layout.fragment_deletion, container, false);
 
         MaterialButton clearEntries = view.findViewById(R.id.clear_entries);
         MaterialButton clearSyncStats = view.findViewById(R.id.clear_logs);
