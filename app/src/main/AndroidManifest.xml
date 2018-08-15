@@ -13,6 +13,8 @@
         <service
             android:name="ca.marshallasch.veil.services.VeilService"
             android:exported="false"/>
+        <service android:name=".services.DataSaverService"
+            android:exported="false"/>
         <activity
             android:name=".MainActivity"
             android:windowSoftInputMode="adjustResize"

@@ -1,5 +1,7 @@
 package ca.marshallasch.veil;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -23,6 +25,7 @@ import android.view.MenuItem;
 import ca.marshallasch.veil.controllers.RightMeshController;
 import ca.marshallasch.veil.database.Database;
 import ca.marshallasch.veil.proto.DhtProto;
+import ca.marshallasch.veil.services.DataSaverService;
 import ca.marshallasch.veil.services.VeilService;
 import io.left.rightmesh.android.AndroidMeshManager;
 
@@ -102,6 +105,13 @@ public class MainActivity extends AppCompatActivity {
         //starts RightMesh Service
         Intent intent = new Intent(this, VeilService.class);
         startService(intent);
+
+        //starts data saver service
+        Intent dataSaverServiceIntent = new Intent(this, DataSaverService.class);
+        startService(dataSaverServiceIntent);
+        AlarmManager mgr = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        PendingIntent pendingIntent = PendingIntent.getService(this, DataSaverService.DataSaverSerivceID, dataSaverServiceIntent, 0);
+        mgr.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), AlarmManager.INTERVAL_HALF_HOUR, pendingIntent);
 
         // if the user is logged in then go to the dash otherwise go to landing page.
         navigateTo(currentUser != null ? new FragmentDashBoard() : new FragmentLanding(), false);
