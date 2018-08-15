@@ -15,8 +15,7 @@ import android.widget.Toast;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
-import java.io.Serializable;
-import java.util.Set;
+import java.util.HashSet;
 import java.util.UUID;
 
 import ca.marshallasch.veil.DataStore;
@@ -34,14 +33,18 @@ import io.left.rightmesh.mesh.MeshManager;
 import io.left.rightmesh.mesh.MeshStateListener;
 import io.left.rightmesh.util.RightMeshException;
 
+import static android.content.Context.NOTIFICATION_SERVICE;
 import static ca.marshallasch.veil.database.SyncStatsContract.SYNC_MESSAGE_V1;
 import static ca.marshallasch.veil.database.SyncStatsContract.SYNC_MESSAGE_V2;
 import static ca.marshallasch.veil.proto.Sync.SyncMessageType.REQUEST_DATA_V1;
 import static ca.marshallasch.veil.proto.Sync.SyncMessageType.REQUEST_DATA_V2;
-import static android.content.Context.NOTIFICATION_SERVICE;
+import static io.left.rightmesh.mesh.MeshManager.ADDED;
 import static io.left.rightmesh.mesh.MeshManager.DATA_RECEIVED;
 import static io.left.rightmesh.mesh.MeshManager.PEER_CHANGED;
 import static io.left.rightmesh.mesh.MeshManager.REMOVED;
+import static io.left.rightmesh.mesh.MeshManager.UPDATED;
+
+
 
 /**
  *
@@ -66,6 +69,8 @@ public class RightMeshController implements MeshStateListener{
     private Context serviceContext = null;
 
     private DataStore dataStore = null;
+
+    private HashSet<MeshId> discovered = new HashSet<>();
 
 
     //Notification intent action
@@ -253,6 +258,15 @@ public class RightMeshController implements MeshStateListener{
 
         // Update peer list.
         MeshManager.PeerChangedEvent event = (MeshManager.PeerChangedEvent) e;
+
+
+        if (!discovered.contains(event.peerUuid) && (event.state == ADDED || event.state == UPDATED)) {
+            discovered.add(event.peerUuid);
+        } else if (event.state == REMOVED) {
+            discovered.remove(event.peerUuid);
+        }
+
+
         if (event.state != REMOVED) {
 
             if (event.peerUuid.equals(meshManager.getUuid())) {
@@ -290,7 +304,7 @@ public class RightMeshController implements MeshStateListener{
     public void manualRefresh(){
         try {
             MeshManager manager = this.meshManager;
-            Set<MeshId> peers = manager.getPeers(DATA_PORT);
+            MeshId[] peers = discovered.toArray(new MeshId[0]);
 
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(serviceContext);
             int syncVersion = preferences.getInt(FragmentSettings.PREF_SYNC_VERSION, SYNC_MESSAGE_V2);
@@ -328,7 +342,7 @@ public class RightMeshController implements MeshStateListener{
 
         // notify other users that there is a new comment or new post
         try {
-            Set<MeshId> peers = meshManager.getPeers(DATA_PORT);
+            MeshId[] peers =  (MeshId[]) discovered.toArray();
 
             Sync.NewContent.Builder builder = Sync.NewContent.newBuilder();
 
@@ -364,17 +378,12 @@ public class RightMeshController implements MeshStateListener{
      * Sends a set of {@link MeshId} objects as a serialized set over a local broadcast.
      */
     public void getPeers(){
-        Set<MeshId> peers = null;
-        try{
-            peers = meshManager.getPeers(DATA_PORT);
-        } catch (RightMeshException e){
-            e.printStackTrace();
-        }
+        MeshId[] peers = discovered.toArray(new MeshId[0]);
 
         Intent intent = new Intent(GET_PEERS_BROADCAST);
         //MeshId is serializable
         //Ref: https://developer.rightmesh.io/api/latest/reference/io/left/rightmesh/id/MeshID.php
-        intent.putExtra(EXTRA_PEERS_LIST, (Serializable) peers);
+        intent.putExtra(EXTRA_PEERS_LIST, peers);
         LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
 
     }

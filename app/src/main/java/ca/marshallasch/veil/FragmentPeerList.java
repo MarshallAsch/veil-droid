@@ -17,8 +17,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import java.util.Set;
-
 import ca.marshallasch.veil.controllers.RightMeshController;
 import ca.marshallasch.veil.services.VeilService;
 import io.left.rightmesh.id.MeshId;
@@ -76,7 +74,7 @@ public class FragmentPeerList extends Fragment
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Set<MeshId> peers = (Set<MeshId>) intent.getSerializableExtra(RightMeshController.EXTRA_PEERS_LIST);
+            MeshId[] peers = (MeshId[]) intent.getSerializableExtra(RightMeshController.EXTRA_PEERS_LIST);
             if (peers != null) {
                 for (MeshId peer : peers) {
                     peerList.append("\n" + peer.toString());
