@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -24,6 +23,7 @@
                 android:layout_marginBottom="8dp"
                 android:layout_marginTop="24dp"
                 android:text="@string/title_title"
+                android:textColor="?themeAccent"
                 android:textAppearance="@style/TextAppearance.AppCompat.Title"
                 app:layout_constraintBottom_toTopOf="@+id/title_text_input"
                 app:layout_constraintStart_toStartOf="@+id/title_text_input"
@@ -36,10 +36,11 @@
                 android:layout_marginBottom="8dp"
                 android:layout_marginLeft="8dp"
                 android:layout_marginStart="8dp"
+                android:textColor="?themeAccent"
                 android:text="@string/tags_title"
                 android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                app:layout_constraintBottom_toTopOf="@+id/tags_text_input"
-                app:layout_constraintStart_toStartOf="@+id/tags_text_input"/>
+                app:layout_constraintBottom_toTopOf="@+id/tags_input"
+                app:layout_constraintStart_toStartOf="@+id/tags_input"/>
 
             <EditText
                 android:id="@+id/post_message"
@@ -51,6 +52,8 @@
                 android:ems="10"
                 android:hint="@string/message_hint"
                 android:inputType="textMultiLine"
+                android:textColorHint="?themeAccentFade"
+                android:textColor="?themeAccent"
                 app:layout_constraintBottom_toTopOf="@+id/cancel_button"
                 app:layout_constraintEnd_toEndOf="@+id/title_text_input"
                 app:layout_constraintStart_toStartOf="@+id/title_text_input"
@@ -70,9 +73,12 @@
                 app:layout_constraintBottom_toTopOf="@+id/textView8"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toStartOf="parent">
+                app:layout_constraintStart_toStartOf="parent"
+                android:textColorHint="?themeAccentFade">
 
                 <android.support.design.widget.TextInputEditText
+                    android:backgroundTint="?themePrimary"
+                    android:textColor="?themeAccent"
                     android:id="@+id/title_text_edit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -80,31 +86,18 @@
                     android:maxLines="1"/>
             </android.support.design.widget.TextInputLayout>
 
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/tags_text_input"
-
+            <Spinner
+                android:id="@+id/tags_input"
                 android:layout_width="0dp"
-                android:layout_height="67dp"
+                android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:layout_marginEnd="16dp"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
                 android:layout_marginStart="16dp"
-                android:hint="@string/tags_hint"
+                android:spinnerMode="dialog"
                 app:layout_constraintBottom_toTopOf="@+id/anonymous"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toStartOf="parent"
-                >
-
-                <android.support.design.widget.TextInputEditText
-                    android:id="@+id/tags_text_edit"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text|textAutoCorrect|textAutoComplete"
-                    android:maxLines="1"/>
-            </android.support.design.widget.TextInputLayout>
-
+                app:layout_constraintStart_toStartOf="parent"/>
 
             <android.support.design.button.MaterialButton
                 android:id="@+id/cancel_button"
@@ -114,13 +107,12 @@
                 android:layout_marginRight="16dp"
                 android:layout_marginTop="8dp"
                 android:text="@android:string/cancel"
-                android:textColor="@color/colorPrimary"
+                android:textColor="?themeAccent"
                 android:textColorLink="@color/colorPrimary"
                 app:layout_constraintBottom_toBottomOf="@+id/save"
                 app:layout_constraintEnd_toStartOf="@+id/save"
                 app:layout_constraintTop_toTopOf="@+id/save"
                 app:layout_constraintVertical_bias="1.0"/>
-
 
             <android.support.design.button.MaterialButton
                 android:id="@+id/save"
@@ -129,8 +121,8 @@
                 android:layout_marginBottom="16dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="32dp"
-                android:text="@string/save"
-                app:backgroundTint="@color/colorPrimary"
+                android:text="@string/post"
+                app:backgroundTint="?themePrimary"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"/>
 
@@ -140,6 +132,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:text="@string/anonymous"
+                android:buttonTint="?themeAccent"
+                android:textColor="?themeAccent"
                 app:layout_constraintBottom_toTopOf="@+id/post_message"
                 app:layout_constraintStart_toStartOf="@+id/post_message"/>
 

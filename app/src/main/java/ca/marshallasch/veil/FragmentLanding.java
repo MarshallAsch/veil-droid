@@ -27,12 +27,12 @@ public class FragmentLanding extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)  {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
+    {
         // hides the menu bar at the top so you have a full screen landing page
         ((MainActivity) getActivity()).getSupportActionBar().hide();
 
-
-        View view = inflater.inflate(R.layout.fragment_landing, container,false);
+        View view = inflater.inflate(R.layout.fragment_landing, container, false);
 
         // buttons and event listeners
         MaterialButton loginBtn = view.findViewById(R.id.login_btn);
@@ -57,13 +57,4 @@ public class FragmentLanding extends Fragment {
 
         return view;
     }
-
-    @Override
-    public void onDestroyView(){
-        super.onDestroyView();
-
-        // return the action bar.
-        ((MainActivity) getActivity()).getSupportActionBar().show();
-    }
-
 }

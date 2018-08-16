@@ -14,9 +14,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 import ca.marshallasch.veil.comparators.CommentComparator;
 import ca.marshallasch.veil.comparators.EntryComparator;
@@ -40,30 +40,38 @@ import static ca.marshallasch.veil.proto.DhtProto.KeywordType.TITLE_PARTIAL;
  *
  * Do not access this class directly for the data. you should go through {@link DataStore}.
  *
+ * Note that the {@link HashMap} and the {@link ArrayList} classes are not thread safe.
+ * Since this class is called by multiple threads any insert or read call needs to lock on the
+ * hash map. and anything that modifies or looks at the value of en entry needs to lock on that list.
  *
  * @author Marshall Asch
  * @version 1.0
  * @since 2018-06-08
  */
+@ThreadSafe
 public class HashTableStore implements ForumStorage
 {
     // Made package-private so that it can be accessed for testing.
-    HashMap<String, List<DhtProto.DhtWrapper>> hashMap;
-
+    final HashMap<String, List<DhtProto.DhtWrapper>> hashMap;
 
     private static HashTableStore instance;
     private static final AtomicInteger openCounter = new AtomicInteger();
+
+    private final File mapFile;
+
+    private boolean modified;
 
     private HashTableStore(@Nullable  Context c) {
 
         // if there is no context then do not load a persistent file
         if (c == null) {
             hashMap = new HashMap<>();
+            mapFile = null;
             return;
         }
 
         // try loading from mem or create new
-        File mapFile = new File(c.getFilesDir(), "HASH_MAP");
+        mapFile = new File(c.getFilesDir(), "HASH_MAP");
         HashMap<String, List<DhtProto.DhtWrapper>> tempMap = null;
 
         if (mapFile.exists()) {
@@ -82,9 +90,11 @@ public class HashTableStore implements ForumStorage
 
         // create a new map if one does not exist
         if (tempMap == null) {
+            modified = true;
             hashMap = new HashMap<>();
         } else {
             hashMap = tempMap;
+            modified = false;
         }
     }
 
@@ -98,30 +108,33 @@ public class HashTableStore implements ForumStorage
     }
 
     /**
-     * This function will update the saved copy of the hash map to the disk.
+     * This function will update the saved copy of the hash map to the disk. The file needs to be
+     * created in the constructor if a non null context was passed to it. Otherwise the table is not
+     * saved.
      */
-    public void save(@Nullable Context context) {
+    public void save() {
 
-        // if there is no context then don't save the file
-        if (context == null) {
+        // if the file does not exist then do not save, or if it has not been modified
+        if (mapFile == null || !modified) {
+            Log.d("HashTableStore", "Not actually saving the file, changed: " + String.valueOf(modified));
             return;
         }
-
-        File mapFile = new File(context.getFilesDir(), "HASH_MAP");
 
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(mapFile, false);
 
-            MapSerializer.write(fileOutputStream, hashMap);
+            synchronized (hashMap) {
+                MapSerializer.write(fileOutputStream, hashMap);
+            }
 
             Log.d("SAVE", "saved map");
             fileOutputStream.close();
+            modified = false;
         }
         catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 
     /**
      * This function will insert the post object into the local hash table. This will also add
@@ -186,7 +199,11 @@ public class HashTableStore implements ForumStorage
     @Nullable
     public DhtProto.Post findPostByHash(String hash) throws TooManyResultsException
     {
-        ArrayList<DhtProto.DhtWrapper> entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(hash);
+        ArrayList<DhtProto.DhtWrapper> entries;
+
+        synchronized (hashMap) {
+            entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(hash);
+        }
 
         if (entries == null) {
             return null;
@@ -224,7 +241,11 @@ public class HashTableStore implements ForumStorage
     public List<DhtProto.Post> findPostsByKeyword(String keyword)
     {
         keyword = keyword.toLowerCase(Locale.getDefault());
-        ArrayList<DhtProto.DhtWrapper> entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(Util.generateHash(keyword.getBytes()));
+        ArrayList<DhtProto.DhtWrapper> entries;
+
+        synchronized (hashMap) {
+            entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(Util.generateHash(keyword.getBytes()));
+        }
 
         if (entries == null) {
             return new ArrayList<>();
@@ -301,7 +322,10 @@ public class HashTableStore implements ForumStorage
     @NonNull
     public List<DhtProto.Comment> findCommentsByPost(String postHash)
     {
-        ArrayList<DhtProto.DhtWrapper> entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(postHash);
+        ArrayList<DhtProto.DhtWrapper> entries;
+        synchronized (hashMap) {
+            entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(postHash);
+        }
 
         if (entries == null) {
             return new ArrayList<>();
@@ -357,7 +381,10 @@ public class HashTableStore implements ForumStorage
     @Nullable
     public DhtProto.Comment findCommentByHash(String hash) throws TooManyResultsException
     {
-        ArrayList<DhtProto.DhtWrapper> entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(hash);
+        ArrayList<DhtProto.DhtWrapper> entries;
+        synchronized (hashMap) {
+            entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(hash);
+        }
 
         if (entries == null) {
             return null;
@@ -438,7 +465,10 @@ public class HashTableStore implements ForumStorage
     @Override
     public Pair<String, DhtProto.User> findUserByHash(String userHash) throws TooManyResultsException
     {
-        ArrayList<DhtProto.DhtWrapper> entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(userHash);
+        ArrayList<DhtProto.DhtWrapper> entries;
+        synchronized (hashMap) {
+            entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(userHash);
+        }
 
         if (entries == null) {
             return null;
@@ -480,7 +510,11 @@ public class HashTableStore implements ForumStorage
         }
 
         name = name.toLowerCase(Locale.getDefault());
-        ArrayList<DhtProto.DhtWrapper> entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(Util.generateHash(name.getBytes()));
+        ArrayList<DhtProto.DhtWrapper> entries;
+
+        synchronized (hashMap) {
+            entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(Util.generateHash(name.getBytes()));
+        }
 
         if (entries == null) {
             return new ArrayList<>();
@@ -522,7 +556,6 @@ public class HashTableStore implements ForumStorage
         return false;
     }
 
-
     /**
      * This function will generate a keyword object used for indexing the objects in the table.
      * The keyword is normalized to lowercase to make future searches case insensitive.
@@ -530,7 +563,7 @@ public class HashTableStore implements ForumStorage
      * @param keyword the keyword it is mapping
      * @param dataHash the data it is mapping the key to
      * @param type the type of keyword it is. {@link DhtProto.KeywordType}
-     * @return the wraper object to insert into the hashmap
+     * @return the wrapper object to insert into the hashmap
      */
     @NonNull
     private DhtProto.DhtWrapper generateKeyword(@Nullable String keyword, String dataHash, DhtProto.KeywordType type) {
@@ -562,7 +595,11 @@ public class HashTableStore implements ForumStorage
      */
     public void insert(@NonNull  DhtProto.DhtWrapper data, String key) {
 
-        ArrayList<DhtProto.DhtWrapper> entries = (ArrayList<DhtProto.DhtWrapper>)hashMap.get(key);
+        ArrayList<DhtProto.DhtWrapper> entries;
+
+        synchronized (hashMap) {
+            entries = (ArrayList<DhtProto.DhtWrapper>) hashMap.get(key);
+        }
 
         if (entries == null) {
             entries = new ArrayList<>();
@@ -580,35 +617,31 @@ public class HashTableStore implements ForumStorage
             entries.add(data);
         }
 
-        hashMap.put(key, entries);
+        synchronized (hashMap) {
+            hashMap.put(key, entries);
+        }
+        modified = true;
     }
 
-
     /**
-     * This is not a good way to do this, should probably make it better.
-     * todo fix this.
-     * @return a list of posts and comments
+     * Get the wrapper item for the data sync function. Will only get the first comment or post item
+     * with the given key.
+     * @param hash the hash identifying the entry
+     * @return the pair on success NULL if a match was not found.
      */
-    public List<Pair<String, DhtProto.DhtWrapper>> getData() {
+    @Nullable
+    public DhtProto.DhtWrapper getPostOrComment(String hash) {
 
-        List<Pair<String, DhtProto.DhtWrapper>> data = new ArrayList<>();
+        List<DhtProto.DhtWrapper> list = hashMap.get(hash);
 
-        Set<Map.Entry<String, List<DhtProto.DhtWrapper>>> set = hashMap.entrySet();
-
-        for(Map.Entry<String, List<DhtProto.DhtWrapper>> entry: set) {
-            String hash = entry.getKey();
-            List<DhtProto.DhtWrapper> list = entry.getValue();
-
-            // make sure the data is for a post or a comment only
-            for (DhtProto.DhtWrapper element: list) {
+        if (list != null) {
+            for (DhtProto.DhtWrapper element : list) {
 
                 if (element.getType() == DhtProto.MessageType.COMMENT || element.getType() == DhtProto.MessageType.POST) {
-                    data.add(new Pair<String, DhtProto.DhtWrapper>(hash, element));
+                    return element;
                 }
             }
-
         }
-
-        return data;
+        return null;
     }
 }

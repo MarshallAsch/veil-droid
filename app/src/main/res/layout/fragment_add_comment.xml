@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-                                             xmlns:tools="http://schemas.android.com/tools"
-                                             android:layout_width="match_parent"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <ScrollView
@@ -23,7 +22,7 @@
                 android:layout_marginRight="8dp"
                 android:layout_marginTop="8dp"
                 android:text="@string/title_place_holder"
-                android:textColor="@color/colorAccent"
+                android:textColor="?themeAccent"
                 android:textSize="20sp"
                 app:layout_constraintBottom_toTopOf="@+id/post_message"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -41,8 +40,8 @@
                 android:layout_marginRight="20dp"
                 android:layout_marginTop="8dp"
                 android:text="@android:string/cancel"
-                android:textColor="@color/colorPrimary"
-                android:textColorLink="@color/colorPrimary"
+                android:textColor="?themeAccent"
+                android:textColorLink="?themeAccent"
                 app:layout_constraintBottom_toBottomOf="@+id/post_comment_btn"
                 app:layout_constraintEnd_toStartOf="@+id/post_comment_btn"
                 app:layout_constraintTop_toTopOf="@+id/post_comment_btn"
@@ -60,6 +59,9 @@
                 android:layout_marginTop="48dp"
                 android:ems="10"
                 android:gravity="center|top|start"
+                android:textColorHint="?themeAccentFade"
+                android:textColor="?themeAccent"
+                android:backgroundTint="?themePrimary"
                 android:hint="@string/comment_hint"
                 android:inputType="textMultiLine"
                 android:textAlignment="textStart"
@@ -79,7 +81,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="20dp"
                 android:text="@string/post"
-                app:backgroundTint="@color/colorPrimary"
+                app:backgroundTint="?themePrimary"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent"
@@ -93,6 +95,8 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:text="@string/anonymous"
+                android:buttonTint="?themeAccent"
+                android:textColor="?themeAccent"
                 app:layout_constraintStart_toStartOf="@+id/post_message"
                 app:layout_constraintTop_toBottomOf="@+id/post_message"/>
 

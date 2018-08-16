@@ -1,20 +1,31 @@
 package ca.marshallasch.veil;
 
 import android.content.Context;
+import android.os.AsyncTask;
+import android.support.annotation.IntRange;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.util.ArraySet;
 import android.support.v4.util.Pair;
 import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.Timer;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ca.marshallasch.veil.comparators.CommentComparator;
+import ca.marshallasch.veil.comparators.PostAgeComparator;
 import ca.marshallasch.veil.database.Database;
+import ca.marshallasch.veil.database.KnownPostsContract;
+import ca.marshallasch.veil.database.SyncStatsContract;
 import ca.marshallasch.veil.exceptions.TooManyResultsException;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.proto.Sync;
+import io.left.rightmesh.id.MeshId;
 
 /**
  * This class is a delegate class for all of the data access to use this instead of the underling
@@ -25,8 +36,8 @@ import ca.marshallasch.veil.proto.Sync;
  */
 public class DataStore
 {
-    private Database db;
-    private HashTableStore hashTableStore;
+    private final Database db;
+    private final HashTableStore hashTableStore;
 
     private static DataStore instance;
     private static final AtomicInteger openCounter = new AtomicInteger();
@@ -35,6 +46,10 @@ public class DataStore
 
         db = Database.getInstance(context);
         hashTableStore = HashTableStore.getInstance(context);
+
+        // start a timer to schedule the saving task to run every 10 minutes
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask(), 0, 1000*60*10);
 
     }
 
@@ -50,10 +65,9 @@ public class DataStore
 
     /**
      * Save the hash table to a persistent file.
-     * @param context the application context required to save a file.
      */
-    public void save(Context context) {
-        hashTableStore.save(context);
+    public void save() {
+        hashTableStore.save();
     }
 
     public void close() {
@@ -79,7 +93,8 @@ public class DataStore
     }
 
     /**
-     * Gets all the known posts in a the data store
+     * Gets all the known posts in a the data store.
+     * The list will be sorted, newest posts first
      * @return the list of posts.
      */
     public List<DhtProto.Post> getKnownPosts() {
@@ -105,6 +120,9 @@ public class DataStore
                 posts.add(post);
             }
         }
+
+        // make sure the list of posts are in chronological order
+        Collections.sort(posts, new PostAgeComparator());
 
         return posts;
     }
@@ -148,128 +166,200 @@ public class DataStore
     /**
      * This function will take a comment and associate it with the post in the data store.
      * The comment's UUID field must be set to the has for the comment.
-     * The this will set the comments PostId field in the one that gets stored, but not in the one
-     * that was passed in.
+     * The comments postID field must be set for the comment.
      *
      * @param comment the comment object to insert
-     * @param forPost the post the the comment is associated with
      * @return the updated comment object
      */
-    @Nullable
-    public DhtProto.Comment saveComment(@Nullable DhtProto.Comment comment, DhtProto.Post forPost){
+    public boolean saveComment(@Nullable DhtProto.Comment comment){
 
         // make sure args are given
-        if (comment == null || forPost == null) {
-            return comment;
+        if (comment == null || comment.getPostId().isEmpty()  || comment.getUuid().isEmpty()) {
+            return false;
         }
-
-        // put the post ID into the comment
-        comment = DhtProto.Comment.newBuilder(comment)
-                .setPostId(forPost.getUuid())
-                .build();
 
         // insert into the data store
-        hashTableStore.insertComment(comment, forPost.getUuid());
+        hashTableStore.insertComment(comment, comment.getPostId());
 
         // insert the comment for mapping
-        db.insertKnownPost(forPost.getUuid(), comment.getUuid());
-
-        return comment;
+        return db.insertKnownPost(comment.getPostId(), comment.getUuid());
     }
 
     /**
-     * Generate the object for syncing the database between devices.
-     * @return the mapping object
+     * This will get the number of comments that exist for given post and will return the number.
+     *
+     * @param postHash the string identifying the particular post
+     * @return the number of comments for the post, 0 if none are found
      */
-    public Sync.MappingMessage getDatabase() {
+    @IntRange(from=0)
+    public int getNumCommentsFor(@Nullable String postHash) {
 
-        List<Pair<String, String>> knownPosts = db.dumpKnownPosts();
-
-        Sync.MappingMessage.Builder builder = Sync.MappingMessage.newBuilder();
-
-        Sync.CommentMapping.Builder commentBuilder;
-        // add it to the list
-        for (Pair<String, String> pair: knownPosts) {
-
-            commentBuilder = Sync.CommentMapping.newBuilder();
-
-            // handle nulls
-            if (pair.first != null) {
-                commentBuilder.setPostHash(pair.first);
-            }
-
-            if (pair.second != null) {
-                commentBuilder.setCommentHash(pair.second);
-            }
-
-            builder.addMappings(commentBuilder.build());
+        if (postHash == null) {
+            return 0;
         }
 
-        // build the message to send to other devices
-        return builder.build();
+        String select = KnownPostsContract.KnownPostsEntry.COLUMN_POST_HASH + " = ? AND " + KnownPostsContract.KnownPostsEntry.COLUMN_COMMENT_HASH + " != \"\" ";
+        String[] selectArgs = {postHash};
+
+        return db.getCount(KnownPostsContract.KnownPostsEntry.TABLE_NAME, select, selectArgs);
     }
 
     /**
-     * Generate the syncing object for the data store. It will contain all of the objects
-     * for the posts and the comments only.
-     * @return the message object
+     * This will check if a post has been read. Will call {@link Database#isRead(String)}
+     * @param postHash the post to check
+     * @return true if it is read, otherwise false.
      */
-    public Sync.HashData getDataStore() {
+    public boolean isRead(String postHash) {
+        return db.isRead(postHash);
+    }
 
-        List<Pair<String, DhtProto.DhtWrapper>> data = hashTableStore.getData();
+    /**
+     * Mark the post as read or unread. This will call to  {@link Database#markRead(String, boolean)}
+     * @param postHash the post to mark as read
+     * @param read true if the post is being marked as read, otherwise false.
+     * @return true on success
+     */
+    public boolean markRead(String postHash, boolean read) {
+        return  db.markRead(postHash, read);
+    }
+
+    /**
+     * This will generate a data synchronization message for the given peer.
+     * This is the either versions message of the data synchronization protocol.
+     * @param peer the {@link MeshId} for the peer to send the sync message too
+     * @param version specify the version that it should get the sync message for
+     * @return a sync message that is filled with the data for that peer
+     */
+    @NonNull
+    public Sync.SyncMessage getSync(MeshId peer, int version) {
+
+        // get time last sent data
+        Sync.SyncMessage.Builder builder = Sync.SyncMessage.newBuilder();
 
 
-        Sync.HashData.Builder builder = Sync.HashData.newBuilder();
+        // get the list of comments and post hashes since the given time.
+        List<Pair<String, String>> mapping;
 
-        // generate the list
-        for(Pair<String, DhtProto.DhtWrapper> pair: data) {
+        if (version == SyncStatsContract.SYNC_MESSAGE_V2 ) {
+            Date timeLastSentData = db.getTimeLastSentData(peer.toString());
+            mapping = db.dumpKnownPosts(timeLastSentData);
+            db.updateTimeLastSentData(peer.toString());
+        } else {
+            mapping = db.dumpKnownPosts();
+        }
 
-            builder.addEntries(Sync.HashPair.newBuilder()
-                    .setHash(pair.first)
-                    .setEntry(pair.second)
+        Set<String> hashes = new ArraySet<>();
+
+        for (Pair<String, String> pair: mapping) {
+            hashes.add(pair.first);
+            hashes.add(pair.second);
+
+            builder.addMappings(Sync.CommentMapping.newBuilder()
+                    .setPostHash(pair.first)
+                    .setCommentHash(pair.second)
                     .build());
         }
+        // remove the empty string from the empty comment hashes
+        hashes.remove("");
+
+        DhtProto.DhtWrapper wrapper;
+
+        for (String hash: hashes) {
+
+            // search for the comment or post
+            wrapper = hashTableStore.getPostOrComment(hash);
+
+            // insert into the list
+            if (wrapper != null) {
+                builder.addEntries(Sync.HashPair.newBuilder()
+                        .setHash(hash)
+                        .setEntry(wrapper)
+                        .build());
+            }
+        }
 
         return builder.build();
     }
 
     /**
-     * Will insert the database sync object into the database.
-     * @param message the message to insert
+     * This will insert the data sync message into the data store and the database.
+     * This is for the version 2 message.
+     *
+     * @param syncMessage the message from the remote peer to save.
      */
-    public void syncDatabase(Sync.MappingMessage message) {
+    public void insertSync(@Nullable Sync.SyncMessage syncMessage) {
 
-        List<Sync.CommentMapping> mapping = message.getMappingsList();
-        List<Sync.CommentMapping> oldMappings = getDatabase().getMappingsList();
+        if (syncMessage == null) {
+            return;
+        }
+
+        List<Sync.HashPair> entries = syncMessage.getEntriesList();
+
+        // insert all of the mappings
+        for (Sync.HashPair entry: entries) {
+            Log.d("PAIRS", "e: " + entry.getEntry().getType().getNumber() + " :: " + entry.getHash());
+            hashTableStore.insert (entry.getEntry(), entry.getHash());
+        }
+
+        List<Sync.CommentMapping> mapping = syncMessage.getMappingsList();
+        List<Pair<String, String>> knownPosts = db.dumpKnownPosts();
 
         Log.d("MAPPING", "LEN: " + mapping.size());
 
         // insert all of the mappings
         for (Sync.CommentMapping entry: mapping) {
 
-            // skip if we alrey have the entry
-            if (oldMappings.contains(entry)) {
+            // TODO: 2018-07-11 improve the efficiency of this
+            // skip if we already have the entry
+            if (knownPosts.contains(new Pair<>(entry.getPostHash(), entry.getCommentHash()))) {
                 continue;
             }
 
-            Log.d("MAPPING", "post: " + entry.getPostHash());
             db.insertKnownPost(entry.getPostHash(), entry.getCommentHash());
         }
+
+        hashTableStore.save();
     }
 
     /**
-     * Will insert all of the synced data from another device.
-     * @param message the data sync object.
+     * This task will be run every 10 minutes to try to save the has table store if it has been modified.
      */
-    public void syncData(Sync.HashData message) {
+    private class TimerTask extends java.util.TimerTask {
+        @Override
+        public void run()
+        {
+            new SaveHashTable().execute();
+        }
 
-        List<Sync.HashPair> mapping = message.getEntriesList();
-
-        // insert all of the mappings
-        for (Sync.HashPair entry: mapping) {
-            Log.d("PAIRS", "e: " + entry.getEntry().getType().getNumber() + " :: " + entry.getHash());
-            hashTableStore.insert (entry.getEntry(), entry.getHash());
+        /**
+         * Save the Hash table if it has been modified in a worker thread.
+         */
+        private class SaveHashTable extends AsyncTask<Void, Void, Void> {
+            @Override
+            protected Void doInBackground(Void... voids)
+            {
+                Log.d("SAVE", "SAVING_FILE");
+                hashTableStore.save();
+                return null;
+            }
         }
     }
 
+
+    public void clearEntries() {
+
+        synchronized (hashTableStore.hashMap) {
+            hashTableStore.hashMap.clear();
+        }
+
+        db.clearKnownPosts();
+    }
+
+    public void clearSyncStats() {
+        db.clearSyncStats();
+    }
+
+    public void clearPeers() {
+        db.clearPeers();
+    }
 }

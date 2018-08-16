@@ -89,6 +89,10 @@ public class FragmentViewPost extends Fragment {
             viewAuthorName.setText(authorName);
         }
 
+        // mark this post as read
+        DataStore.getInstance(activity).markRead(postObject.getUuid(), true);
+
+
         //recycler view logic for displaying comments
         RecyclerView recyclerView = view.findViewById(R.id.comment_list);
         recyclerView.setHasFixedSize(true);
@@ -129,7 +133,7 @@ public class FragmentViewPost extends Fragment {
      * This listener will refresh the list of comments for the post when the user navigates
      * back to the post view fragment after creating a new comment.
      */
-    private FragmentManager.OnBackStackChangedListener listener = new FragmentManager.OnBackStackChangedListener() {
+    private final FragmentManager.OnBackStackChangedListener listener = new FragmentManager.OnBackStackChangedListener() {
         @Override
         public void onBackStackChanged()
         {

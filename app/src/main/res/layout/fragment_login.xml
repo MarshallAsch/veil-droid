@@ -12,27 +12,27 @@
     <android.support.design.widget.TextInputLayout
         android:id="@+id/username_input"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="58dp"
         android:layout_margin="20dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="88dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.23000002">
+        app:layout_constraintVertical_bias="0.23000002"
+        android:textColorHint="?themeAccent">
 
         <EditText
             android:id="@+id/username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/colorPrimaryDark"
+            android:backgroundTint="?themePrimary"
+            android:textColor="?themeAccent"
             android:hint="@string/email_title"
-            android:inputType="textEmailAddress"/>
+            android:inputType="textEmailAddress" />
 
     </android.support.design.widget.TextInputLayout>
 
@@ -49,13 +49,15 @@
         android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/username_input">
+        app:layout_constraintTop_toBottomOf="@+id/username_input"
+        android:textColorHint="?themeAccent">
 
         <EditText
             android:id="@+id/password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/colorPrimaryDark"
+            android:backgroundTint="?themePrimary"
+            android:textColor="?themeAccent"
             android:hint="@string/password_title"
             android:inputType="textPassword"/>
 
@@ -63,34 +65,36 @@
 
 
     <android.support.design.button.MaterialButton
-        android:id="@+id/enter_btn"
+        android:id="@+id/sort"
         android:layout_width="212dp"
         android:layout_height="wrap_content"
         android:layout_above="@+id/back_btn"
         android:layout_centerHorizontal="true"
+        android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:background="@color/colorPrimary"
+        android:background="?themePrimary"
         android:text="@string/enter"
-        app:backgroundTint="@color/colorPrimary"
+        app:backgroundTint="?themePrimary"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/passwordWrapper"
         app:layout_constraintStart_toStartOf="@+id/passwordWrapper"
-        app:layout_constraintTop_toBottomOf="@+id/remember_me"/>
+        app:layout_constraintTop_toBottomOf="@+id/remember_me"
+        app:layout_constraintVertical_bias="0.21000000"/>
 
     <android.support.design.button.MaterialButton
         android:id="@+id/back_btn"
         android:layout_width="212dp"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
         android:text="@string/back"
-        app:backgroundTint="@color/colorPrimaryDark"
-        app:layout_constraintEnd_toEndOf="@+id/enter_btn"
-        app:layout_constraintStart_toStartOf="@+id/enter_btn"
-        app:layout_constraintTop_toBottomOf="@+id/enter_btn"
+        app:backgroundTint="?themePrimaryDark"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sort"
         />
 
     <CheckBox
@@ -98,14 +102,29 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
+        android:buttonTint="?themeAccent"
         android:text="@string/remember_me_label"
+        android:textColor="?themeAccent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/passwordWrapper"/>
+        app:layout_constraintTop_toBottomOf="@+id/passwordWrapper"
+        />
 
+    <ProgressBar
+        android:id="@+id/loadingbar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="125dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
+        android:layout_weight="0.15"
+        android:indeterminate="true"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="h,1:1"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
 
 </android.support.constraint.ConstraintLayout>

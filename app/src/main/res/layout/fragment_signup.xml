@@ -25,6 +25,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:hint="@string/first_name_title"
+                android:textColorHint="?themeAccentFade"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
@@ -34,6 +35,8 @@
                     android:id="@+id/first_name_text_edit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:backgroundTint="?themePrimary"
+                    android:textColor="?themeAccent"
                     android:inputType="text"
                     android:maxLines="1"
                     android:nextFocusDown="@id/last_name_text_edit"
@@ -52,6 +55,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:hint="@string/last_name_title"
+                android:textColorHint="?themeAccentFade"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toEndOf="@+id/first_name_text_input"
@@ -59,6 +63,8 @@
                 >
 
                 <android.support.design.widget.TextInputEditText
+                    android:backgroundTint="?themePrimary"
+                    android:textColor="?themeAccent"
                     android:id="@+id/last_name_text_edit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -76,39 +82,19 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:hint="@string/email_title"
+                android:textColorHint="?themeAccentFade"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <android.support.design.widget.TextInputEditText
+                    android:backgroundTint="?themePrimary"
+                    android:textColor="?themeAccentFade"
                     android:id="@+id/email_text_edit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textEmailAddress"
-                    android:maxLines="1"/>
-            </android.support.design.widget.TextInputLayout>
-
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/phone_text_input"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginEnd="16dp"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:hint="@string/phone_title"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <android.support.design.widget.TextInputEditText
-                    android:id="@+id/phone_text_edit"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="phone"
                     android:maxLines="1"/>
             </android.support.design.widget.TextInputLayout>
 
@@ -119,10 +105,13 @@
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
                 android:layout_marginTop="8dp"
+                android:textColorHint="?themeAccentFade"
                 android:hint="@string/password_title"
                 app:helperText="@string/password_requirements_label">
 
                 <android.support.design.widget.TextInputEditText
+                    android:backgroundTint="?themePrimary"
+                    android:textColor="?themeAccent"
                     android:id="@+id/password_text_edit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -136,10 +125,13 @@
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
                 android:layout_marginTop="8dp"
+                android:textColorHint="?themeAccentFade"
                 android:hint="@string/password_conf_title">
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/password_conf_text_edit"
+                    android:textColor="?themeAccent"
+                    android:backgroundTint="?themePrimary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"/>
@@ -157,8 +149,8 @@
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
                     android:text="@android:string/cancel"
-                    android:textColor="@color/colorPrimary"
-                    android:textColorLink="@color/colorPrimary"
+                    android:textColor="?themeAccent"
+                    android:textColorLink="?themeAccent"
                     app:layout_constraintEnd_toStartOf="@+id/done_button"/>
 
                 <android.support.design.button.MaterialButton
@@ -168,7 +160,7 @@
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
                     android:text="@string/sign_up_button_label"
-                    app:backgroundTint="@color/colorPrimary"
+                    app:backgroundTint="?themePrimary"
                     app:layout_constraintEnd_toEndOf="parent"/>
 
             </android.support.constraint.ConstraintLayout>
@@ -177,7 +169,20 @@
 
     </ScrollView>
 
-
+    <ProgressBar
+        android:id="@+id/loadingbar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="125dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
+        android:layout_weight="0.15"
+        android:indeterminate="true"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="h,1:1"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
 
 
 </android.support.constraint.ConstraintLayout>

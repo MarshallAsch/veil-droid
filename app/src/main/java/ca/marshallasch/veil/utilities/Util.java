@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import com.google.protobuf.Timestamp;
@@ -56,7 +55,6 @@ public class Util
         return seconds * 1000 + (nanos / 1000000);
     }
 
-
     /**
      * Creates a {@link Date} item from the {@link Timestamp} object.
      * @param timestamp the timestamp to convert
@@ -75,12 +73,12 @@ public class Util
     /**
      * Hides Android's soft keyboard.
      *
-     * @param view referring to the root view of the layout
+     * @param activity the main activity of the app
      */
-    public static void hideKeyboard(View view, @NonNull  Activity activity) {
+    public static void hideKeyboard(@NonNull  Activity activity) {
         InputMethodManager in = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
         if(in != null){
-            in.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+            in.hideSoftInputFromWindow(activity.findViewById(android.R.id.content).getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
     }
 
@@ -118,7 +116,6 @@ public class Util
 
         return  hashStr.toString();
     }
-
 
     /**
      * This will create a new post object with the <code>UUID</code> field set to the hash of the
@@ -175,7 +172,7 @@ public class Util
     }
 
     /**
-     * Ths function will save the user so they don't need to login everyt ime.
+     * Ths function will save the user so they don't need to login every time.
      * @param activity the activity for the shared preferences to use
      * @param username the username of the user
      * @param password the password of the user.
@@ -240,34 +237,6 @@ public class Util
      *
      * @param message the body of the comment
      * @param author the author who wrote the comment
-     * @return a comment object with the postID field unset
-     */
-    public static DhtProto.Comment createComment(@NonNull String message, @NonNull DhtProto.User author) {
-
-        return createComment(message, author, null, false);
-    }
-
-    /**
-     * Create a new comment object, that is not assigned to a specific post.
-     * Note that this does not set the postID field, and the hash is made with the field unset.
-     *
-     * @param message the body of the comment
-     * @param author the author who wrote the comment
-     * @param anonymous if the post is anonymous or not
-     * @return a comment object with the postID field unset
-     */
-    public static DhtProto.Comment createComment(@NonNull String message, @NonNull DhtProto.User author, boolean anonymous) {
-
-        return createComment(message, author, null, anonymous);
-    }
-
-    /**
-     * Create a new comment object, that is not assigned to a specific post.
-     * Note that this does not set the postID field, and the hash is made with the field unset.
-     * This will set anonymous to false.
-     *
-     * @param message the body of the comment
-     * @param author the author who wrote the comment
      * @param postHash the postID that it belongs to
      * @return a comment object with the postID field set
      */
@@ -310,5 +279,70 @@ public class Util
                 .build();
 
         return comment;
+    }
+
+    /**
+     * This checks that the passwords that have been entered match and meet the
+     * minimum complexity requirements.
+     * @param password      the password that the user entered
+     * @param passwordConf  the confirmation of the password
+     * @return {@link PasswordState}
+     */
+    public static PasswordState checkPasswords(@NonNull String password, @NonNull String passwordConf)
+    {
+        if (password.length() == 0 || passwordConf.length() == 0) {
+            return PasswordState.MISSING;
+        }
+
+        int numUpper = 0;
+        int numLower = 0;
+        int numDigit = 0;
+        int numSpecial = 0;
+        int length = password.length();
+
+        // make sure that they match before checking complexity
+        if (!password.equals(passwordConf)) {
+            return PasswordState.MISMATCH;
+        }
+
+        // check complexity
+        for (int i = 0; i < length; i++) {
+
+            if (Character.isUpperCase(password.charAt(i))) {
+                numUpper++;
+            } else if (Character.isLowerCase(password.charAt(i))) {
+                numLower++;
+            } else if (Character.isDigit(password.charAt(i))) {
+                numDigit++;
+            } else if (Character.getType(password.charAt(i)) == Character.OTHER_PUNCTUATION) {
+                numSpecial++;
+            }
+        }
+
+        if (length < 8 || numUpper == 0 || numLower == 0 || numDigit == 0 || numSpecial == 0) {
+            return PasswordState.TOO_SIMPLE;
+        }
+
+        return PasswordState.GOOD;
+    }
+
+    /**
+     * Simple check of the email format, Note that the email does not need to be  RFC 5322
+     * compliment, it just needs to be something@something.something.else.
+     * @return true if the email is valid otherwise false.
+     */
+    public static boolean checkEmail(@Nullable String email) {
+
+        return email != null &&
+                email.length() != 0 &&
+                email.matches("^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$");
+    }
+
+    /**
+     * Generates a random hash
+     * @return a random hash based on a hardcoded string and the system time
+     */
+    public static int getRandomRequestCode(){
+        return (("randomString" + System.currentTimeMillis()).hashCode());
     }
 }

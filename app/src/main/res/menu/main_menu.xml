@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:app="http://schemas.android.com/apk/res-auto"
-      xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/app_settings"
+        android:title="@string/app_settings"/>
 
     <item
         android:id="@+id/setup"
-        android:title="@string/setup_right_mesh"/>
+        android:title="@string/rightmesh_settings"/>
     <item
         android:id="@+id/connected_peers"
-        android:title="Connected Peers"/>
-
+        android:title="@string/connected_peers"/>
+    <item
+        android:id="@+id/stats"
+        android:title="stats"/>
+    <item
+        android:id="@+id/db_management"
+        android:title="DB Management"/>
 </menu>

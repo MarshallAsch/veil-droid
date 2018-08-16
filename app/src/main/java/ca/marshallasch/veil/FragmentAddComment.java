@@ -18,6 +18,7 @@ import android.widget.TextView;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 import ca.marshallasch.veil.proto.DhtProto;
+import ca.marshallasch.veil.services.VeilService;
 import ca.marshallasch.veil.utilities.Util;
 
 
@@ -30,13 +31,12 @@ import ca.marshallasch.veil.utilities.Util;
  */
 public class FragmentAddComment extends android.support.v4.app.Fragment {
 
-
     public FragmentAddComment() {
         // Required empty public constructor
     }
 
-    DhtProto.Post postObject;
-    DhtProto.User currentUser;
+    private DhtProto.Post postObject;
+    private DhtProto.User currentUser;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -84,7 +84,7 @@ public class FragmentAddComment extends android.support.v4.app.Fragment {
 
         //Handle cancel button
         cancelBtn.setOnClickListener(view1 -> {
-            Util.hideKeyboard(view1, activity);
+            Util.hideKeyboard(activity);
             getFragmentManager().popBackStack();
         });
 
@@ -100,20 +100,32 @@ public class FragmentAddComment extends android.support.v4.app.Fragment {
                 return;
             }
 
-            DhtProto.Comment comment = Util.createComment(message, currentUser, anonymous);
+            DhtProto.Comment comment = Util.createComment(message, currentUser, postObject.getUuid(), anonymous);
 
             // save to the data store
-            DataStore.getInstance(activity).saveComment(comment, postObject);
+            DataStore.getInstance(activity).saveComment(comment);
+
+            Bundle bundle1 = new Bundle();
+            bundle1.putByteArray(VeilService.EXTRA_POST, postObject.toByteArray());
+            bundle1.putByteArray(VeilService.EXTRA_COMMENT, comment.toByteArray());
+
+            ((MainActivity) activity).sendServiceMessage(VeilService.ACTION_NOTIFY_NEW_DATA, bundle1);
+
 
             // go back to the post view screen
-            Util.hideKeyboard(view1, activity);
+            Util.hideKeyboard(activity);
             getFragmentManager().popBackStack();
 
         });
 
         // Inflate the layout for this fragment
         return view;
-
     }
 
+    @Override
+    public void onStop()
+    {
+        super.onStop();
+        Util.hideKeyboard(getActivity());
+    }
 }

@@ -5,28 +5,30 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.button.MaterialButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.PopupMenu;
+import android.widget.Spinner;
 
 import java.util.List;
-import java.util.Set;
 
+import ca.marshallasch.veil.controllers.RightMeshController;
 import ca.marshallasch.veil.proto.DhtProto;
-import ca.marshallasch.veil.proto.Sync;
-import io.left.rightmesh.id.MeshId;
-import io.left.rightmesh.mesh.MeshManager;
-import io.left.rightmesh.util.RightMeshException;
+import ca.marshallasch.veil.services.VeilService;
+import ca.marshallasch.veil.tagList.TagListAdapter;
 
 /**
  *
@@ -38,12 +40,10 @@ import io.left.rightmesh.util.RightMeshException;
  * @version 1.0
  * @since 2018-05-31
  */
-public class FragmentDiscoverForums extends Fragment implements  SwipeRefreshLayout.OnRefreshListener {
-
+public class FragmentDiscoverForums extends Fragment implements SwipeRefreshLayout.OnRefreshListener, PopupMenu.OnMenuItemClickListener {
 
     private PostListAdapter postListAdapter;
     private SwipeRefreshLayout refreshLayout;
-    private LocalBroadcastManager localBroadcastManager;
 
     public FragmentDiscoverForums() {
         // Required empty public constructor
@@ -51,8 +51,8 @@ public class FragmentDiscoverForums extends Fragment implements  SwipeRefreshLay
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
-    {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_discover_forums, container,false);
 
@@ -60,6 +60,15 @@ public class FragmentDiscoverForums extends Fragment implements  SwipeRefreshLay
         RecyclerView recyclerView = view.findViewById(R.id.list_view);
         recyclerView.setHasFixedSize(true);
 
+        MaterialButton sort = view.findViewById(R.id.sort);
+
+        sort.setOnClickListener(view1 -> {
+            PopupMenu popupMenu = new PopupMenu(view1.getContext(), view1);
+            popupMenu.inflate(R.menu.sort_menu);
+            popupMenu.show();
+
+            popupMenu.setOnMenuItemClickListener(FragmentDiscoverForums.this);
+        });
 
         ActionBar actionBar = ((MainActivity) activity).getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -75,70 +84,93 @@ public class FragmentDiscoverForums extends Fragment implements  SwipeRefreshLay
 
         refreshLayout = view.findViewById(R.id.swiperefresh);
 
+        Spinner spinner = view.findViewById(R.id.filter);
+        TagListAdapter tagListAdapter = new TagListAdapter(activity);
+        spinner.setAdapter(tagListAdapter);
+
+        tagListAdapter.registerDataSetObserver(new DataSetObserver() {
+            @Override
+            public void onChanged()
+            {
+                List<String> tags = tagListAdapter.getSelectedTags();
+
+                StringBuilder filter = new StringBuilder();
+
+                for (String tag:tags) {
+                    filter.append(tag).append(":");
+                }
+
+                postListAdapter.getFilter().filter(filter.toString());
+            }
+        });
+
         refreshLayout.setOnRefreshListener(this);
 
         // register receiver to be notified when the data changes
-        localBroadcastManager = LocalBroadcastManager.getInstance(activity);
-        localBroadcastManager.registerReceiver(localReceiver, new IntentFilter(MainActivity.NEW_DATA_BROADCAST));
-
-
+        LocalBroadcastManager.getInstance(activity).registerReceiver(
+                broadcastReceiver, new IntentFilter(RightMeshController.NEW_DATA_BROADCAST));
 
         return view;
     }
 
     @Override
-    public void onDestroyView()
-    {
+    public void onDestroyView() {
         super.onDestroyView();
 
         // unregister receiver
-        localBroadcastManager.unregisterReceiver(localReceiver);
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(broadcastReceiver);
     }
 
+    /**
+     * This is called when the list of posts is refreshed.
+     */
     @Override
-    public void onRefresh()
-    {
-        Log.d("REFRESH", "refreshing the data set");
-        try {
-            MeshManager manager = ((MainActivity) getActivity()).meshManager;
-            Set<MeshId> peers = manager.getPeers(MainActivity.DATA_PORT);
-
-            Sync.Message dataRequest = Sync.Message.newBuilder().setType(Sync.SyncMessageType.REQUEST_DATA).build();
-
-            // request an update from everyone
-            for (MeshId peer: peers) {
-
-                // do not ask myself for info
-                if (peer.equals(manager.getUuid())) {
-                    continue;
-                }
-                manager.sendDataReliable(peer, MainActivity.DATA_PORT, dataRequest.toByteArray());
-            }
-
-            postListAdapter.notifyDataSetChanged();
-
-        }
-        catch (RightMeshException e) {
-            e.printStackTrace();
-        }
+    public void onRefresh() {
+        ((MainActivity) getActivity()).sendServiceMessage(VeilService.ACTION_MAIN_REFRESH_FORUMS_LIST, null);
     }
 
-    private final  BroadcastReceiver localReceiver = new BroadcastReceiver() {
+    /**
+     * Will be called when one of the popup menu options is clicked.
+     * @param menuItem the menu item that was selected
+     * @return false so other event handlers can act on this event.
+     */
+    @Override
+    public boolean onMenuItemClick(MenuItem menuItem)
+    {
+        switch (menuItem.getItemId()){
+            case R.id.age_asc:
+                postListAdapter.sort(PostListAdapter.SortOption.AGE_ASC);
+                break;
+            case R.id.age_desc:
+                postListAdapter.sort(PostListAdapter.SortOption.AGE_DESC);
+                break;
+            case R.id.auth_asc:
+                postListAdapter.sort(PostListAdapter.SortOption.ALPHA_AUTH_ASC);
+                break;
+            case R.id.auth_desc:
+                postListAdapter.sort(PostListAdapter.SortOption.ALPHA_AUTH_DESC);
+                break;
+            case R.id.title_asc:
+                postListAdapter.sort(PostListAdapter.SortOption.ALPHA_TITLE_ASC);
+                break;
+            case R.id.title_desc:
+                postListAdapter.sort(PostListAdapter.SortOption.ALPHA_TITLE_DESC);
+                break;
+        }
+
+        return false;
+    }
+
+    private final  BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
-        public void onReceive(Context context, Intent intent)
-        {
-
+        public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-
-            if (action.equals(MainActivity.NEW_DATA_BROADCAST)) {
+            if (action.equals(RightMeshController.NEW_DATA_BROADCAST)) {
 
                 List<DhtProto.Post> posts = DataStore.getInstance(context).getKnownPosts();
                 postListAdapter.update(posts);
-                postListAdapter.notifyDataSetChanged();
                 refreshLayout.setRefreshing(false);
-
             }
         }
     };
-
 }

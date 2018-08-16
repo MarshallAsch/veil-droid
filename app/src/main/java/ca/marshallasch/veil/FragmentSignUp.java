@@ -1,5 +1,6 @@
 package ca.marshallasch.veil;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -11,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 
 import ca.marshallasch.veil.database.Database;
 import ca.marshallasch.veil.proto.DhtProto;
@@ -25,24 +27,13 @@ import ca.marshallasch.veil.utilities.Util;
  */
 public class FragmentSignUp extends Fragment
 {
-    /**
-     * This is returned from {@link #checkPasswords(String, String)} to determine what was wrong with the password
-     */
-    enum PasswordState
-    {
-        TOO_SIMPLE,
-        MISMATCH,
-        MISSING,
-        GOOD
-    }
-
     private EditText firstNameInput;
     private EditText lastNameInput;
     private EditText emailAddressInput;
     private EditText passwordInput;
     private EditText passwordConfInput;
-    private EditText phoneNumberInput;
 
+    private SignUpTask signUpTask = null;
     /**
      * Required empty public constructor
      */
@@ -55,7 +46,6 @@ public class FragmentSignUp extends Fragment
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
         View view = inflater.inflate(R.layout.fragment_signup, container, false);
-        ((MainActivity) getActivity()).getSupportActionBar().hide();
 
         // navigate back to the landing screen
         view.setFocusableInTouchMode(true);
@@ -75,31 +65,22 @@ public class FragmentSignUp extends Fragment
         emailAddressInput = view.findViewById(R.id.email_text_edit);
         passwordInput = view.findViewById(R.id.password_text_edit);
         passwordConfInput = view.findViewById(R.id.password_conf_text_edit);
-        phoneNumberInput = view.findViewById(R.id.phone_text_edit);
 
         MaterialButton cancel = view.findViewById(R.id.cancel_button);
         MaterialButton done = view.findViewById(R.id.done_button);
 
         cancel.setOnClickListener(v -> {
             ((MainActivity) getActivity()).navigateTo(new FragmentLanding(), false);
-            Util.hideKeyboard(v, getActivity());
+            Util.hideKeyboard(getActivity());
         });
 
         done.setOnClickListener(v ->{
             //route to login after sign up
-            Util.hideKeyboard(v, getActivity());
+            Util.hideKeyboard(getActivity());
             this.onDoneClicked();
         });
 
         return view;
-    }
-
-    @Override
-    public void onDestroyView(){
-        super.onDestroyView();
-
-        // return the action bar.
-        ((MainActivity) getActivity()).getSupportActionBar().show();
     }
 
     /**
@@ -118,17 +99,12 @@ public class FragmentSignUp extends Fragment
             return;
         }
 
-        if (!checkEmail()) {
+        if (!Util.checkEmail(email)) {
             Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.invalid_email, Snackbar.LENGTH_SHORT).show();
             return;
         }
 
-        if (!checkPhone()) {
-            Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.invalid_phone_number, Snackbar.LENGTH_SHORT).show();
-            return;
-        }
-
-        switch (checkPasswords(password, passwordConf)) {
+        switch (Util.checkPasswords(password, passwordConf)) {
 
             case TOO_SIMPLE:
                 Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.password_complexity, Snackbar.LENGTH_SHORT).show();
@@ -143,83 +119,80 @@ public class FragmentSignUp extends Fragment
                 break;
         }
 
-        // create the user in the database
-        Database db = Database.getInstance(getActivity());
-        DhtProto.User user = db.createUser(firstName, lastName, email, password);
-        db.close();
-
-        if (user == null) {
-            Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.unknown_err, Snackbar.LENGTH_SHORT).show();
-        } else {
-            ((MainActivity) getActivity()).setCurrentUser(user);
-            ((MainActivity) getActivity()).navigateTo(new FragmentDashBoard(), false);
+        // make sure only one task is running at a time.
+        if (signUpTask == null) {
+            signUpTask = new SignUpTask();
+            signUpTask.execute(firstName, lastName, email, password);
         }
     }
 
     /**
-     * This checks that the passwords that have been entered match and meet the
-     * minimum complexity requirements.
-     * @param password      the password that the user entered
-     * @param passwordConf  the confirmation of the password
-     * @return {@link PasswordState}
+     * Use this AsyncTask to move the account creation work into a separate thread to offload some of
+     * the work from the main thread.
      */
-    private PasswordState checkPasswords(@NonNull String password, @NonNull String passwordConf)
+    private class SignUpTask extends AsyncTask<String, Void, DhtProto.User>
     {
-        if (password.length() == 0 || passwordConf.length() == 0) {
-            return PasswordState.MISSING;
+        /**
+         * This will run on the UI thread before the task executes.
+         * This will show the loading spinner
+         */
+        @Override
+        protected void onPreExecute()
+        {
+            super.onPreExecute();
+
+            ProgressBar loadingBar =  getActivity().findViewById(R.id.loadingbar);
+            loadingBar.setVisibility(View.VISIBLE);
         }
 
-        int numUpper = 0;
-        int numLower = 0;
-        int numDigit = 0;
-        int numSpecial = 0;
-        int length = password.length();
+        /**
+         * This function gets called to do the work in a separate thread. It MUST be given 4
+         * arguments:
+         * FirstName
+         * LastName
+         * Email
+         * Password
+         *
+         * @param strings list of strings to pass into the function
+         * @return The users that was just created.
+         */
+        @Override
+        protected DhtProto.User doInBackground(String... strings)
+        {
+            String firstName = strings[0];
+            String lastName = strings[1];
+            String email = strings[2];
+            String password = strings[3];
 
-        // make sure that they match before checking complexity
-        if (!password.equals(passwordConf)) {
-            return PasswordState.MISMATCH;
+            // create the user in the database
+            Database db = Database.getInstance(getActivity());
+            DhtProto.User user = db.createUser(firstName, lastName, email, password);
+            db.close();
+
+            return user;
         }
 
-        // check complexity
-        for (int i = 0; i < length; i++) {
-
-            if (Character.isUpperCase(password.charAt(i))) {
-                numUpper++;
-            } else if (Character.isLowerCase(password.charAt(i))) {
-                numLower++;
-            } else if (Character.isDigit(password.charAt(i))) {
-                numDigit++;
-            } else if (Character.getType(password.charAt(i)) == Character.OTHER_PUNCTUATION) {
-                numSpecial++;
+        /**
+         * Run this on the main thread to update the UI.
+         * This will display an error message or go to the dashboard screen.
+         * @param user the user that was just created
+         */
+        @Override
+        protected void onPostExecute(DhtProto.User user)
+        {
+            ProgressBar loadingBar =  getActivity().findViewById(R.id.loadingbar);
+            if (loadingBar != null) {
+                loadingBar.setVisibility(View.VISIBLE);
             }
+
+            if (user == null) {
+                Snackbar.make(getActivity().findViewById(R.id.top_view), R.string.unknown_err, Snackbar.LENGTH_SHORT).show();
+            } else {
+                ((MainActivity) getActivity()).setCurrentUser(user);
+                ((MainActivity) getActivity()).navigateTo(new FragmentDashBoard(), false);
+            }
+
+            signUpTask = null;
         }
-
-        if (length < 8 || numUpper == 0 || numLower == 0 || numDigit == 0 || numSpecial == 0) {
-            return PasswordState.TOO_SIMPLE;
-        }
-
-        return PasswordState.GOOD;
-    }
-
-    /**
-     * Simple check of the email format, Note that the email does not need to be  RFC 5322
-     * compliment, it just needs to be something@something.something.else.
-     * @return true if the email is valid otherwise false.
-     */
-    private boolean checkEmail() {
-        String email = emailAddressInput.getText().toString();
-
-        return email.length() != 0 && email.matches("^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$");
-    }
-
-    /**
-     * Simple check of the phone number format, Note that the email does not need to be  E.164
-     * compliment, it just needs to be some phone number between 10 and 15 digits long
-     * @return true if the phone number is valid otherwise false.
-     */
-    private boolean checkPhone() {
-        String phoneNumber = phoneNumberInput.getText().toString();
-
-        return phoneNumber.length() >= 10 && phoneNumber.length() <=15 && phoneNumber.matches("^[0-9]*$");
     }
 }

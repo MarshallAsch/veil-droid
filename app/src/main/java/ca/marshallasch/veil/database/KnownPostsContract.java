@@ -18,6 +18,8 @@ public final class KnownPostsContract {
             KnownPostsEntry._ID + " INTEGER PRIMARY KEY," +
             KnownPostsEntry.COLUMN_COMMENT_HASH + " VARCHAR(36)," +
             KnownPostsEntry.COLUMN_POST_HASH + " VARCHAR(36)," +
+            KnownPostsEntry.COLUMN_TIME_INSERTED + " DATETIME," +
+            KnownPostsEntry.COLUMN_READ + " INTEGER DEFAULT 0," +
             "UNIQUE(" + KnownPostsEntry.COLUMN_POST_HASH + ", " + KnownPostsEntry.COLUMN_COMMENT_HASH + ")" +
             ");";
 
@@ -26,8 +28,11 @@ public final class KnownPostsContract {
 
     // Inner class for defining the tables contents
     public static final class KnownPostsEntry implements BaseColumns {
-        public static final String TABLE_NAME = "KnownPostsContract";
+        public static final String TABLE_NAME = "KnownPosts";
         public static final String COLUMN_POST_HASH = "post_hash";
         public static final String COLUMN_COMMENT_HASH = "comment_hash";
+        public static final String COLUMN_TIME_INSERTED = "time_inserted";
+        public static final String COLUMN_READ = "read";
+
     }
 }

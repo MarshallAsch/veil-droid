@@ -27,7 +27,7 @@ import ca.marshallasch.veil.proto.DhtProto;
 //@RunWith(RobolectricTestRunner.class)
 public class UtilTest
 {
-    DhtProto.User author = DhtProto.User.newBuilder()
+    private final DhtProto.User author = DhtProto.User.newBuilder()
             .setFirstName("Marshall")
             .setLastName("Asch")
             .setEmail("maasch@rogers.com")
@@ -60,24 +60,24 @@ public class UtilTest
     public void createComment()
     {
 
-        DhtProto.Comment comment = Util.createComment("This is the message", author);
+        DhtProto.Comment comment = Util.createComment("This is the message", author, "POSTHASH");
 
         Assert.assertNotNull(comment);
         Assert.assertEquals("Marshall Asch", comment.getAuthorName());
         Assert.assertEquals("userID", comment.getAuthorId());
         Assert.assertEquals("This is the message", comment.getMessage());
         Assert.assertEquals(false, comment.getAnonymous());
-        Assert.assertEquals("", comment.getPostId());
+        Assert.assertEquals("POSTHASH", comment.getPostId());
 
         // test no post hash set
-        comment = Util.createComment("This is the second message", author, true);
+        comment = Util.createComment("This is the second message", author, "POSTHASH", true);
 
         Assert.assertNotNull(comment);
         Assert.assertEquals("Marshall Asch", comment.getAuthorName());
         Assert.assertEquals("userID", comment.getAuthorId());
         Assert.assertEquals("This is the second message", comment.getMessage());
         Assert.assertEquals(true, comment.getAnonymous());
-        Assert.assertEquals("", comment.getPostId());
+        Assert.assertEquals("POSTHASH", comment.getPostId());
 
         // test set postHash
         comment = Util.createComment("This is the third message", author, "postHash");
@@ -105,6 +105,28 @@ public class UtilTest
 
 
     @Test
+    public void checkPasswords()
+    {
+        String pass1 = "password";
+        String pass2 = "Password";
+        String pass3 = "PASSWORD";
+        String pass6 = "P@ssword1";
+        String pass7 = "PASSWORd1!";
+
+        Assert.assertEquals(PasswordState.TOO_SIMPLE, Util.checkPasswords(pass1, pass1));
+        Assert.assertEquals(PasswordState.TOO_SIMPLE, Util.checkPasswords(pass2, pass2));
+        Assert.assertEquals(PasswordState.TOO_SIMPLE, Util.checkPasswords(pass3, pass3));
+
+        Assert.assertEquals(PasswordState.MISSING, Util.checkPasswords("", ""));
+        Assert.assertEquals(PasswordState.MISSING, Util.checkPasswords("", pass1));
+
+        Assert.assertEquals(PasswordState.MISMATCH, Util.checkPasswords(pass1, pass2));
+        Assert.assertEquals(PasswordState.MISMATCH, Util.checkPasswords(pass6, pass7));
+
+        Assert.assertEquals(PasswordState.GOOD, Util.checkPasswords(pass7, pass7));
+        Assert.assertEquals(PasswordState.GOOD, Util.checkPasswords(pass6, pass6));
+    }
+  
     @Ignore
     public void rememberUserName()
     {
@@ -163,6 +185,18 @@ public class UtilTest
 
 
     @Test
+    public void checkEmail()
+    {
+        Assert.assertTrue(Util.checkEmail("A@b.c"));
+        Assert.assertFalse(Util.checkEmail(null));
+        Assert.assertFalse(Util.checkEmail(""));
+        Assert.assertFalse(Util.checkEmail("email address"));
+        Assert.assertFalse(Util.checkEmail("email address@com.ca"));
+        Assert.assertFalse(Util.checkEmail("emailaddress@com"));
+        Assert.assertTrue(Util.checkEmail("email_address@com.ca.net"));
+        Assert.assertFalse(Util.checkEmail("email@address@com.ca"));
+    }
+
     @Ignore
     public void clearKnownUser()
     {
@@ -239,5 +273,6 @@ public class UtilTest
             Assert.assertEquals(testTags.get(i),post.getTags(i));
         }
     }
+
 
 }
