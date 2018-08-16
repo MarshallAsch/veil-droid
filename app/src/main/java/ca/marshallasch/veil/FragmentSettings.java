@@ -46,7 +46,7 @@ public class FragmentSettings extends Fragment {
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         darkThemeToggle.setChecked(preferences.getBoolean(PREF_DARK_THEME, false));
-        protocolVersionToggle.setChecked(preferences.getInt(PREF_SYNC_VERSION, SYNC_MESSAGE_V1) == SYNC_MESSAGE_V2);
+        protocolVersionToggle.setChecked(preferences.getInt(PREF_SYNC_VERSION, SYNC_MESSAGE_V2) == SYNC_MESSAGE_V2);
 
 
         //on click listener so allows for toggle to reset itself
