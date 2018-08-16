@@ -120,6 +120,7 @@ public class Database extends SQLiteOpenHelper
         getWritableDatabase().delete(UserEntry.TABLE_NAME, null, null);
         getWritableDatabase().delete(KnownPostsEntry.TABLE_NAME, null, null);
         getWritableDatabase().delete(PeerListEntry.TABLE_NAME, null, null);
+        getWritableDatabase().delete(SyncStatsEntry.TABLE_NAME, null, null);
 
     }
 
@@ -1521,6 +1522,18 @@ public class Database extends SQLiteOpenHelper
         cursor.close();
 
         return status;
+    }
+
+    public void clearKnownPosts() {
+        getWritableDatabase().delete(KnownPostsEntry.TABLE_NAME, null, null);
+    }
+
+    public void clearSyncStats() {
+        getWritableDatabase().delete(SyncStatsEntry.TABLE_NAME, null, null);
+    }
+
+    public void clearPeers() {
+        getWritableDatabase().delete(SyncStatsEntry.TABLE_NAME, null, null);
     }
 
 }

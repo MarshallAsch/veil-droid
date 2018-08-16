@@ -205,7 +205,7 @@ final class Migrations
     }
 
     /**
-     * Added in status column to the KnownPosts table.
+     * Added in status column to the KnownPosts table
      * @param db the database object
      */
     static void upgradeV10(SQLiteDatabase db){

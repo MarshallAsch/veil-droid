@@ -211,6 +211,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.stats:
                 frag = new FragmentStats();
                 break;
+            case R.id.db_management:
+                frag = new FragmentDeletion();
+                break;
             default:
                 return super.onOptionsItemSelected(item);
         }
