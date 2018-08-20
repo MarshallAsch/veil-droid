@@ -390,4 +390,24 @@ public class DataStore
     public void clearPeers() {
         db.clearPeers();
     }
+
+
+
+    public void runDataSaver(){
+        List<String> toBeDeletePostHashes = db.getAllPostsbyStatus(KnownPostsContract.POST_NORMAL);
+        List<String> toBeDeleteCommentHashes = db.getAllCommentsByStatus(KnownPostsContract.POST_NORMAL);
+
+        // delete all the post hashes from the hashtable
+        for(String str: toBeDeletePostHashes) {
+            hashTableStore.deleteByHash(str);
+        }
+
+        // delete all the comment hashes from the hashtable
+        for(String str: toBeDeleteCommentHashes) {
+            hashTableStore.deleteByHash(str);
+        }
+
+        //delete all the hashes with status normal from the db
+        db.dataSaverClear();
+    }
 }

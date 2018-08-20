@@ -1536,4 +1536,87 @@ public class Database extends SQLiteOpenHelper
         getWritableDatabase().delete(SyncStatsEntry.TABLE_NAME, null, null);
     }
 
+    /**
+     * This function removes all the posts and comments from the database that are
+     * not flagged by the protecton
+     */
+    @WorkerThread
+    public void dataSaverClear(){
+        String whereClause = "WHERE status = "+KnownPostsContract.POST_NORMAL;
+        getReadableDatabase().delete(KnownPostsEntry.TABLE_NAME, whereClause, null);
+    }
+
+    /**
+     * Gets all the posts hashes based on their status
+     * @param _status indicates status 1,2, or 3
+     *               where
+     *               1 = normal
+     *               2 = protected
+     *               3 = dead
+     */
+    public List<String> getAllPostsbyStatus(int _status){
+        String status = String.valueOf(_status);
+        String[] projection = {KnownPostsEntry.COLUMN_POST_HASH};
+
+        String selection = KnownPostsEntry.COLUMN_STATUS +  " = ?";
+        String[] selectionArgs = {status};
+
+        Cursor cursor;
+        synchronized (this) {
+            cursor = getReadableDatabase().query(
+                    KnownPostsEntry.TABLE_NAME, //Table to query
+                    projection, // Array of columns to return
+                    selection, // The columns for the WHERE clause
+                    selectionArgs, // the values for the WHERE clause
+                    null, // no row grouping
+                    null, // no filter by row groups
+                    null // don't sort
+            );
+        }
+
+        List<String> hashes = new ArrayList<>();
+        while(cursor.moveToNext()) {
+            String hash = cursor.getString(cursor.getColumnIndexOrThrow(KnownPostsEntry.COLUMN_POST_HASH));
+            hashes.add(hash);
+        }
+        cursor.close();
+        return hashes;
+    }
+
+    /**
+     * Gets all the comment hashes based on their status
+     * @param _status indicates status 1,2, or 3
+     *               where
+     *               1 = normal
+     *               2 = protected
+     *               3 = dead
+     */
+    public List<String> getAllCommentsByStatus(int _status){
+        String status = String.valueOf(_status);
+        String[] projection = {KnownPostsEntry.COLUMN_COMMENT_HASH};
+
+        String selection = KnownPostsEntry.COLUMN_STATUS +  " = ?";
+        String[] selectionArgs = {status};
+
+        Cursor cursor;
+        synchronized (this) {
+            cursor = getReadableDatabase().query(
+                    KnownPostsEntry.TABLE_NAME, //Table to query
+                    projection, // Array of columns to return
+                    selection, // The columns for the WHERE clause
+                    selectionArgs, // the values for the WHERE clause
+                    null, // no row grouping
+                    null, // no filter by row groups
+                    null // don't sort
+            );
+        }
+
+        List<String> hashes = new ArrayList<>();
+        while(cursor.moveToNext()) {
+            String hash = cursor.getString(cursor.getColumnIndexOrThrow(KnownPostsEntry.COLUMN_COMMENT_HASH));
+            hashes.add(hash);
+        }
+        cursor.close();
+        return hashes;
+    }
 }
