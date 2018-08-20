@@ -15,6 +15,9 @@
             android:exported="false"/>
         <service android:name=".services.DataSaverService"
             android:exported="false"/>
+        <receiver
+            android:name="ca.marshallasch.veil.AlarmReceiver"
+            android:exported="false"></receiver>
         <activity
             android:name=".MainActivity"
             android:windowSoftInputMode="adjustResize"

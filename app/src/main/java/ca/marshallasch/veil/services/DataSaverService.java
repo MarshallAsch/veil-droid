@@ -23,6 +23,6 @@ public class DataSaverService extends IntentService {
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
         String dataString = intent.getDataString();
-        Toast.makeText(this, "SERVICE STARTED", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "SERVICE STARTED", Toast.LENGTH_SHORT).show();
     }
 }

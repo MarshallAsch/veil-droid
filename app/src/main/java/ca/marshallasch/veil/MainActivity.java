@@ -22,6 +22,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import java.util.Objects;
+
 import ca.marshallasch.veil.controllers.RightMeshController;
 import ca.marshallasch.veil.database.Database;
 import ca.marshallasch.veil.proto.DhtProto;
@@ -107,11 +109,11 @@ public class MainActivity extends AppCompatActivity {
         startService(intent);
 
         //starts data saver service
-        Intent dataSaverServiceIntent = new Intent(this, DataSaverService.class);
-        startService(dataSaverServiceIntent);
-        AlarmManager mgr = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-        PendingIntent pendingIntent = PendingIntent.getService(this, DataSaverService.DataSaverSerivceID, dataSaverServiceIntent, 0);
-        mgr.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), AlarmManager.INTERVAL_HALF_HOUR, pendingIntent);
+        AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        Intent alarmIntent = new Intent(this, AlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,System.currentTimeMillis(),1000 * 60 * 10,
+                pendingIntent);
 
         // if the user is logged in then go to the dash otherwise go to landing page.
         navigateTo(currentUser != null ? new FragmentDashBoard() : new FragmentLanding(), false);
@@ -142,7 +144,6 @@ public class MainActivity extends AppCompatActivity {
 
         dataStore.save();
         dataStore.close();
-
         //stopping Rightmesh service
         stopService(new Intent(this, VeilService.class));
 
