@@ -342,7 +342,7 @@ public class RightMeshController implements MeshStateListener{
 
         // notify other users that there is a new comment or new post
         try {
-            MeshId[] peers =  (MeshId[]) discovered.toArray();
+            MeshId[] peers = discovered.toArray(new MeshId[0]);
 
             Sync.NewContent.Builder builder = Sync.NewContent.newBuilder();
 
