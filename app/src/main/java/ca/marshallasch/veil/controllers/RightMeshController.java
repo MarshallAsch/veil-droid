@@ -148,18 +148,7 @@ public class RightMeshController implements MeshStateListener{
                 DhtProto.Post post = newContent.getPost();
                 DhtProto.Comment comment = newContent.getComment();
 
-                if (post != null) {
-                    dataStore.savePost(post);
-
-                    String authorName = post.getAnonymous() ? serviceContext.getString(R.string.anonymous) : post.getAuthorName();
-
-                    if (preferences.getBoolean(PREF_NOTIFY_POST, true)) {
-                        showNotification(post.getTitle(), authorName);
-                    }
-
-                    // notify anyone interested that the data store has been updated.
-                    LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
-                } else if (comment != null) {
+                if (comment != null) {
                     dataStore.saveComment(comment);
 
                     // notify anyone interested that the data store has been updated.
@@ -170,8 +159,18 @@ public class RightMeshController implements MeshStateListener{
                     if (preferences.getBoolean(PREF_NOTIFY_COMMENT, true)) {
                         showNotification(comment.getMessage(), authorName);
                     }
-                }
-                else {
+                } else if (post != null) {
+                    dataStore.savePost(post);
+
+                    String authorName = post.getAnonymous() ? serviceContext.getString(R.string.anonymous) : post.getAuthorName();
+
+                    if (preferences.getBoolean(PREF_NOTIFY_POST, true)) {
+                        showNotification(post.getTitle(), authorName);
+                    }
+
+                    // notify anyone interested that the data store has been updated.
+                    LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
+                } else {
                     Log.d("INVALID_CONTENT", "New content message is missing content");
                 }
 
@@ -359,7 +358,7 @@ public class RightMeshController implements MeshStateListener{
 
             Sync.NewContent newContent = builder.build();
 
-            Sync.Message dataRequest = Sync.Message.newBuilder()
+            Sync.Message message = Sync.Message.newBuilder()
                     .setType(Sync.SyncMessageType.NEW_CONTENT)
                     .setNewContent(newContent)
                     .build();
@@ -367,11 +366,11 @@ public class RightMeshController implements MeshStateListener{
             // request an update from everyone
             for (MeshId peer: peers) {
 
-                // do not ask myself for info
+                // do not send message to myself
                 if (peer.equals(meshManager.getUuid())) {
                     continue;
                 }
-                meshManager.sendDataReliable(peer, DATA_PORT, dataRequest.toByteArray());
+                meshManager.sendDataReliable(peer, DATA_PORT, message.toByteArray());
             }
         }
         catch (RightMeshException e) {
