@@ -1542,7 +1542,7 @@ public class Database extends SQLiteOpenHelper
      */
     @WorkerThread
     public void dataSaverClear(){
-        String whereClause = "WHERE status = "+KnownPostsContract.POST_NORMAL;
+        String whereClause = "status = "+KnownPostsContract.POST_NORMAL;
         getReadableDatabase().delete(KnownPostsEntry.TABLE_NAME, whereClause, null);
     }
 

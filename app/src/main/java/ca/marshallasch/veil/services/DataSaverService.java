@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.widget.Toast;
 
+import ca.marshallasch.veil.DataStore;
+
 /**
  * @author Weihan Li
  * @version 1.0
@@ -22,7 +24,7 @@ public class DataSaverService extends IntentService {
     }
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        String dataString = intent.getDataString();
-        Toast.makeText(this, "SERVICE STARTED", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "DATA SAVER SERVICE STARTED", Toast.LENGTH_SHORT).show();
+        DataStore.getInstance(this).runDataSaver();
     }
 }

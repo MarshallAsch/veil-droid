@@ -5,6 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import ca.marshallasch.veil.services.DataSaverService;
+
+
 /**
  * @author Weihan Li
  * @version 1.0
@@ -18,5 +21,8 @@ public class AlarmReceiver extends BroadcastReceiver{
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.e("ALARMRECEIVER: ", "PING!");
+        Intent dataSaverIntent = new Intent(context, DataSaverService.class);
+        context.startService(dataSaverIntent);
+
     }
 }
