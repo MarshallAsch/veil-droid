@@ -315,10 +315,9 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private void updatePostStatus(ViewHolder1 viewHolder, DhtProto.Post post){
         int postStatus = DataStore.getInstance(activity).getPostStatus(post.getUuid());
 
-        if(postStatus == KnownPostsContract.POST_NORMAL){
-            viewHolder.protectedMarker.setImageResource(R.drawable.ic_unprotected);
-        } else if(postStatus == KnownPostsContract.POST_PROTECTED){
-            viewHolder.protectedMarker.setImageResource(R.drawable.ic_protected);
-        }
+        //sets the drawable
+        int drawable = (postStatus == KnownPostsContract.POST_NORMAL) ?
+                R.drawable.ic_unprotected : R.drawable.ic_protected;
+        viewHolder.protectedMarker.setImageResource(drawable);
     }
 }

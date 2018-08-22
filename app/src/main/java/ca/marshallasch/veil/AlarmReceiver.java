@@ -21,8 +21,8 @@ public class AlarmReceiver extends BroadcastReceiver{
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.e("ALARMRECEIVER: ", "PING!");
-        Intent dataSaverIntent = new Intent(context, DataSaverService.class);
-        context.startService(dataSaverIntent);
+       // Intent dataSaverIntent = new Intent(context, DataSaverService.class);
+        //context.startService(dataSaverIntent);
 
     }
 }

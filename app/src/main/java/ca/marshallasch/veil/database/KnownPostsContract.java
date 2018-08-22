@@ -13,9 +13,9 @@ import android.provider.BaseColumns;
 public final class KnownPostsContract {
 
     //Post status ints
-    public static int POST_NORMAL = 0;
-    public static int POST_PROTECTED = 1;
-    public static int POST_DEAD = 2;
+    public final static int POST_NORMAL = 0;
+    public final static int POST_PROTECTED = 1;
+    public final static int POST_DEAD = 2;
 
     // DB query string
     static final String SQL_CREATE_KNOWN_POSTS = "CREATE TABLE " +  KnownPostsEntry.TABLE_NAME +

@@ -345,10 +345,6 @@ public class DataStore
         hashTableStore.save();
     }
 
-    public void updatePostStatus(int status){
-
-    }
-
     /**
      * This task will be run every 10 minutes to try to save the has table store if it has been modified.
      */
@@ -394,16 +390,10 @@ public class DataStore
 
 
     public void runDataSaver(){
-        List<String> toBeDeletePostHashes = db.getAllPostsbyStatus(KnownPostsContract.POST_NORMAL);
-        List<String> toBeDeleteCommentHashes = db.getAllCommentsByStatus(KnownPostsContract.POST_NORMAL);
+        List<String> toBeDeletePostHashes = db.getAllPostsByStatus(KnownPostsContract.POST_NORMAL);
 
-        // delete all the post hashes from the hashtable
+        // delete all the post hashes from the hashtable along with its comments
         for(String str: toBeDeletePostHashes) {
-            hashTableStore.deleteByHash(str);
-        }
-
-        // delete all the comment hashes from the hashtable
-        for(String str: toBeDeleteCommentHashes) {
             hashTableStore.deleteByHash(str);
         }
 

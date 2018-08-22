@@ -53,7 +53,7 @@ import ca.marshallasch.veil.utilities.Util;
 public class Database extends SQLiteOpenHelper
 {
     private static String DATABASE_NAME = "contentDiscoveryTables";
-    private static final int DATABASE_VERSION = 9;
+    private static final int DATABASE_VERSION = 10;
 
     // this is for the singleton
     private static Database instance = null;
@@ -1461,12 +1461,11 @@ public class Database extends SQLiteOpenHelper
      *
      * @param postHash the hash of the post item being marked
      * @param status 0,1,2 as describe in the comment
-     * @return
+     * @return true if it updates successfully, false if something unexpected happens
      */
     @WorkerThread
     public boolean setPostStatus(String postHash, int status) {
-        String selection = KnownPostsEntry.COLUMN_POST_HASH + " = ? AND " +
-                KnownPostsEntry.COLUMN_COMMENT_HASH + " == \"\" ";
+        String selection = KnownPostsEntry.COLUMN_POST_HASH + " = ? ";
 
         String[] selectionArgs = { postHash };
 
@@ -1554,7 +1553,7 @@ public class Database extends SQLiteOpenHelper
      *               2 = protected
      *               3 = dead
      */
-    public List<String> getAllPostsbyStatus(int _status){
+    public List<String> getAllPostsByStatus(int _status){
         String status = String.valueOf(_status);
         String[] projection = {KnownPostsEntry.COLUMN_POST_HASH};
 
@@ -1563,11 +1562,12 @@ public class Database extends SQLiteOpenHelper
 
         Cursor cursor;
         synchronized (this) {
-            cursor = getReadableDatabase().query(
+            cursor = getReadableDatabase().query(true,
                     KnownPostsEntry.TABLE_NAME, //Table to query
                     projection, // Array of columns to return
                     selection, // The columns for the WHERE clause
                     selectionArgs, // the values for the WHERE clause
+                    null,
                     null, // no row grouping
                     null, // no filter by row groups
                     null // don't sort
@@ -1577,43 +1577,6 @@ public class Database extends SQLiteOpenHelper
         List<String> hashes = new ArrayList<>();
         while(cursor.moveToNext()) {
             String hash = cursor.getString(cursor.getColumnIndexOrThrow(KnownPostsEntry.COLUMN_POST_HASH));
-            hashes.add(hash);
-        }
-        cursor.close();
-        return hashes;
-    }
-
-    /**
-     * Gets all the comment hashes based on their status
-     * @param _status indicates status 1,2, or 3
-     *               where
-     *               1 = normal
-     *               2 = protected
-     *               3 = dead
-     */
-    public List<String> getAllCommentsByStatus(int _status){
-        String status = String.valueOf(_status);
-        String[] projection = {KnownPostsEntry.COLUMN_COMMENT_HASH};
-
-        String selection = KnownPostsEntry.COLUMN_STATUS +  " = ?";
-        String[] selectionArgs = {status};
-
-        Cursor cursor;
-        synchronized (this) {
-            cursor = getReadableDatabase().query(
-                    KnownPostsEntry.TABLE_NAME, //Table to query
-                    projection, // Array of columns to return
-                    selection, // The columns for the WHERE clause
-                    selectionArgs, // the values for the WHERE clause
-                    null, // no row grouping
-                    null, // no filter by row groups
-                    null // don't sort
-            );
-        }
-
-        List<String> hashes = new ArrayList<>();
-        while(cursor.moveToNext()) {
-            String hash = cursor.getString(cursor.getColumnIndexOrThrow(KnownPostsEntry.COLUMN_COMMENT_HASH));
             hashes.add(hash);
         }
         cursor.close();

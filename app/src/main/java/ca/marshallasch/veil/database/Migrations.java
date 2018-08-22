@@ -209,6 +209,75 @@ final class Migrations
      * @param db the database object
      */
     static void upgradeV10(SQLiteDatabase db){
+
+        class KnownPostObject{
+            String postHash;
+            String commentHash;
+            int readStatus;
+            Long insertTime;
+
+            KnownPostObject(String _postHash, String _commentHash, int _readStatus, Long _insertTime){
+                postHash = _postHash;
+                commentHash = _commentHash;
+                readStatus = _readStatus;
+                insertTime = _insertTime;
+            }
+        }
+
+        List<KnownPostObject> knownPosts = new ArrayList<>();
+
+        String[] projection = {
+                KnownPostsContract.KnownPostsEntry.COLUMN_POST_HASH,
+                KnownPostsContract.KnownPostsEntry.COLUMN_COMMENT_HASH,
+                KnownPostsContract.KnownPostsEntry.COLUMN_READ,
+                KnownPostsContract.KnownPostsEntry.COLUMN_TIME_INSERTED
+        };
+
+
+        Cursor cursor = db.query(
+                "KnownPostsContract",   // The table to query
+                projection,             // The array of columns to return (pass null to get all)
+                null,              // The columns for the WHERE clause
+                null,          // The values for the WHERE clause
+                null,          // don't group the rows
+                null,           // don't filter by row groups
+                null          // don't sort
+        );
+
+        String postHash;
+        String commentHash;
+        int readStatus;
+        Long insertTime;
+
+        // get each post hash that is in the list
+        while(cursor.moveToNext()) {
+            postHash = cursor.getString(cursor.getColumnIndexOrThrow(KnownPostsContract.KnownPostsEntry.COLUMN_POST_HASH));
+            commentHash = cursor.getString(cursor.getColumnIndexOrThrow(KnownPostsContract.KnownPostsEntry.COLUMN_COMMENT_HASH));
+            readStatus = cursor.getInt(cursor.getColumnIndexOrThrow(KnownPostsContract.KnownPostsEntry.COLUMN_READ));
+            insertTime = cursor.getLong(cursor.getColumnIndexOrThrow(KnownPostsContract.KnownPostsEntry.COLUMN_TIME_INSERTED));
+            KnownPostObject knownPostObject = new KnownPostObject(postHash, commentHash, readStatus, insertTime);
+            // add the hash to the list
+            knownPosts.add(knownPostObject);
+        }
+        cursor.close();
+
+        db.execSQL("DROP TABLE IF EXISTS " + KnownPostsContract.KnownPostsEntry.TABLE_NAME);
         db.execSQL(KnownPostsContract.SQL_CREATE_KNOWN_POSTS);
+
+        // insert everything back into the table
+        for (KnownPostObject post: knownPosts) {
+
+            ContentValues values = new ContentValues();
+
+            values.put(KnownPostsContract.KnownPostsEntry.COLUMN_POST_HASH, post.postHash);
+            values.put(KnownPostsContract.KnownPostsEntry.COLUMN_COMMENT_HASH,post.commentHash );
+            values.put(KnownPostsContract.KnownPostsEntry.COLUMN_TIME_INSERTED, post.insertTime);
+            values.put(KnownPostsContract.KnownPostsEntry.COLUMN_READ, post.readStatus);
+
+            // note this is a potentially long running operation.
+            db.insert(KnownPostsContract.KnownPostsEntry.TABLE_NAME, null, values);
+
+        }
+
     }
 }
