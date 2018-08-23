@@ -1454,7 +1454,7 @@ public class Database extends SQLiteOpenHelper
     }
 
     /**
-     * Updates the status for the post Where
+     * Updates the status for the post and its following comments
      *  0 = normal
      *  1 = protected
      *  2 = dead
@@ -1555,14 +1555,16 @@ public class Database extends SQLiteOpenHelper
      */
     public List<String> getAllPostsByStatus(int _status){
         String status = String.valueOf(_status);
-        String[] projection = {KnownPostsEntry.COLUMN_POST_HASH};
+        String[] projection = {"SELECT CASE WHEN commentHash == \"\" THEN "+
+                KnownPostsEntry.COLUMN_POST_HASH + " ELSE "+ KnownPostsEntry.COLUMN_COMMENT_HASH + " END"};
 
         String selection = KnownPostsEntry.COLUMN_STATUS +  " = ?";
         String[] selectionArgs = {status};
 
         Cursor cursor;
         synchronized (this) {
-            cursor = getReadableDatabase().query(true,
+            cursor = getReadableDatabase().query(
+                    true,
                     KnownPostsEntry.TABLE_NAME, //Table to query
                     projection, // Array of columns to return
                     selection, // The columns for the WHERE clause
@@ -1582,4 +1584,5 @@ public class Database extends SQLiteOpenHelper
         cursor.close();
         return hashes;
     }
+
 }

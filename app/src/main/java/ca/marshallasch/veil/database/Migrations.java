@@ -216,11 +216,11 @@ final class Migrations
             int readStatus;
             Long insertTime;
 
-            KnownPostObject(String _postHash, String _commentHash, int _readStatus, Long _insertTime){
-                postHash = _postHash;
-                commentHash = _commentHash;
-                readStatus = _readStatus;
-                insertTime = _insertTime;
+            KnownPostObject(String paramPostHash, String paramCommentHash, int paramReadStatus, Long paramInsertTime){
+                postHash = paramPostHash;
+                commentHash = paramCommentHash;
+                readStatus = paramReadStatus;
+                insertTime = paramInsertTime;
             }
         }
 
@@ -235,7 +235,7 @@ final class Migrations
 
 
         Cursor cursor = db.query(
-                "KnownPostsContract",   // The table to query
+                KnownPostsContract.KnownPostsEntry.TABLE_NAME,   // The table to query
                 projection,             // The array of columns to return (pass null to get all)
                 null,              // The columns for the WHERE clause
                 null,          // The values for the WHERE clause
