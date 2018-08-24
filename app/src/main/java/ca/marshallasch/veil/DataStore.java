@@ -227,7 +227,7 @@ public class DataStore
     }
 
     /**
-     * Function will ask the db to retrive the post status of the
+     * Function will ask the db to retrieve the post status of the
      * given post.
      *
      * @param postHash the post you wish to check
@@ -392,7 +392,7 @@ public class DataStore
     public void runDataSaver(){
         List<String> toBeDeletePostHashes = db.getAllHashesByStatus(KnownPostsContract.POST_NORMAL);
 
-        // delete all the post hashes from the hashtable along with its comments
+        // delete all the post hashes from the hash table along with its comments
         for(String str: toBeDeletePostHashes) {
             hashTableStore.deleteByHash(str);
         }

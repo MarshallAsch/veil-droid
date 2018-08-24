@@ -1537,7 +1537,7 @@ public class Database extends SQLiteOpenHelper
 
     /**
      * This function removes all the posts and comments from the database that are
-     * not flagged by the protecton
+     * not flagged by the protection
      */
     @WorkerThread
     public void dataSaverClear(){
@@ -1590,5 +1590,4 @@ public class Database extends SQLiteOpenHelper
         cursor.close();
         return hashes;
     }
-
 }
