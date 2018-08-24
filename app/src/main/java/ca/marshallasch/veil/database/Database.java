@@ -1541,7 +1541,7 @@ public class Database extends SQLiteOpenHelper
      */
     @WorkerThread
     public void dataSaverClear(){
-        String whereClause = "status = "+KnownPostsContract.POST_NORMAL;
+        String whereClause = "status = " + KnownPostsContract.POST_DEAD;
         getReadableDatabase().delete(KnownPostsEntry.TABLE_NAME, whereClause, null);
     }
 
@@ -1553,7 +1553,7 @@ public class Database extends SQLiteOpenHelper
      *               2 = protected
      *               3 = dead
      */
-    public List<String> getAllHashsByStatus(int status){
+    public List<String> getAllHashesByStatus(int status){
         String[] projection = {
                 KnownPostsEntry.COLUMN_POST_HASH,
                 KnownPostsEntry.COLUMN_COMMENT_HASH};

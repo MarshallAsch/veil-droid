@@ -390,7 +390,7 @@ public class DataStore
 
 
     public void runDataSaver(){
-        List<String> toBeDeletePostHashes = db.getAllHashsByStatus(KnownPostsContract.POST_NORMAL);
+        List<String> toBeDeletePostHashes = db.getAllHashesByStatus(KnownPostsContract.POST_NORMAL);
 
         // delete all the post hashes from the hashtable along with its comments
         for(String str: toBeDeletePostHashes) {

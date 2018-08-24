@@ -22,12 +22,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import java.util.Objects;
-
 import ca.marshallasch.veil.controllers.RightMeshController;
 import ca.marshallasch.veil.database.Database;
 import ca.marshallasch.veil.proto.DhtProto;
-import ca.marshallasch.veil.services.DataSaverService;
 import ca.marshallasch.veil.services.VeilService;
 import io.left.rightmesh.android.AndroidMeshManager;
 
