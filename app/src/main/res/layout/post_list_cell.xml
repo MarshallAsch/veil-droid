@@ -26,6 +26,19 @@
             android:layout_marginRight="-5dip"
             android:layout_marginTop="-5dip"
             android:layout_marginBottom="-5dip"/>
+
+        <android.support.design.button.MaterialButton
+            android:id="@+id/delete_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="-5dip"
+            android:layout_marginLeft="-5dip"
+            android:layout_marginRight="-5dip"
+            android:layout_marginTop="-5dip"
+            android:layout_weight="1"
+            android:text="@string/delete"
+            android:textColor="@color/white"
+            app:backgroundTint="@android:color/holo_red_dark"/>
     </LinearLayout>
 
 

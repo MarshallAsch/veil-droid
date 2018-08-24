@@ -4,10 +4,8 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
-import android.support.design.button.MaterialButton;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -218,7 +216,22 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 DataStore.getInstance(activity).setPostStatus(post.getUuid(), KnownPostsContract.POST_PROTECTED);
                 updatePostStatus(viewHolder, post);
             }
+        });
 
+        viewHolder.itemView.findViewById(R.id.delete_button).setOnClickListener(view -> {
+            int postStatus = DataStore.getInstance(activity).getPostStatus(post.getUuid());
+
+            DataStore.getInstance(activity).setPostStatus(post.getUuid(), KnownPostsContract.POST_DEAD);
+            updatePostStatus(viewHolder, post);
+
+            if(postStatus == KnownPostsContract.POST_PROTECTED){
+                DataStore.getInstance(activity).setPostStatus(post.getUuid(), KnownPostsContract.POST_DEAD);
+                updatePostStatus(viewHolder, post);
+            }
+            else if(postStatus == KnownPostsContract.POST_NORMAL){
+                DataStore.getInstance(activity).setPostStatus(post.getUuid(), KnownPostsContract.POST_PROTECTED);
+                updatePostStatus(viewHolder, post);
+            }
         });
     }
 
@@ -316,8 +329,8 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         int postStatus = DataStore.getInstance(activity).getPostStatus(post.getUuid());
 
         //sets the drawable
-        int drawable = (postStatus == KnownPostsContract.POST_NORMAL) ?
-                R.drawable.ic_unprotected : R.drawable.ic_protected;
+        int drawable = (postStatus == KnownPostsContract.POST_PROTECTED) ?
+                R.drawable.ic_protected : R.drawable.ic_unprotected;
         viewHolder.protectedMarker.setImageResource(drawable);
     }
 }
