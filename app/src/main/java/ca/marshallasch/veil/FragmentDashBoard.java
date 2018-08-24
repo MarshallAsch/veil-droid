@@ -81,13 +81,23 @@ public class FragmentDashBoard extends Fragment {
 
         discoverForumsBtn.setOnClickListener(view1 -> {
             Log.i(TAG, "discover forums pressed");
-            ((MainActivity) activity).navigateTo(new FragmentDiscoverForums(), true);
+            FragmentDiscoverForums frag = new FragmentDiscoverForums();
+
+            Bundle bundle = new Bundle();
+            bundle.putBoolean(activity.getString(R.string.post_list_key), false);
+            frag.setArguments(bundle);
+            ((MainActivity) activity).navigateTo(frag, true);
         });
 
         personalForumsBtn.setOnClickListener(view1 -> {
             Log.i(TAG, "Your forums button pressed");
 
-            // TODO: 2018-06-06 Do something here other then just logging a message
+            FragmentDiscoverForums frag = new FragmentDiscoverForums();
+
+            Bundle bundle = new Bundle();
+            bundle.putBoolean(activity.getString(R.string.post_list_key), true);
+            frag.setArguments(bundle);
+            ((MainActivity) activity).navigateTo(frag, true);
         });
 
         newPostButton.setOnClickListener(view1 -> {

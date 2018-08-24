@@ -127,6 +127,42 @@ public class DataStore
         return posts;
     }
 
+
+    /**
+     * Gets all the known posts in a the data store.
+     * The list will be sorted, newest posts first
+     * @return the list of posts.
+     */
+    public List<DhtProto.Post> getPostsByAuthorId(String authorHash) {
+
+        List<String> hashes = db.getPostHashes();
+
+        DhtProto.Post post;
+        List<DhtProto.Post> posts = new ArrayList<>();
+
+        // get each post that is in the list
+        for (String hash: hashes) {
+
+            post = null;
+            try {
+                post = hashTableStore.findPostByHash(hash);
+            }
+            catch (TooManyResultsException e) {
+                e.printStackTrace();
+            }
+
+            // add the post to the list
+            if (post != null && post.getAuthorId().equals(authorHash)) {
+                posts.add(post);
+            }
+        }
+
+        // make sure the list of posts are in chronological order
+        Collections.sort(posts, new PostAgeComparator());
+
+        return posts;
+    }
+
     /**
      * Gets the list of comments for a post sorted in by time posted for a given post.
      * @param postHash the hash of the post that the comments will be found for.
