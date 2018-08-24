@@ -29,6 +29,7 @@ public class FragmentSettings extends Fragment {
     public static final String PREF_DARK_THEME = "PREF_DARK_THEME";
     public static final String PREF_LOGIN_RAND_VAL = "PREF_LOGIN_RAND_VAL";
     public static final String PREF_SYNC_VERSION = "PREF_SYNC_VERSION";
+    public static final String PREF_MEMORY_SAVER = "PREF_MEMORY_SAVER";
 
     public static final String PREF_NOTIFY_POST = "PREF_NOTIFY_POST";
     public static final String PREF_NOTIFY_COMMENT = "PREF_NOTIFY_COMMENT";
@@ -45,7 +46,10 @@ public class FragmentSettings extends Fragment {
 
         //set dark theme toggle to save preference
         Switch darkThemeToggle = view.findViewById(R.id.toggle_dark_theme);
+        //set the sync protocal version
         Switch protocolVersionToggle = view.findViewById(R.id.toggle_sync_protocal);
+        //set the memory saver option
+        Switch memorySaverToggle = view.findViewById(R.id.memory_save_toggle);
 
         Switch alertPostToggle = view.findViewById(R.id.toggle_post_alerts);
         Switch alertCommentToggle = view.findViewById(R.id.toggle_comment_alerts);
@@ -53,11 +57,11 @@ public class FragmentSettings extends Fragment {
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         darkThemeToggle.setChecked(preferences.getBoolean(PREF_DARK_THEME, false));
+        memorySaverToggle.setChecked(preferences.getBoolean(PREF_MEMORY_SAVER, false));
         protocolVersionToggle.setChecked(preferences.getInt(PREF_SYNC_VERSION, SYNC_MESSAGE_V2) == SYNC_MESSAGE_V2);
 
         alertPostToggle.setChecked(preferences.getBoolean(PREF_NOTIFY_POST, true));
         alertCommentToggle.setChecked(preferences.getBoolean(PREF_NOTIFY_COMMENT, true));
-
 
         //on click listener so allows for toggle to reset itself
         darkThemeToggle.setOnClickListener(view1 -> {
@@ -68,6 +72,10 @@ public class FragmentSettings extends Fragment {
             toggleProtocol(protocolVersionToggle.isChecked());
         });
 
+        memorySaverToggle.setOnClickListener(view1 -> {
+            toggleMemorySaver(memorySaverToggle.isChecked());
+        });
+      
         alertPostToggle.setOnClickListener(view1 -> {
             SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean(PREF_NOTIFY_POST, alertPostToggle.isChecked());
@@ -107,9 +115,16 @@ public class FragmentSettings extends Fragment {
 
     private void toggleProtocol(boolean isV2) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-
         SharedPreferences.Editor editor = preferences.edit();
         editor.putInt(PREF_SYNC_VERSION, isV2 ? SYNC_MESSAGE_V2 : SYNC_MESSAGE_V1);
         editor.apply();
+    }
+
+    private void toggleMemorySaver(boolean isMemorySaver){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean(PREF_MEMORY_SAVER, isMemorySaver);
+        editor.apply();
+
     }
 }

@@ -81,7 +81,6 @@ public class FragmentDiscoverForums extends Fragment implements SwipeRefreshLayo
         postListAdapter = new PostListAdapter(posts, activity);
         recyclerView.setAdapter(postListAdapter);
 
-
         refreshLayout = view.findViewById(R.id.swiperefresh);
 
         Spinner spinner = view.findViewById(R.id.filter);
@@ -116,7 +115,6 @@ public class FragmentDiscoverForums extends Fragment implements SwipeRefreshLayo
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-
         // unregister receiver
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(broadcastReceiver);
     }

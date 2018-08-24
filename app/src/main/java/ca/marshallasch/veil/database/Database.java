@@ -53,7 +53,7 @@ import ca.marshallasch.veil.utilities.Util;
 public class Database extends SQLiteOpenHelper
 {
     private static String DATABASE_NAME = "contentDiscoveryTables";
-    private static final int DATABASE_VERSION = 9;
+    private static final int DATABASE_VERSION = 10;
 
     // this is for the singleton
     private static Database instance = null;
@@ -169,6 +169,10 @@ public class Database extends SQLiteOpenHelper
 
         if (oldVersion < 9) {
             Migrations.upgradeV9(db);
+        }
+
+        if (oldVersion < 10){
+            Migrations.upgradeV10(db);
         }
     }
 
@@ -585,7 +589,6 @@ public class Database extends SQLiteOpenHelper
 
         return user;
     }
-
 
     /**
      * This function will find the user with the username and password then update the password.
@@ -1450,7 +1453,75 @@ public class Database extends SQLiteOpenHelper
         return getCount(SyncStatsEntry.TABLE_NAME, selection, selectionArgs);
     }
 
+    /**
+     * Updates the status for the post and its following comments
+     *  0 = normal
+     *  1 = protected
+     *  2 = dead
+     *
+     * @param postHash the hash of the post item being marked
+     * @param status 0,1,2 as describe in the comment
+     * @return true if it updates successfully, false if something unexpected happens
+     */
+    @WorkerThread
+    public boolean setPostStatus(String postHash, int status) {
+        String selection = KnownPostsEntry.COLUMN_POST_HASH + " = ? ";
 
+        String[] selectionArgs = { postHash };
+
+        ContentValues values = new ContentValues();
+        values.put(KnownPostsEntry.COLUMN_STATUS, status);
+
+        int numUpdated;
+
+        synchronized (this) {
+            numUpdated = getWritableDatabase().update(
+                    KnownPostsEntry.TABLE_NAME,
+                    values,
+                    selection,
+                    selectionArgs
+            );
+        }
+
+        return numUpdated == 1;
+    }
+
+    /**
+     * Returns the post status as
+     * 0 = normal
+     * 1 = protected
+     * 2 = dead
+     *
+     * @param postHash the hash of the post you wish to check
+     * @return
+     */
+    public int getPostStatus(String postHash) {
+        String[] projection = {KnownPostsEntry.COLUMN_STATUS};
+
+        String selection = KnownPostsEntry.COLUMN_POST_HASH + " = ? AND " +
+                KnownPostsEntry.COLUMN_COMMENT_HASH + " == \"\" ";
+        String[] selectionArgs = {postHash};
+
+        Cursor cursor;
+        synchronized (this) {
+            cursor = getReadableDatabase().query(
+                    KnownPostsEntry.TABLE_NAME, //Table to query
+                    projection, // Array of columns to return
+                    selection, // The columns for the WHERE clause
+                    selectionArgs, // the values for the WHERE clause
+                    null, // no row grouping
+                    null, // no filter by row groups
+                    null // don't sort
+            );
+        }
+        int status = 0;
+        while(cursor.moveToNext()) {
+            status = cursor.getInt(cursor.getColumnIndexOrThrow(KnownPostsEntry.COLUMN_STATUS));
+        }
+        cursor.close();
+
+        return status;
+    }
 
     public void clearKnownPosts() {
         getWritableDatabase().delete(KnownPostsEntry.TABLE_NAME, null, null);
@@ -1463,4 +1534,61 @@ public class Database extends SQLiteOpenHelper
     public void clearPeers() {
         getWritableDatabase().delete(SyncStatsEntry.TABLE_NAME, null, null);
     }
+
+    /**
+     * This function removes all the posts and comments from the database that are
+     * not flagged by the protecton
+     */
+    @WorkerThread
+    public void dataSaverClear(){
+        String whereClause = "status = " + KnownPostsContract.POST_DEAD;
+        getReadableDatabase().delete(KnownPostsEntry.TABLE_NAME, whereClause, null);
+    }
+
+    /**
+     * Gets all the posts hashes based on their status
+     * @param status indicates status 1,2, or 3
+     *               where
+     *               1 = normal
+     *               2 = protected
+     *               3 = dead
+     */
+    public List<String> getAllHashesByStatus(int status){
+        String[] projection = {
+                KnownPostsEntry.COLUMN_POST_HASH,
+                KnownPostsEntry.COLUMN_COMMENT_HASH};
+
+        String selection = KnownPostsEntry.COLUMN_STATUS +  " = ?";
+        String[] selectionArgs = {String.valueOf(status)};
+
+        Cursor cursor;
+        synchronized (this) {
+            cursor = getReadableDatabase().query(
+                    true,
+                    KnownPostsEntry.TABLE_NAME, //Table to query
+                    projection, // Array of columns to return
+                    selection, // The columns for the WHERE clause
+                    selectionArgs, // the values for the WHERE clause
+                    null,
+                    null, // no row grouping
+                    null, // no filter by row groups
+                    null // don't sort
+            );
+        }
+
+        List<String> hashes = new ArrayList<>();
+        while(cursor.moveToNext()) {
+            String postHash = cursor.getString(cursor.getColumnIndexOrThrow(KnownPostsEntry.COLUMN_POST_HASH));
+            String commentHash = cursor.getString(cursor.getColumnIndexOrThrow(KnownPostsEntry.COLUMN_COMMENT_HASH));
+
+            if (commentHash.isEmpty()) {
+                hashes.add(postHash);
+            } else {
+                hashes.add(commentHash);
+            }
+        }
+        cursor.close();
+        return hashes;
+    }
+
 }

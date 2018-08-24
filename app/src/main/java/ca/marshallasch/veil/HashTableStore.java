@@ -644,4 +644,8 @@ public class HashTableStore implements ForumStorage
         }
         return null;
     }
+
+    public void deleteByHash(String hash){
+        hashMap.remove(hash);
+    }
 }

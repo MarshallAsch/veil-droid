@@ -1,5 +1,7 @@
 package ca.marshallasch.veil;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -103,6 +105,13 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, VeilService.class);
         startService(intent);
 
+        //starts data saver service
+        AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        Intent alarmIntent = new Intent(this, AlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,System.currentTimeMillis(),AlarmManager.INTERVAL_FIFTEEN_MINUTES,
+                pendingIntent);
+
         // if the user is logged in then go to the dash otherwise go to landing page.
         navigateTo(currentUser != null ? new FragmentDashBoard() : new FragmentLanding(), false);
     }
@@ -132,7 +141,6 @@ public class MainActivity extends AppCompatActivity {
 
         dataStore.save();
         dataStore.close();
-
         //stopping Rightmesh service
         stopService(new Intent(this, VeilService.class));
 

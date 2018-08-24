@@ -12,6 +12,11 @@ import android.provider.BaseColumns;
  */
 public final class KnownPostsContract {
 
+    //Post status ints
+    public final static int POST_NORMAL = 0;
+    public final static int POST_PROTECTED = 1;
+    public final static int POST_DEAD = 2;
+
     // DB query string
     static final String SQL_CREATE_KNOWN_POSTS = "CREATE TABLE " +  KnownPostsEntry.TABLE_NAME +
             "(" +
@@ -20,6 +25,7 @@ public final class KnownPostsContract {
             KnownPostsEntry.COLUMN_POST_HASH + " VARCHAR(36)," +
             KnownPostsEntry.COLUMN_TIME_INSERTED + " DATETIME," +
             KnownPostsEntry.COLUMN_READ + " INTEGER DEFAULT 0," +
+            KnownPostsEntry.COLUMN_STATUS + " INTEGER DEFAULT 0," +
             "UNIQUE(" + KnownPostsEntry.COLUMN_POST_HASH + ", " + KnownPostsEntry.COLUMN_COMMENT_HASH + ")" +
             ");";
 
@@ -33,6 +39,7 @@ public final class KnownPostsContract {
         public static final String COLUMN_COMMENT_HASH = "comment_hash";
         public static final String COLUMN_TIME_INSERTED = "time_inserted";
         public static final String COLUMN_READ = "read";
+        public static final String COLUMN_STATUS = "status";
 
     }
 }

@@ -214,6 +214,30 @@ public class DataStore
     }
 
     /**
+     * Function will update the post status where
+     * 0 = normal
+     * 1 = protected
+     * 2 = dead
+     * @param postHash the hash of the post object
+     * @param status the status 0,1,2 as described in the comment above
+     * @return
+     */
+    public boolean setPostStatus(String postHash, int status) {
+        return db.setPostStatus(postHash, status);
+    }
+
+    /**
+     * Function will ask the db to retrive the post status of the
+     * given post.
+     *
+     * @param postHash the post you wish to check
+     * @return
+     */
+    public int getPostStatus(String postHash) {
+        return db.getPostStatus(postHash);
+    }
+
+    /**
      * Mark the post as read or unread. This will call to  {@link Database#markRead(String, boolean)}
      * @param postHash the post to mark as read
      * @param read true if the post is being marked as read, otherwise false.
@@ -361,5 +385,19 @@ public class DataStore
 
     public void clearPeers() {
         db.clearPeers();
+    }
+
+
+
+    public void runDataSaver(){
+        List<String> toBeDeletePostHashes = db.getAllHashesByStatus(KnownPostsContract.POST_NORMAL);
+
+        // delete all the post hashes from the hashtable along with its comments
+        for(String str: toBeDeletePostHashes) {
+            hashTableStore.deleteByHash(str);
+        }
+
+        //delete all the hashes with status normal from the db
+        db.dataSaverClear();
     }
 }
