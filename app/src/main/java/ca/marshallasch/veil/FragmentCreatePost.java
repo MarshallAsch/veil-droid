@@ -36,9 +36,7 @@ public class FragmentCreatePost extends Fragment
     private CheckBox anonymousInput;
 
     private DhtProto.User currentUser;
-
     private Activity activity;
-
     private TagListAdapter tagListAdapter;
 
     public FragmentCreatePost() {

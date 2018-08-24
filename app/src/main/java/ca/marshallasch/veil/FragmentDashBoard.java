@@ -92,7 +92,6 @@ public class FragmentDashBoard extends Fragment {
 
         newPostButton.setOnClickListener(view1 -> {
             ((MainActivity) activity).navigateTo(new FragmentCreatePost(), true);
-
         });
 
         return view;

@@ -49,12 +49,14 @@ public class FragmentPeerList extends Fragment
 
         peerList = view.findViewById(R.id.peer_list);
 
-        refreshList();
+        ((MainActivity) activity).sendServiceMessage( VeilService.ACTION_MAIN_REFRESH_PEER_LIST, null);
 
         Button refresh = view.findViewById(R.id.refresh_peers);
 
         // refresh the list when the button is pressed
-        refresh.setOnClickListener(view1 -> refreshList());
+        refresh.setOnClickListener(view1 -> {
+            ((MainActivity) activity).sendServiceMessage( VeilService.ACTION_MAIN_REFRESH_PEER_LIST, null);
+        });
 
         LocalBroadcastManager.getInstance(activity).registerReceiver(
                 broadcastReceiver, new IntentFilter(RightMeshController.GET_PEERS_BROADCAST));
@@ -75,6 +77,7 @@ public class FragmentPeerList extends Fragment
         @Override
         public void onReceive(Context context, Intent intent) {
             MeshId[] peers = (MeshId[]) intent.getSerializableExtra(RightMeshController.EXTRA_PEERS_LIST);
+            peerList.setText("Peers:\n");
             if (peers != null) {
                 for (MeshId peer : peers) {
                     peerList.append("\n" + peer.toString());
@@ -82,12 +85,4 @@ public class FragmentPeerList extends Fragment
             }
         }
     };
-
-    /**
-     * Refresh the list of connected peers.
-     */
-    private void refreshList() {
-        peerList.setText("Peers:\n");
-        ((MainActivity) getActivity()).sendServiceMessage( VeilService.ACTION_MAIN_REFRESH_PEER_LIST, null);
-    }
 }

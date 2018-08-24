@@ -81,13 +81,11 @@ public class FragmentAddComment extends android.support.v4.app.Fragment {
             Log.d("ANON", "check box");
         }
 
-
         //Handle cancel button
         cancelBtn.setOnClickListener(view1 -> {
             Util.hideKeyboard(activity);
             getFragmentManager().popBackStack();
         });
-
 
         //Handle post button
         postBtn.setOnClickListener(view1 -> {
@@ -110,7 +108,6 @@ public class FragmentAddComment extends android.support.v4.app.Fragment {
             bundle1.putByteArray(VeilService.EXTRA_COMMENT, comment.toByteArray());
 
             ((MainActivity) activity).sendServiceMessage(VeilService.ACTION_NOTIFY_NEW_DATA, bundle1);
-
 
             // go back to the post view screen
             Util.hideKeyboard(activity);
