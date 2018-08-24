@@ -1547,19 +1547,19 @@ public class Database extends SQLiteOpenHelper
 
     /**
      * Gets all the posts hashes based on their status
-     * @param _status indicates status 1,2, or 3
+     * @param status indicates status 1,2, or 3
      *               where
      *               1 = normal
      *               2 = protected
      *               3 = dead
      */
-    public List<String> getAllPostsByStatus(int _status){
-        String status = String.valueOf(_status);
-        String[] projection = {"SELECT CASE WHEN commentHash == \"\" THEN "+
-                KnownPostsEntry.COLUMN_POST_HASH + " ELSE "+ KnownPostsEntry.COLUMN_COMMENT_HASH + " END"};
+    public List<String> getAllHashsByStatus(int status){
+        String[] projection = {
+                KnownPostsEntry.COLUMN_POST_HASH,
+                KnownPostsEntry.COLUMN_COMMENT_HASH};
 
         String selection = KnownPostsEntry.COLUMN_STATUS +  " = ?";
-        String[] selectionArgs = {status};
+        String[] selectionArgs = {String.valueOf(status)};
 
         Cursor cursor;
         synchronized (this) {
@@ -1578,8 +1578,14 @@ public class Database extends SQLiteOpenHelper
 
         List<String> hashes = new ArrayList<>();
         while(cursor.moveToNext()) {
-            String hash = cursor.getString(cursor.getColumnIndexOrThrow(KnownPostsEntry.COLUMN_POST_HASH));
-            hashes.add(hash);
+            String postHash = cursor.getString(cursor.getColumnIndexOrThrow(KnownPostsEntry.COLUMN_POST_HASH));
+            String commentHash = cursor.getString(cursor.getColumnIndexOrThrow(KnownPostsEntry.COLUMN_COMMENT_HASH));
+
+            if (commentHash.isEmpty()) {
+                hashes.add(postHash);
+            } else {
+                hashes.add(commentHash);
+            }
         }
         cursor.close();
         return hashes;
