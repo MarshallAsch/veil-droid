@@ -211,16 +211,16 @@ final class Migrations
     static void upgradeV10(SQLiteDatabase db){
 
         class KnownPostObject{
-            String postHash;
-            String commentHash;
-            int readStatus;
-            Long insertTime;
+            private String postHash;
+            private String commentHash;
+            private int readStatus;
+            private Long insertTime;
 
-            KnownPostObject(String paramPostHash, String paramCommentHash, int paramReadStatus, Long paramInsertTime){
-                postHash = paramPostHash;
-                commentHash = paramCommentHash;
-                readStatus = paramReadStatus;
-                insertTime = paramInsertTime;
+            private KnownPostObject(String postHash, String commentHash, int readStatus, Long insertTime){
+                this.postHash = postHash;
+                this.commentHash = commentHash;
+                this.readStatus = readStatus;
+                this.insertTime = insertTime;
             }
         }
 
@@ -232,7 +232,6 @@ final class Migrations
                 KnownPostsContract.KnownPostsEntry.COLUMN_READ,
                 KnownPostsContract.KnownPostsEntry.COLUMN_TIME_INSERTED
         };
-
 
         Cursor cursor = db.query(
                 KnownPostsContract.KnownPostsEntry.TABLE_NAME,   // The table to query
@@ -276,8 +275,6 @@ final class Migrations
 
             // note this is a potentially long running operation.
             db.insert(KnownPostsContract.KnownPostsEntry.TABLE_NAME, null, values);
-
         }
-
     }
 }

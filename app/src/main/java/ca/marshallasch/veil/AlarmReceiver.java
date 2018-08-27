@@ -3,7 +3,9 @@ package ca.marshallasch.veil;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -23,7 +25,14 @@ public class AlarmReceiver extends BroadcastReceiver{
         Log.e("ALARM_RECEIVER: ", "PING!");
 
         this.context = context;
-        new DataSaver().execute();
+
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean runDataSaver = preferences.getBoolean(FragmentSettings.PREF_MEMORY_SAVER, false);
+
+        if (runDataSaver) {
+            new DataSaver().execute();
+        }
     }
 
     /**

@@ -108,7 +108,6 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         this.postsFiltered = posts;
     }
 
-
     /**
      * This will refresh the posts that are in the list. This will also re-filter the results.
      * It will eventually call {@link #notifyDataSetChanged()} so must be called from the UI thread.
@@ -210,28 +209,17 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             if(postStatus == KnownPostsContract.POST_PROTECTED){
                 DataStore.getInstance(activity).setPostStatus(post.getUuid(), KnownPostsContract.POST_NORMAL);
-                updatePostStatus(viewHolder, post);
             }
             else if(postStatus == KnownPostsContract.POST_NORMAL){
                 DataStore.getInstance(activity).setPostStatus(post.getUuid(), KnownPostsContract.POST_PROTECTED);
-                updatePostStatus(viewHolder, post);
             }
+
+            updatePostStatus(viewHolder, post);
         });
 
         viewHolder.itemView.findViewById(R.id.delete_button).setOnClickListener(view -> {
-            int postStatus = DataStore.getInstance(activity).getPostStatus(post.getUuid());
-
             DataStore.getInstance(activity).setPostStatus(post.getUuid(), KnownPostsContract.POST_DEAD);
             updatePostStatus(viewHolder, post);
-
-            if(postStatus == KnownPostsContract.POST_PROTECTED){
-                DataStore.getInstance(activity).setPostStatus(post.getUuid(), KnownPostsContract.POST_DEAD);
-                updatePostStatus(viewHolder, post);
-            }
-            else if(postStatus == KnownPostsContract.POST_NORMAL){
-                DataStore.getInstance(activity).setPostStatus(post.getUuid(), KnownPostsContract.POST_PROTECTED);
-                updatePostStatus(viewHolder, post);
-            }
         });
     }
 
@@ -325,6 +313,11 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         };
     }
 
+    /**
+     * This function will update the protected marker for a post to make sure that it shows properly.
+     * @param viewHolder the cell for the post
+     * @param post the post that is contained within the cell.
+     */
     private void updatePostStatus(ViewHolder1 viewHolder, DhtProto.Post post){
         int postStatus = DataStore.getInstance(activity).getPostStatus(post.getUuid());
 

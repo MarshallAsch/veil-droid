@@ -21,7 +21,6 @@ public class FragmentDeletion extends Fragment
         // Required empty public constructor
     }
 
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
@@ -32,11 +31,9 @@ public class FragmentDeletion extends Fragment
         MaterialButton clearSyncStats = view.findViewById(R.id.clear_logs);
         MaterialButton clearPeers = view.findViewById(R.id.clear_peers);
 
-
         clearEntries.setOnClickListener(view1 -> DataStore.getInstance(getActivity()).clearEntries());
         clearSyncStats.setOnClickListener(view1 -> DataStore.getInstance(getActivity()).clearSyncStats());
         clearPeers.setOnClickListener(view1 -> DataStore.getInstance(getActivity()).clearPeers());
-
 
         return view;
     }

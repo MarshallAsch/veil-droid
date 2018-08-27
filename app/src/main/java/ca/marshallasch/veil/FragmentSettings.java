@@ -47,7 +47,7 @@ public class FragmentSettings extends Fragment {
         //set dark theme toggle to save preference
         Switch darkThemeToggle = view.findViewById(R.id.toggle_dark_theme);
         //set the sync protocal version
-        Switch protocolVersionToggle = view.findViewById(R.id.toggle_sync_protocal);
+        Switch protocolVersionToggle = view.findViewById(R.id.toggle_sync_protocol);
         //set the memory saver option
         Switch memorySaverToggle = view.findViewById(R.id.memory_save_toggle);
 
@@ -73,7 +73,9 @@ public class FragmentSettings extends Fragment {
         });
 
         memorySaverToggle.setOnClickListener(view1 -> {
-            toggleMemorySaver(memorySaverToggle.isChecked());
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putBoolean(PREF_MEMORY_SAVER, memorySaverToggle.isChecked());
+            editor.apply();
         });
       
         alertPostToggle.setOnClickListener(view1 -> {
@@ -118,13 +120,5 @@ public class FragmentSettings extends Fragment {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putInt(PREF_SYNC_VERSION, isV2 ? SYNC_MESSAGE_V2 : SYNC_MESSAGE_V1);
         editor.apply();
-    }
-
-    private void toggleMemorySaver(boolean isMemorySaver){
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putBoolean(PREF_MEMORY_SAVER, isMemorySaver);
-        editor.apply();
-
     }
 }

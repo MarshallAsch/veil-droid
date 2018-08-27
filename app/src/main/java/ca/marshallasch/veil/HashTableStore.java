@@ -645,6 +645,10 @@ public class HashTableStore implements ForumStorage
         return null;
     }
 
+    /**
+     * This function will delete the entries in the hash table with the matching hash.
+     * @param hash the hash to remove
+     */
     public void deleteByHash(String hash){
         hashMap.remove(hash);
     }

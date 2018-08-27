@@ -13,8 +13,8 @@
         android:title="@string/connected_peers"/>
     <item
         android:id="@+id/stats"
-        android:title="stats"/>
+        android:title="@string/stats"/>
     <item
         android:id="@+id/db_management"
-        android:title="DB Management"/>
+        android:title="@string/db_management"/>
 </menu>

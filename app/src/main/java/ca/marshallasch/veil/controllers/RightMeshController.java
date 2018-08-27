@@ -73,7 +73,7 @@ public class RightMeshController implements MeshStateListener{
     private SharedPreferences preferences;
     private DataStore dataStore = null;
 
-    private HashSet<MeshId> discovered = new HashSet<>();
+    private final HashSet<MeshId> discovered = new HashSet<>();
 
 
     //Notification intent action
