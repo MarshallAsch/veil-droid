@@ -64,6 +64,7 @@
     <!-- Bundle keys -->
     <string name="post_object_key">post_object_key</string>
     <string name="user_object_key">user_object_key</string>
+    <string name="post_list_key">post_list_key</string>
 
     <!-- Shared preferences keys -->
     <string name="pref_notifications">pref_notifications</string>
