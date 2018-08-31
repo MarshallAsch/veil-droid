@@ -13,6 +13,9 @@
         <service
             android:name="ca.marshallasch.veil.services.VeilService"
             android:exported="false"/>
+        <receiver
+            android:name="ca.marshallasch.veil.AlarmReceiver"
+            android:exported="false"/>
         <activity
             android:name=".MainActivity"
             android:windowSoftInputMode="adjustResize"

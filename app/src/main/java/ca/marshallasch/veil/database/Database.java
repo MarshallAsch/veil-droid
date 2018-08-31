@@ -53,7 +53,7 @@ import ca.marshallasch.veil.utilities.Util;
 public class Database extends SQLiteOpenHelper
 {
     private static String DATABASE_NAME = "contentDiscoveryTables";
-    private static final int DATABASE_VERSION = 9;
+    private static final int DATABASE_VERSION = 10;
 
     // this is for the singleton
     private static Database instance = null;
@@ -170,11 +170,11 @@ public class Database extends SQLiteOpenHelper
         if (oldVersion < 9) {
             Migrations.upgradeV9(db);
         }
-    }
 
-    @Override
-    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion)
-    { }
+        if (oldVersion < 10){
+            Migrations.upgradeV10(db);
+        }
+    }
 
     /**
      * Will add a row to the block user table. If a user is already in the table then it will
@@ -586,7 +586,6 @@ public class Database extends SQLiteOpenHelper
         return user;
     }
 
-
     /**
      * This function will find the user with the username and password then update the password.
      *
@@ -745,6 +744,12 @@ public class Database extends SQLiteOpenHelper
     // TODO: 2018-06-05 Add A function to update the account information
 
 
+    /**
+     * Gets a list of all the hashes of the posts that are stored.
+     *
+     * Since this calls {@link #getReadableDatabase()}, do not call this from the main thread
+     * @return an {@link ArrayList} with the list of post hashes
+     */
     @WorkerThread
     public List<String> getPostHashes() {
 
@@ -879,6 +884,13 @@ public class Database extends SQLiteOpenHelper
         return true;
     }
 
+    /**
+     * Gets a list of all the hashes of the comments that belong to a specific post.
+     *
+     * Since this calls {@link #getReadableDatabase()}, do not call this from the main thread
+     * @param postHash the hash of the post.
+     * @return an {@link ArrayList} with the list of comment hashes
+     */
     @WorkerThread
     public List<String> getCommentHashes(String postHash) {
 
@@ -889,7 +901,6 @@ public class Database extends SQLiteOpenHelper
         // Filter results WHERE userID = 'id'
         String where = KnownPostsEntry.COLUMN_POST_HASH + " = ? AND " + KnownPostsEntry.COLUMN_COMMENT_HASH + " NOT NULL" ;
         String[] whereArgs = {postHash};
-
 
         Cursor cursor;
         synchronized (this) {
@@ -1235,7 +1246,15 @@ public class Database extends SQLiteOpenHelper
         return  numUpdated == 1;
     }
 
-
+    /**
+     * This function is used for the stats page to show the total number of messages that get sent
+     * with this protocol version.
+     *
+     * Since this calls {@link #getReadableDatabase()}, do not call this from the main thread
+     * @param protocolVersion the protocol version to check see {@link SyncStatsContract#SYNC_MESSAGE_V1}
+     * @return the total number of data request messages sent
+     */
+    @WorkerThread
     public int getNumMessages(@IntRange(from = 0, to = 3) int protocolVersion) {
 
         String where = SyncStatsEntry.COLUMN_MESSAGE_TYPE + " = ?";
@@ -1244,6 +1263,15 @@ public class Database extends SQLiteOpenHelper
         return getCount(SyncStatsEntry.TABLE_NAME, where, whereArgs);
     }
 
+    /**
+     * This function is used for the stats page to show the total size of all messages that have been
+     * sent, this will return the number of bytes that have been sent / received.
+     *
+     * Since this calls {@link #getReadableDatabase()}, do not call this from the main thread
+     * @param protocolVersion the protocol version to check see {@link SyncStatsContract#SYNC_MESSAGE_V1}
+     * @return the total number of bytes of data sent during the sync messages
+     */
+    @WorkerThread
     public int getTotalMessageSize(@IntRange(from = 0, to = 3) int protocolVersion) {
 
         String selection = SyncStatsEntry.COLUMN_MESSAGE_TYPE + " = ?";
@@ -1270,6 +1298,15 @@ public class Database extends SQLiteOpenHelper
         return totalSize;
     }
 
+    /**
+     * This function is used for the stats page to show the average message size for all sent / received
+     * messages.
+     *
+     * Since this calls {@link #getReadableDatabase()}, do not call this from the main thread
+     * @param protocolVersion the protocol version to check see {@link SyncStatsContract#SYNC_MESSAGE_V1}
+     * @return the average number of bytes that are sent
+     */
+    @WorkerThread
     public float getAverageMessageSize(@IntRange(from = 0, to = 3) int protocolVersion) {
 
         String selection = SyncStatsEntry.COLUMN_MESSAGE_TYPE + " = ? AND " +
@@ -1298,6 +1335,15 @@ public class Database extends SQLiteOpenHelper
         return averageSize;
     }
 
+    /**
+     * This function is used for the stats page to show the total number of records that have been
+     * received from peers during syncs.
+     *
+     * Since this calls {@link #getReadableDatabase()}, do not call this from the main thread
+     * @param protocolVersion the protocol version to check see {@link SyncStatsContract#SYNC_MESSAGE_V1}
+     * @return the total number data records recived
+     */
+    @WorkerThread
     public int getTotalEntries(@IntRange(from = 0, to = 3) int protocolVersion) {
 
         String selection = SyncStatsEntry.COLUMN_MESSAGE_TYPE + " = ?";
@@ -1324,10 +1370,27 @@ public class Database extends SQLiteOpenHelper
         return numRecords;
     }
 
+    /**
+     * This function is used for the stats page to show the total number of records that are
+     * currently being stored.
+     *
+     * Since this calls {@link #getReadableDatabase()}, do not call this from the main thread
+     * @return the total number of records stored
+     */
+    @WorkerThread
     public int getTotalEntries() {
         return getCount(KnownPostsEntry.TABLE_NAME);
     }
 
+    /**
+     * This function is used for the stats page to show the total number of peers that this device
+     * has synced with. Note that the sync does not need to have been successful.
+     *
+     * Since this calls {@link #getReadableDatabase()}, do not call this from the main thread
+     * @param protocolVersion the protocol version to check see {@link SyncStatsContract#SYNC_MESSAGE_V1}
+     * @return the total number of peers that it has performed a sync with.
+     */
+    @WorkerThread
     public int getTotalNumPeers(@IntRange(from = 0, to = 3) int protocolVersion) {
 
         String selection = SyncStatsEntry.COLUMN_MESSAGE_TYPE + " = ?";
@@ -1356,6 +1419,15 @@ public class Database extends SQLiteOpenHelper
         return numPeers;
     }
 
+    /**
+     * This function is used for the stats page to show the longest time that it has taken to
+     * perform a sync. This does not include syncs that were not completed.
+     *
+     * Since this calls {@link #getReadableDatabase()}, do not call this from the main thread
+     * @param protocolVersion the protocol version to check see {@link SyncStatsContract#SYNC_MESSAGE_V1}
+     * @return the slowest time to perform a data sync
+     */
+    @WorkerThread
     public double getSlowestTime(@IntRange(from = 0, to = 3) int protocolVersion) {
 
         String selection = SyncStatsEntry.COLUMN_MESSAGE_TYPE + " = ? AND " +
@@ -1384,6 +1456,15 @@ public class Database extends SQLiteOpenHelper
         return (double)longestTime / 1000.0;
     }
 
+    /**
+     * This function is used for the stats page to show the shortest time that it has taken to
+     * perform a sync. This does not include syncs that were not completed.
+     *
+     * Since this calls {@link #getReadableDatabase()}, do not call this from the main thread
+     * @param protocolVersion the protocol version to check see {@link SyncStatsContract#SYNC_MESSAGE_V1}
+     * @return the fastest time to perform a data sync
+     */
+    @WorkerThread
     public double getFastestTime(@IntRange(from = 0, to = 3) int protocolVersion) {
 
         String selection = SyncStatsEntry.COLUMN_MESSAGE_TYPE + " = ? AND " +
@@ -1412,6 +1493,15 @@ public class Database extends SQLiteOpenHelper
         return (double) shortestTime / 1000.0;
     }
 
+    /**
+     * This function is used for the stats page to show the average time that it takes to
+     * perform a sync. This does not include syncs that were not completed.
+     *
+     * Since this calls {@link #getReadableDatabase()}, do not call this from the main thread
+     * @param protocolVersion the protocol version to check see {@link SyncStatsContract#SYNC_MESSAGE_V1}
+     * @return the average time to perform a data sync
+     */
+    @WorkerThread
     public double getAverageTime(@IntRange(from = 0, to = 3) int protocolVersion) {
 
         String selection = SyncStatsEntry.COLUMN_MESSAGE_TYPE + " = ? AND " +
@@ -1440,6 +1530,15 @@ public class Database extends SQLiteOpenHelper
         return avgTime / 1000;
     }
 
+    /**
+     * This function is used for the stats page to show the number of packets that were lost. This
+     * counts all of the sync requests that got sent that never got back a response for whatever reason.
+     *
+     * Since this calls {@link #getReadableDatabase()}, do not call this from the main thread
+     * @param protocolVersion the protocol version to check see {@link SyncStatsContract#SYNC_MESSAGE_V1}
+     * @return the number of lost sync messages
+     */
+    @WorkerThread
     public int getNumLost(@IntRange(from = 0, to = 3) int protocolVersion) {
 
         String selection = SyncStatsEntry.COLUMN_MESSAGE_TYPE + " = ? AND " +
@@ -1450,17 +1549,167 @@ public class Database extends SQLiteOpenHelper
         return getCount(SyncStatsEntry.TABLE_NAME, selection, selectionArgs);
     }
 
+    /**
+     * Updates the status for the post and its following comments
+     *  0 = normal
+     *  1 = protected
+     *  2 = dead
+     *
+     * @param postHash the hash of the post item being marked
+     * @param status 0,1,2 as describe in the comment
+     * @return true if it updates successfully, false if something unexpected happens
+     */
+    @WorkerThread
+    public boolean setPostStatus(String postHash, int status) {
+        String selection = KnownPostsEntry.COLUMN_POST_HASH + " = ? ";
 
+        String[] selectionArgs = { postHash };
 
+        ContentValues values = new ContentValues();
+        values.put(KnownPostsEntry.COLUMN_STATUS, status);
+
+        int numUpdated;
+
+        synchronized (this) {
+            numUpdated = getWritableDatabase().update(
+                    KnownPostsEntry.TABLE_NAME,
+                    values,
+                    selection,
+                    selectionArgs
+            );
+        }
+
+        return numUpdated == 1;
+    }
+
+    /**
+     * Returns the post status as
+     * 0 = normal
+     * 1 = protected
+     * 2 = dead
+     *
+     * @param postHash the hash of the post you wish to check
+     * @return
+     */
+    public int getPostStatus(String postHash) {
+        String[] projection = {KnownPostsEntry.COLUMN_STATUS};
+
+        String selection = KnownPostsEntry.COLUMN_POST_HASH + " = ? AND " +
+                KnownPostsEntry.COLUMN_COMMENT_HASH + " == \"\" ";
+        String[] selectionArgs = {postHash};
+
+        Cursor cursor;
+        synchronized (this) {
+            cursor = getReadableDatabase().query(
+                    KnownPostsEntry.TABLE_NAME, //Table to query
+                    projection, // Array of columns to return
+                    selection, // The columns for the WHERE clause
+                    selectionArgs, // the values for the WHERE clause
+                    null, // no row grouping
+                    null, // no filter by row groups
+                    null // don't sort
+            );
+        }
+        int status = 0;
+        while(cursor.moveToNext()) {
+            status = cursor.getInt(cursor.getColumnIndexOrThrow(KnownPostsEntry.COLUMN_STATUS));
+        }
+        cursor.close();
+
+        return status;
+    }
+
+    /**
+     * This will delete all entries in the {@link KnownPostsContract} table.
+     *
+     * Since this calls {@link #getWritableDatabase()}, do not call this from the main thread
+     */
+    @WorkerThread
     public void clearKnownPosts() {
         getWritableDatabase().delete(KnownPostsEntry.TABLE_NAME, null, null);
     }
 
+    /**
+     * This will delete all entries in the {@link SyncStatsContract} table.
+     *
+     * Since this calls {@link #getWritableDatabase()}, do not call this from the main thread
+     */
+    @WorkerThread
     public void clearSyncStats() {
         getWritableDatabase().delete(SyncStatsEntry.TABLE_NAME, null, null);
     }
 
+    /**
+     * This will delete all entries in the {@link PeerListContract} table.
+     *
+     * Since this calls {@link #getWritableDatabase()}, do not call this from the main thread
+     */
+    @WorkerThread
     public void clearPeers() {
         getWritableDatabase().delete(SyncStatsEntry.TABLE_NAME, null, null);
+    }
+
+    /**
+     * This function will clear all posts and comments from the {@link KnownPostsContract} tables
+     * that have been marked as {@link KnownPostsContract#POST_DEAD}. This will not delete the actual
+     * post or comment from the hash table.
+     *
+     * Since this calls {@link #getWritableDatabase()}, do not call this from the main thread
+     */
+    @WorkerThread
+    public void dataSaverClear(){
+        String whereClause = "status = " + KnownPostsContract.POST_DEAD;
+        getWritableDatabase().delete(KnownPostsEntry.TABLE_NAME, whereClause, null);
+    }
+
+    /**
+     * Gets all the posts and comment hashes based on their status. For the possible statuses see
+     * {@link KnownPostsContract#POST_NORMAL}
+     *
+     * Since this calls {@link #getReadableDatabase()}, do not call this from the main thread
+     * @param status indicates status 0, 1, or 2
+     *               where
+     *               0 = normal {@link KnownPostsContract#POST_NORMAL}
+     *               1 = protected {@link KnownPostsContract#POST_PROTECTED}
+     *               2 = dead {@link KnownPostsContract#POST_DEAD}
+     * @return a {@link ArrayList} of the hashes to delete from the hash table
+     */
+    @WorkerThread
+    public List<String> getAllHashesByStatus(int status){
+        String[] projection = {
+                KnownPostsEntry.COLUMN_POST_HASH,
+                KnownPostsEntry.COLUMN_COMMENT_HASH};
+
+        String selection = KnownPostsEntry.COLUMN_STATUS +  " = ?";
+        String[] selectionArgs = {String.valueOf(status)};
+
+        Cursor cursor;
+        synchronized (this) {
+            cursor = getReadableDatabase().query(
+                    true,
+                    KnownPostsEntry.TABLE_NAME, //Table to query
+                    projection, // Array of columns to return
+                    selection, // The columns for the WHERE clause
+                    selectionArgs, // the values for the WHERE clause
+                    null,
+                    null, // no row grouping
+                    null, // no filter by row groups
+                    null // don't sort
+            );
+        }
+
+        List<String> hashes = new ArrayList<>();
+        while(cursor.moveToNext()) {
+            String postHash = cursor.getString(cursor.getColumnIndexOrThrow(KnownPostsEntry.COLUMN_POST_HASH));
+            String commentHash = cursor.getString(cursor.getColumnIndexOrThrow(KnownPostsEntry.COLUMN_COMMENT_HASH));
+
+            if (commentHash.isEmpty()) {
+                hashes.add(postHash);
+            } else {
+                hashes.add(commentHash);
+            }
+        }
+        cursor.close();
+        return hashes;
     }
 }

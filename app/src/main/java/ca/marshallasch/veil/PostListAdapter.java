@@ -21,6 +21,7 @@ import java.util.List;
 import ca.marshallasch.veil.comparators.PostAgeComparator;
 import ca.marshallasch.veil.comparators.PostAuthorComparator;
 import ca.marshallasch.veil.comparators.PostTitleComparator;
+import ca.marshallasch.veil.database.KnownPostsContract;
 import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.utilities.Util;
 
@@ -78,6 +79,7 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         private final TextView authorName;
         private final TextView timeStamp;
         private final ImageView readMarker;
+        private final ImageView protectedMarker;
 
         /**
          * constructor for the ViewHolder class
@@ -91,6 +93,7 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             authorName = itemsView.findViewById(R.id.author_name);
             timeStamp = itemsView.findViewById(R.id.time_stamp);
             readMarker = itemsView.findViewById(R.id.unread_marker);
+            protectedMarker = itemsView.findViewById(R.id.protected_image);
         }
     }
 
@@ -104,7 +107,6 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         this.posts = posts;
         this.postsFiltered = posts;
     }
-
 
     /**
      * This will refresh the posts that are in the list. This will also re-filter the results.
@@ -175,6 +177,10 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         viewHolder.commentCount.setText(activity.getString(R.string.num_comments, numComments));
         viewHolder.authorName.setText(authorName);
 
+        //set or unset the protected marker
+        updatePostStatus(viewHolder, post);
+
+
         // show or hide the read marker
         viewHolder.readMarker.setVisibility(read ? View.INVISIBLE : View.VISIBLE);
 
@@ -196,6 +202,24 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             fragViewPost.setArguments(bundle);
             ((MainActivity) activity).navigateTo(fragViewPost, true);
+        });
+
+        viewHolder.itemView.findViewById(R.id.protect_button).setOnClickListener(view -> {
+            int postStatus = DataStore.getInstance(activity).getPostStatus(post.getUuid());
+
+            if(postStatus == KnownPostsContract.POST_PROTECTED){
+                DataStore.getInstance(activity).setPostStatus(post.getUuid(), KnownPostsContract.POST_NORMAL);
+            }
+            else if(postStatus == KnownPostsContract.POST_NORMAL){
+                DataStore.getInstance(activity).setPostStatus(post.getUuid(), KnownPostsContract.POST_PROTECTED);
+            }
+
+            updatePostStatus(viewHolder, post);
+        });
+
+        viewHolder.itemView.findViewById(R.id.delete_button).setOnClickListener(view -> {
+            DataStore.getInstance(activity).setPostStatus(post.getUuid(), KnownPostsContract.POST_DEAD);
+            updatePostStatus(viewHolder, post);
         });
     }
 
@@ -245,16 +269,14 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     @Override
-    public Filter getFilter()
-    {
+    public Filter getFilter() {
         /*
          * This class is the tag filter. The CharSequence must be a list of tags that are
          * denominated with a ':' character.
          */
         return new Filter() {
             @Override
-            protected FilterResults performFiltering(CharSequence charSequence)
-            {
+            protected FilterResults performFiltering(CharSequence charSequence) {
 
                 lastFilter = charSequence;
                 List<DhtProto.Post> filteredList = new ArrayList<>();
@@ -284,11 +306,24 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             }
 
             @Override
-            protected void publishResults(CharSequence charSequence, FilterResults filterResults)
-            {
+            protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
                 postsFiltered = (ArrayList<DhtProto.Post>) filterResults.values;
                 notifyDataSetChanged();
             }
         };
+    }
+
+    /**
+     * This function will update the protected marker for a post to make sure that it shows properly.
+     * @param viewHolder the cell for the post
+     * @param post the post that is contained within the cell.
+     */
+    private void updatePostStatus(ViewHolder1 viewHolder, DhtProto.Post post){
+        int postStatus = DataStore.getInstance(activity).getPostStatus(post.getUuid());
+
+        //sets the drawable
+        int drawable = (postStatus == KnownPostsContract.POST_PROTECTED) ?
+                R.drawable.ic_protected : R.drawable.ic_unprotected;
+        viewHolder.protectedMarker.setImageResource(drawable);
     }
 }

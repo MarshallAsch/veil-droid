@@ -34,6 +34,8 @@ import io.left.rightmesh.mesh.MeshStateListener;
 import io.left.rightmesh.util.RightMeshException;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
+import static ca.marshallasch.veil.FragmentSettings.PREF_NOTIFY_COMMENT;
+import static ca.marshallasch.veil.FragmentSettings.PREF_NOTIFY_POST;
 import static ca.marshallasch.veil.database.SyncStatsContract.SYNC_MESSAGE_V1;
 import static ca.marshallasch.veil.database.SyncStatsContract.SYNC_MESSAGE_V2;
 import static ca.marshallasch.veil.proto.Sync.SyncMessageType.REQUEST_DATA_V1;
@@ -68,9 +70,10 @@ public class RightMeshController implements MeshStateListener{
     private AndroidMeshManager meshManager = null;
     private Context serviceContext = null;
 
+    private SharedPreferences preferences;
     private DataStore dataStore = null;
 
-    private HashSet<MeshId> discovered = new HashSet<>();
+    private final HashSet<MeshId> discovered = new HashSet<>();
 
 
     //Notification intent action
@@ -84,6 +87,9 @@ public class RightMeshController implements MeshStateListener{
         meshManager = AndroidMeshManager.getInstance(context, RightMeshController.this);
         dataStore = DataStore.getInstance(context);
         serviceContext = context;
+
+        preferences = PreferenceManager.getDefaultSharedPreferences(serviceContext);
+
     }
 
     /**
@@ -142,30 +148,29 @@ public class RightMeshController implements MeshStateListener{
                 DhtProto.Post post = newContent.getPost();
                 DhtProto.Comment comment = newContent.getComment();
 
-                if (post != null) {
-                    dataStore.savePost(post);
-
-                    if(post.getAnonymous()){
-                        showNotification(post.getTitle(), serviceContext.getString(R.string.anonymous));
-                    }else{
-                        showNotification(post.getTitle(), post.getAuthorName());
-                    }
-
-                    // notify anyone interested that the data store has been updated.
-                    LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
-                } else if (comment != null) {
+                if (comment != null) {
                     dataStore.saveComment(comment);
 
                     // notify anyone interested that the data store has been updated.
                     LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
 
-                    if(comment.getAnonymous()){
-                        showNotification(comment.getMessage(), serviceContext.getString(R.string.anonymous));
-                    }else{
-                        showNotification(comment.getMessage(), comment.getAuthorName());
+                    String authorName = comment.getAnonymous() ? serviceContext.getString(R.string.anonymous) : comment.getAuthorName();
+
+                    if (preferences.getBoolean(PREF_NOTIFY_COMMENT, true)) {
+                        showNotification(comment.getMessage(), authorName);
                     }
-                }
-                else {
+                } else if (post != null) {
+                    dataStore.savePost(post);
+
+                    String authorName = post.getAnonymous() ? serviceContext.getString(R.string.anonymous) : post.getAuthorName();
+
+                    if (preferences.getBoolean(PREF_NOTIFY_POST, true)) {
+                        showNotification(post.getTitle(), authorName);
+                    }
+
+                    // notify anyone interested that the data store has been updated.
+                    LocalBroadcastManager.getInstance(serviceContext).sendBroadcast(intent);
+                } else {
                     Log.d("INVALID_CONTENT", "New content message is missing content");
                 }
 
@@ -279,7 +284,6 @@ public class RightMeshController implements MeshStateListener{
             // send messages to the peer.
             try {
 
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(serviceContext);
                 int syncVersion = preferences.getInt(FragmentSettings.PREF_SYNC_VERSION, SYNC_MESSAGE_V2);
 
                 Sync.Message message = Sync.Message.newBuilder()
@@ -354,7 +358,7 @@ public class RightMeshController implements MeshStateListener{
 
             Sync.NewContent newContent = builder.build();
 
-            Sync.Message dataRequest = Sync.Message.newBuilder()
+            Sync.Message message = Sync.Message.newBuilder()
                     .setType(Sync.SyncMessageType.NEW_CONTENT)
                     .setNewContent(newContent)
                     .build();
@@ -362,11 +366,11 @@ public class RightMeshController implements MeshStateListener{
             // request an update from everyone
             for (MeshId peer: peers) {
 
-                // do not ask myself for info
+                // do not send message to myself
                 if (peer.equals(meshManager.getUuid())) {
                     continue;
                 }
-                meshManager.sendDataReliable(peer, DATA_PORT, dataRequest.toByteArray());
+                meshManager.sendDataReliable(peer, DATA_PORT, message.toByteArray());
             }
         }
         catch (RightMeshException e) {

@@ -21,6 +21,7 @@ import ca.marshallasch.veil.comparators.CommentComparator;
 import ca.marshallasch.veil.comparators.PostAgeComparator;
 import ca.marshallasch.veil.database.Database;
 import ca.marshallasch.veil.database.KnownPostsContract;
+import ca.marshallasch.veil.database.PeerListContract;
 import ca.marshallasch.veil.database.SyncStatsContract;
 import ca.marshallasch.veil.exceptions.TooManyResultsException;
 import ca.marshallasch.veil.proto.DhtProto;
@@ -127,6 +128,42 @@ public class DataStore
         return posts;
     }
 
+
+    /**
+     * Gets all the known posts in a the data store.
+     * The list will be sorted, newest posts first
+     * @return the list of posts.
+     */
+    public List<DhtProto.Post> getPostsByAuthorId(String authorHash) {
+
+        List<String> hashes = db.getPostHashes();
+
+        DhtProto.Post post;
+        List<DhtProto.Post> posts = new ArrayList<>();
+
+        // get each post that is in the list
+        for (String hash: hashes) {
+
+            post = null;
+            try {
+                post = hashTableStore.findPostByHash(hash);
+            }
+            catch (TooManyResultsException e) {
+                e.printStackTrace();
+            }
+
+            // add the post to the list
+            if (post != null && post.getAuthorId().equals(authorHash)) {
+                posts.add(post);
+            }
+        }
+
+        // make sure the list of posts are in chronological order
+        Collections.sort(posts, new PostAgeComparator());
+
+        return posts;
+    }
+
     /**
      * Gets the list of comments for a post sorted in by time posted for a given post.
      * @param postHash the hash of the post that the comments will be found for.
@@ -211,6 +248,31 @@ public class DataStore
      */
     public boolean isRead(String postHash) {
         return db.isRead(postHash);
+    }
+
+    /**
+     * Function will update the post status where
+     * 0 = normal {@link KnownPostsContract#POST_NORMAL}
+     * 1 = protected {@link KnownPostsContract#POST_PROTECTED}
+     * 2 = dead {@link KnownPostsContract#POST_DEAD}
+     *
+     * @param postHash the hash of the post object
+     * @param status the status 0, 1, 2 as described in the comment above
+     * @return <code>true</code> if the update was successful <code>false</code> otherwise
+     */
+    public boolean setPostStatus(String postHash, int status) {
+        return db.setPostStatus(postHash, status);
+    }
+
+    /**
+     * Function will ask the db to retrieve the post status of the
+     * given post.
+     *
+     * @param postHash the post you wish to check
+     * @return the memory status of the post, see {@link KnownPostsContract#POST_NORMAL}
+     */
+    public int getPostStatus(String postHash) {
+        return db.getPostStatus(postHash);
     }
 
     /**
@@ -322,6 +384,48 @@ public class DataStore
     }
 
     /**
+     * Clear all the entries from the hash table and all of the entries from the
+     * {@link KnownPostsContract} table.
+     */
+    public void clearEntries() {
+
+        synchronized (hashTableStore.hashMap) {
+            hashTableStore.hashMap.clear();
+        }
+
+        db.clearKnownPosts();
+    }
+
+    /**
+     * This is a delegate method to clear the {@link SyncStatsContract} table
+     */
+    public void clearSyncStats() {
+        db.clearSyncStats();
+    }
+
+    /**
+     * This is a delegate method to clear the {@link PeerListContract} table
+     */
+    public void clearPeers() {
+        db.clearPeers();
+    }
+
+    /**
+     * This function will clear all posts and comments that are marked for deletion.
+     */
+    public void runDataSaver(){
+        List<String> toBeDeletePostHashes = db.getAllHashesByStatus(KnownPostsContract.POST_NORMAL);
+
+        // delete all the post hashes from the hash table along with its comments
+        for(String str: toBeDeletePostHashes) {
+            hashTableStore.deleteByHash(str);
+        }
+
+        //delete all the hashes with status normal from the db
+        db.dataSaverClear();
+    }
+
+    /**
      * This task will be run every 10 minutes to try to save the has table store if it has been modified.
      */
     private class TimerTask extends java.util.TimerTask {
@@ -343,23 +447,5 @@ public class DataStore
                 return null;
             }
         }
-    }
-
-
-    public void clearEntries() {
-
-        synchronized (hashTableStore.hashMap) {
-            hashTableStore.hashMap.clear();
-        }
-
-        db.clearKnownPosts();
-    }
-
-    public void clearSyncStats() {
-        db.clearSyncStats();
-    }
-
-    public void clearPeers() {
-        db.clearPeers();
     }
 }

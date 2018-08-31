@@ -73,16 +73,29 @@ public class FragmentDiscoverForums extends Fragment implements SwipeRefreshLayo
         ActionBar actionBar = ((MainActivity) activity).getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
+        boolean myPosts = false;
 
-        List<DhtProto.Post> posts = DataStore.getInstance(activity).getKnownPosts();
+        Bundle bundle = getArguments();
+
+        if (bundle != null) {
+            myPosts = bundle.getBoolean(activity.getString(R.string.post_list_key), false);
+        }
+
+        List<DhtProto.Post> posts;
+
+        if (myPosts) {
+            posts = DataStore.getInstance(activity).getPostsByAuthorId(((MainActivity)activity).getCurrentUser().getUuid());
+        } else {
+            posts = DataStore.getInstance(activity).getKnownPosts();
+        }
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(activity);
         recyclerView.setLayoutManager(linearLayoutManager);
         postListAdapter = new PostListAdapter(posts, activity);
         recyclerView.setAdapter(postListAdapter);
 
-
         refreshLayout = view.findViewById(R.id.swiperefresh);
+        refreshLayout.setEnabled(!myPosts);
 
         Spinner spinner = view.findViewById(R.id.filter);
         TagListAdapter tagListAdapter = new TagListAdapter(activity);
@@ -116,7 +129,6 @@ public class FragmentDiscoverForums extends Fragment implements SwipeRefreshLayo
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-
         // unregister receiver
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(broadcastReceiver);
     }

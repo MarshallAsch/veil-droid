@@ -64,6 +64,7 @@
     <!-- Bundle keys -->
     <string name="post_object_key">post_object_key</string>
     <string name="user_object_key">user_object_key</string>
+    <string name="post_list_key">post_list_key</string>
 
     <!-- Shared preferences keys -->
     <string name="pref_notifications">pref_notifications</string>
@@ -115,7 +116,7 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="num_comments">Comments: %d</string>
-    <string name="toggle_protocal_version">Sync Protocol Version 2</string>
+    <string name="toggle_protocol_version">Sync Protocol Version 2</string>
 
 
     <string-array name="tag_list">
@@ -162,7 +163,14 @@
     <string name="average_time">Average time: %f s</string>
     <string name="num_packet_lost">Number Lost: %d</string>
 
-
+    <!-- misc -->
+    <string name="protect">Protect</string>
+    <string name="delete">Delete</string>
+    <string name="stats">stats</string>
+    <string name="db_management">DB Management</string>
+    <string name="clear_logs">Clear Logs</string>
+    <string name="clear_posts">Clear Posts</string>
+    <string name="clear_peers">Clear Peers</string>
 
 
 </resources>
