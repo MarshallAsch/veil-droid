@@ -1712,4 +1712,12 @@ public class Database extends SQLiteOpenHelper
         cursor.close();
         return hashes;
     }
+
+    /**
+     * Gets the number of bytes in the file for the database.
+     * @return num bytes in the database file
+     */
+    public long getSize() {
+        return context.getDatabasePath(DATABASE_NAME).length();
+    }
 }

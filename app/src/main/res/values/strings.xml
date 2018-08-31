@@ -162,6 +162,8 @@
     <string name="fastest_time">Fastest time: %f s</string>
     <string name="average_time">Average time: %f s</string>
     <string name="num_packet_lost">Number Lost: %d</string>
+    <string name="db_size">DB size: %f MB</string>
+    <string name="hash_table_size">hash table size: %f MB</string>
 
     <!-- misc -->
     <string name="protect">Protect</string>

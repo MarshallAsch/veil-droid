@@ -652,4 +652,12 @@ public class HashTableStore implements ForumStorage
     public void deleteByHash(String hash){
         hashMap.remove(hash);
     }
+
+    /**
+     * Gets the number of bytes in the file for the hash table.
+     * @return num bytes in the hash table file
+     */
+    public long getFileSize() {
+        return mapFile.length();
+    }
 }
