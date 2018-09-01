@@ -122,12 +122,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
         Intent intent = getIntent();
-        if(intent.getAction().equals(RightMeshController.NOTIFICATION_ACTION)){
+        String action = intent.getAction();
+        if(action != null && action.equals(RightMeshController.NOTIFICATION_ACTION)){
             navigateTo(new FragmentDiscoverForums(), false);
         }
-        sendServiceMessage( VeilService.ACTION_MAIN_RESUME_MESH, null);
 
+        sendServiceMessage( VeilService.ACTION_MAIN_RESUME_MESH, null);
     }
 
     /**
