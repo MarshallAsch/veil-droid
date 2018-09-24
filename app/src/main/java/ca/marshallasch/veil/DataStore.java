@@ -426,6 +426,22 @@ public class DataStore
     }
 
     /**
+     * Gets the number of bytes in the file for the hash table.
+     * @return num bytes in the hash table file
+     */
+    public long getHashTableSize() {
+        return hashTableStore.getFileSize();
+    }
+
+    /**
+     * Gets the number of bytes in the file for the database.
+     * @return num bytes in the database file
+     */
+    public long getDatabaseSize() {
+        return db.getSize();
+    }
+
+    /**
      * This task will be run every 10 minutes to try to save the has table store if it has been modified.
      */
     private class TimerTask extends java.util.TimerTask {

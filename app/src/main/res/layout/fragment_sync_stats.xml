@@ -229,5 +229,23 @@
         app:layout_constraintStart_toStartOf="@+id/avg_time_v2"
         app:layout_constraintTop_toBottomOf="@+id/avg_time_v2"/>
 
+    <TextView
+        android:id="@+id/hash_table_size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/hash_table_size"
+        app:layout_constraintStart_toStartOf="@+id/db_size"
+        app:layout_constraintTop_toBottomOf="@+id/db_size"/>
+
+    <TextView
+        android:id="@+id/db_size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="@string/db_size"
+        app:layout_constraintStart_toStartOf="@+id/num_lost_v2"
+        app:layout_constraintTop_toBottomOf="@+id/num_lost_v2"/>
+
 
 </android.support.constraint.ConstraintLayout>

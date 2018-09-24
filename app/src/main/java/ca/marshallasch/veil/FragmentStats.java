@@ -49,8 +49,12 @@ public class FragmentStats extends Fragment
         TextView averageTimeV2 = view.findViewById(R.id.avg_time_v2);
         TextView numLostV2 = view.findViewById(R.id.num_lost_v2);
 
+        TextView hashTableSize = view.findViewById(R.id.hash_table_size);
+        TextView databaseSize = view.findViewById(R.id.db_size);
+
 
         Database db = Database.getInstance(getActivity());
+        DataStore dataStore = DataStore.getInstance(getActivity());
 
         // set stats for V1 protocol
         numPacketsV1.setText(getString(R.string.num_packets, db.getNumMessages(SYNC_MESSAGE_V1)));
@@ -76,7 +80,11 @@ public class FragmentStats extends Fragment
         averageTimeV2.setText(getString(R.string.average_time, db.getAverageTime(SYNC_MESSAGE_V2)));
         numLostV2.setText(getString(R.string.num_packet_lost, db.getNumLost(SYNC_MESSAGE_V2)));
 
+        hashTableSize.setText(getString(R.string.hash_table_size, (dataStore.getHashTableSize() / 1000000f)));
+        databaseSize.setText(getString(R.string.db_size, (db.getSize() / 1000000f)));
+
         db.close();
+
         return view;
     }
 }
