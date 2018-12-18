@@ -27,7 +27,6 @@ import ca.marshallasch.veil.proto.DhtProto;
 import ca.marshallasch.veil.proto.Sync;
 import ca.marshallasch.veil.utilities.Util;
 import io.left.rightmesh.android.AndroidMeshManager;
-import io.left.rightmesh.android.MeshService;
 import io.left.rightmesh.id.MeshId;
 import io.left.rightmesh.mesh.MeshManager;
 import io.left.rightmesh.mesh.MeshStateListener;
